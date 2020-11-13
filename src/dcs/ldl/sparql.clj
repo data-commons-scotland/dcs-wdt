@@ -9,27 +9,27 @@
 
 ; Convert the CSV structure to a list-of-maps structure.
 (defn to-maps [csv-data]
-    (map zipmap (->> (first csv-data)
-                    (map keyword)
-                    repeat)
-                (rest csv-data)))
+  (map zipmap (->> (first csv-data)
+                   (map keyword)
+                   repeat)
+       (rest csv-data)))
 
 ; Map the name of a SPARQL service to its URL.
-(def service-urls {:scotgov "http://statistics.gov.scot/sparql"
+(def service-urls {:scotgov  "http://statistics.gov.scot/sparql"
                    :wikidata "https://query.wikidata.org/sparql"
                    :wikibase "http://strf8b46abcf478:8282/proxy/wdqs/bigdata/namespace/wdq/sparql"})
-                                
+
 ; Ask the service to execute the given SPARQL query
 ; and return its result as a list-of-maps.
 (defn exec-query [service-name sparql]
-  (->> (http/post (service-name service-urls) 
-        {:body (str "query=" (URLEncoder/encode sparql)) 
-         :headers {"Accept" "text/csv" 
-                   "Content-Type" "application/x-www-form-urlencoded"} 
-         :debug false})
-    :body
-    csv/read-csv
-    to-maps))
+  (->> (http/post (service-name service-urls)
+                  {:body    (str "query=" (URLEncoder/encode sparql))
+                   :headers {"Accept"       "text/csv"
+                             "Content-Type" "application/x-www-form-urlencoded"}
+                   :debug   false})
+       :body
+       csv/read-csv
+       to-maps))
 
 (def areas-sparql "
 
@@ -50,7 +50,7 @@ WHERE {
 
 (defn get-areas []
   (->> areas-sparql
-    (exec-query :scotgov)))
+       (exec-query :scotgov)))
 
 (def populations-sparql "
 
@@ -86,7 +86,7 @@ WHERE {
 
 (defn get-popuations []
   (->> populations-sparql
-    (exec-query :scotgov)))
+       (exec-query :scotgov)))
 
 (def pq-number-sparql "
 
@@ -104,5 +104,5 @@ WHERE {
     (when (not= 1 n)
       (throw (RuntimeException. (str n " found"))))
     (-> response
-		    first
-      :pqnumber)))
+        first
+        :pqnumber)))
