@@ -1,0 +1,16 @@
+= Linked Data Loader
+
+This repository contains the source code and build instructions for
+the *Linked Data Loader* tool and utility functions (*LDL*).
+
+LDL is an output of the 
+https://www.stir.ac.uk/research/hub/contract/933675[Data Commons Scotland]
+research project.
+
+The features of LDL include:
+
+* TODO 
+
+WARNING: The project is at an early stage and this is mostly _placeholder_ content.
+
+---
