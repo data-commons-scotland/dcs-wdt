@@ -1,13 +1,14 @@
-= Linked Data Loader
+= Waste Data Tool
 
-This repository contains the source code and build instructions for
-the *Linked Data Loader* tool and utility functions (*LDL*).
+This repository contains the source code and usage instructions for the Waste Data Tool (*WDT*).
+The WDT provides functionality for reading and writing linked data about waste in Scotland,
+against SPARQL and Wikibase services.
 
-LDL is an output of the 
+The WDT is an output of the
 https://www.stir.ac.uk/research/hub/contract/933675[Data Commons Scotland]
 research project.
 
-The features of LDL include:
+The features of WDT include:
 
 * TODO 
 
