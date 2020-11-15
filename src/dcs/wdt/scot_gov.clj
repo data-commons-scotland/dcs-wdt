@@ -1,4 +1,4 @@
-(ns dcs.ldl.sparql
+(ns dcs.wdt.scot-gov
   (:require
     [taoensso.timbre :as log]
     [clj-http.client :as http]

@@ -1,4 +1,4 @@
-(ns dcs.ldl.wb-api
+(ns dcs.wdt.wikibase
   (:require
     [taoensso.timbre :as log]
     [clj-http.client :as http]
