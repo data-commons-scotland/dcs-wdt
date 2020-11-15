@@ -4,8 +4,7 @@
                  [org.clojure/data.csv "1.0.0"]
                  [org.clojure/data.json "1.0.0"]
                  [clj-http "3.10.3"]
-                 [cli4clj "1.7.6"]
                  [com.taoensso/timbre "5.1.0"]]
-  :main ^:skip-aot dcs.ldl.cli2
+  :main ^:skip-aot dcs.ldl.procedures
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}})
