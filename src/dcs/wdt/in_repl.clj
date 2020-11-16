@@ -3,92 +3,126 @@
     [taoensso.timbre :as log]
     [clojure.pprint :as pp]
     [dcs.wdt.misc :as misc]
-    [dcs.wdt.wikibase :as wb]
-    [dcs.wdt.scot-gov :as sg]))
+    [dcs.wdt.wikibase-api :as wb-api]
+    [dcs.wdt.wikibase-sparql :as wb-sparql]
+    [dcs.wdt.scotgov-sparql :as sg-sparql]
+    [clojure.tools.namespace.repl :refer [refresh]]))
+
 
 (log/set-level! :info)
 
-(def wb-csrf-token (atom nil))
-(def wb-property-Ps (atom nil))
-(def wb-area-Qs (atom nil))
 
-(def sg-household-waste (atom nil))
-
-(def batch-report (atom nil))
-
-; For summarising the results from the last significant batch operation
-(defn reset-batch-report! (reset! batch-report []))
-(defn add-success! [main-input main-outcome] (swap! batch-report conj {:status :success :main-input main-input :main-outcome main-outcome}))
-(defn add-failure! [main-input err-msg ex] (swap! batch-report conj {:status :failure :main-input main-input :err-msg err-msg :exception ex}))
-(defn batch-report-summary [] (str (count (filter #(= :success (:status %)) @batch-report)) " successes; "
-                                   (count (filter #(= :failure (:status %)) @batch-report)) " failures"))
-
-(defn establish-wb-csrf-token []
-  (reset! wb-csrf-token (wb/do-login-seq (misc/envvar "WB_USERNAME") (misc/envvar "WB_PASSWORD")))
-  (println @wb-csrf-token))
+(println "Authenticating to Wikibase... ")
+(def wb-csrf-token (wb-api/do-login-seq (misc/envvar "WB_USERNAME") (misc/envvar "WB_PASSWORD")))
+(println "\t" (if (some? wb-csrf-token) "got" "didn't get") "auth token")
 
 
-(def wb-properties [["is instance of" "the class of this"]
-                 ["part of" "the containment structure of this"]
-                 ["for area" "the area of this"]
-                 ["for time" "the year of this"]
-                 ["for end-state" "the waste management end-state of this"]
-                 ["for material" "the waste management material of this"]
-                 ["has quantity" "the quantity of this"]
-                 ["TEST has source" "the source of this"]])
+(println "Loading Scot Gov areas... ")
+(def sg-areas (sg-sparql/areas))
+(println "\t" (count sg-areas) "loaded")
 
-(defn write-wb-properties []
-  (reset-batch-report!)
-  (doseq [[label description] wb-properties]
-    (print (str "Writing " label "... "))
-    (try
-      (let [p-number (wb/create-entity @wb-csrf-token label description "wikibase-item")]
-        (println p-number)
-        (add-success! label p-number))
-      (catch Throwable ex
-        (let [err-msg (.getMessage ex)]
-          (println err-msg)
-          (add!-failure! label err-msg ex)))))
-  (println (batch-report-summary)))
+
+(print "Loading Scot Gov populations... ")
+(def sg-populations (sg-sparql/populations))
+(println "\t" (count sg-populations) "loaded")
+
+
+(def properties [; common classification or composition
+                 ["is instance of" "the class of this" "wikibase-item"]
+                 ["part of" "the containment structure of this" "wikibase-item"]
+                 
+                 ; common value, points to built-in data values
+                 ["has quantity" "the quantity of this" "quantity"]
+                 ["has UK government code" "has the nine-character UK Government Statistical Service code" "external-id"] ;TODO "external-id"?
+                 
+                 ; common "dimension", points to built-in datatype values
+                 ["for time" "the year of this" "time"]
+                 
+                 ; common "dimension", points item values
+                 ["for area" "the area of this" "wikibase-item"]
+                 
+                 ; Household Waste "dimension", points to item values
+                 ["for end-state" "the waste management end-state of this" "wikibase-item"]
+                 ["for material" "the waste management material of this" "wikibase-item"]])
+
+(defn write-properties-into-wikibase []
+  (doseq [[label description datatype] properties]
+    (println (str label "... "))
+    (if-let [p-number (wb-sparql/pq-number label)]
+      (println "\t" p-number "(already)")
+      (println "\t" (wb-api/create-property wb-csrf-token label description datatype) "(new)"))))
 
 
 (def wb-ref-items [["council area" ""]
-                      ["household waste solids quantity" ""]
-                      ["population quantity" ""]
-                      ["household waste solids material" ""]
-                      ["waste management end-state" ""]])
+                   ["household waste solids quantity" ""]
+                   ["population quantity" ""]
+                   ["household waste solids material" ""]
+                   ["waste management end-state" ""]])
 
-(defn create-areas-in-wikibase []
-  (let [areas (sg/get-areas)]
-    (log/info (count areas) "areas sourced")
-      (log/info "Logged into wikibase")
-      (doseq [area areas]
-        (let [label (:label area)]
-          (print (str label "... "))
-          (try
-            (println (wb/create-entity @wb-csrf-token label "a Scottish council area"))
-            (catch Throwable t (println (.getMessage t))))))))
 
-(defn create-scotland-in-wikibase []
-  (let [areas (sg/get-areas)]
-      (log/info "Logged into wikibase")
-      (let [label "Scotland"]
-        (print (str label "... "))
+(defn write-area-items-in-wikibase []
+  (doseq [area sg-areas]
+    (let [label (:label area)]
+      (println (str label "... "))
+      (if-let [q-number (wb-sparql/pq-number label)]
+        (println "\t" q-number "(already)")
+        (println "\t" (wb-api/create-item wb-csrf-token label "a Scottish council area") "(new)")))))
+
+(defn write-area-claims-in-wikibase []
+  (let [predicate-label "has UK government code"
+        predicate-p-number (wb-sparql/pq-number predicate-label)]
+    (doseq [area sg-areas]
+      (let [subject-label (:label area)
+            object (:ukGovCode area)]
+        (println (str subject-label " " predicate-label "... "))
+        (if-let [claim-id (wb-sparql/claim-id subject-label predicate-label)]
+          (println "\t" claim-id "(already)")
+          (println "\t" (wb-api/create-value-object-claim wb-csrf-token (wb-sparql/pq-number subject-label) predicate-p-number object) "(new)"))))))
+
+
+
+(defn write-population-items-in-wikibase []
+  (doseq [population sg-populations]
+    (let [label (str "population " (:areaLabel population) " " (:year population))]
+      (println (str label "... "))
+      (if-let [q-number (wb-sparql/pq-number label)]
+        (println "\t" q-number "(already)")
+        (println "\t" (wb-api/create-item wb-csrf-token label (str "the population of " (:areaLabel population) " in " (:year population))) "(new)")))))
+
+(defn write-population-claims-in-wikibase []
+  (let [predicate-label "has quantity"
+        predicate-p-number (wb-sparql/pq-number predicate-label)]
+    (doseq [population sg-populations]
+      (let [subject-label (str "population " (:areaLabel population) " " (:year population))
+            object (:population population)]
+        (println (str subject-label " " predicate-label "... "))
+        (println (wb-sparql/pq-number subject-label) predicate-p-number object)
+        (if-let [claim-id (wb-sparql/claim-id subject-label predicate-label)]
+          (println "\t" claim-id "(already)")
+          (println "\t" (wb-api/create-quantity-object-claim wb-csrf-token (wb-sparql/pq-number subject-label) predicate-p-number object) "(new)"))))))
+
+
+
+(defn write-scotland-into-wikibase []
+  (let [label "Scotland"]
+		  (println (str label "... "))
+    (try
+      (if-let [q-number (wb-sparql/pq-number label)]
+        (println "\t" q-number "(already)")
+        (println "\t" (wb-api/create-item wb-csrf-token label "a UK country area")))
+      (catch Throwable t 
+        (println (.getMessage t))))))
+
+(defn write-part-ofs-into-wikibase []
+  (let [areas (sg-sparql/areas)
+        scotland (wb-sparql/pq-number "Scotland")
+        part-of (wb-sparql/pq-number "part of")]
+    (doseq [area areas]
+      (let [label (:label area)]
+        (println (str label "... "))
         (try
-          (println (wb/create-entity @wb-csrf-token label "a UK country"))
-          (catch Throwable t (println (.getMessage t)))))))
-
-(defn create-part-of-statements-in-wikibase []
-  (let [areas (sg/get-areas)
-        scotland (wb/get-pq-number "Scotland")
-        part-of (wb/get-pq-number "part of")]
-      (log/info "Logged into wikibase")
-      (doseq [area areas]
-        (let [label (:label area)]
-          (print (str label "... "))
-          (try
-            (println (wb/create-statement @wb-csrf-token (wb/get-pq-number label) part-of scotland))
-            (catch Throwable t (println (.getMessage t))))))))
+          (println "\t" (wb-api/create-item-object-claim wb-csrf-token (wb-sparql/pq-number label) part-of scotland))
+          (catch Throwable t (println (.getMessage t))))))))
 
 
 

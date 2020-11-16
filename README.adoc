@@ -15,3 +15,7 @@ The features of WDT include:
 WARNING: The project is at an early stage and this is mostly _placeholder_ content.
 
 ---
+
+Approach
+* As noddy as possible, easy code, code the happy path.
+* Minimise modifications to loaded, source datasets
