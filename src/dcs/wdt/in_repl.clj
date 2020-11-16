@@ -27,7 +27,7 @@
 (println "\t" (count sg-populations) "loaded")
 
 
-(def properties [; common classification or composition
+(def predicates [; common classification or composition
                  ["is instance of" "the class of this" "wikibase-item"]
                  ["part of" "the containment structure of this" "wikibase-item"]
                  
@@ -45,12 +45,12 @@
                  ["for end-state" "the waste management end-state of this" "wikibase-item"]
                  ["for material" "the waste management material of this" "wikibase-item"]])
 
-(defn write-properties-into-wikibase []
-  (doseq [[label description datatype] properties]
-    (println (str label "... "))
+(defn write-predicates-into-wikibase []
+  (doseq [[label description datatype] predicates]
+    (println "Writing" label "...")
     (if-let [p-number (wb-sparql/pq-number label)]
-      (println "\t" p-number "(already)")
-      (println "\t" (wb-api/create-property wb-csrf-token label description datatype) "(new)"))))
+      (println p-number "[already]")
+      (println (wb-api/create-property wb-csrf-token label description datatype) "[new]"))))
 
 
 (def wb-ref-items [["council area" ""]
@@ -63,10 +63,10 @@
 (defn write-area-items-in-wikibase []
   (doseq [area sg-areas]
     (let [label (:label area)]
-      (println (str label "... "))
+      (println "Writing" label "...")
       (if-let [q-number (wb-sparql/pq-number label)]
-        (println "\t" q-number "(already)")
-        (println "\t" (wb-api/create-item wb-csrf-token label "a Scottish council area") "(new)")))))
+        (println q-number "[already]")
+        (println (wb-api/create-item wb-csrf-token label "a Scottish council area") "[new]")))))
 
 (defn write-area-claims-in-wikibase []
   (let [predicate-label "has UK government code"
@@ -74,10 +74,10 @@
     (doseq [area sg-areas]
       (let [subject-label (:label area)
             object (:ukGovCode area)]
-        (println (str subject-label " " predicate-label "... "))
+        (println "Writing" subject-label predicate-label "...")
         (if-let [claim-id (wb-sparql/claim-id subject-label predicate-label)]
-          (println "\t" claim-id "(already)")
-          (println "\t" (wb-api/create-value-object-claim wb-csrf-token (wb-sparql/pq-number subject-label) predicate-p-number object) "(new)"))))))
+          (println claim-id "[already]")
+          (println (wb-api/create-value-object-claim wb-csrf-token (wb-sparql/pq-number subject-label) predicate-p-number object) "[new]"))))))
 
 
 
@@ -86,8 +86,8 @@
     (let [label (str "population " (:areaLabel population) " " (:year population))]
       (println (str label "... "))
       (if-let [q-number (wb-sparql/pq-number label)]
-        (println "\t" q-number "(already)")
-        (println "\t" (wb-api/create-item wb-csrf-token label (str "the population of " (:areaLabel population) " in " (:year population))) "(new)")))))
+        (println "\t" q-number "[already]")
+        (println "\t" (wb-api/create-item wb-csrf-token label (str "the population of " (:areaLabel population) " in " (:year population))) "[new]")))))
 
 (defn write-population-claims-in-wikibase []
   (let [predicate-label "has quantity"
@@ -95,11 +95,11 @@
     (doseq [population sg-populations]
       (let [subject-label (str "population " (:areaLabel population) " " (:year population))
             object (:population population)]
-        (println (str subject-label " " predicate-label "... "))
-        (println (wb-sparql/pq-number subject-label) predicate-p-number object)
+        (println "Writing" subject-label predicate-label "...")
+        ;(println (wb-sparql/pq-number subject-label) predicate-p-number object)
         (if-let [claim-id (wb-sparql/claim-id subject-label predicate-label)]
-          (println "\t" claim-id "(already)")
-          (println "\t" (wb-api/create-quantity-object-claim wb-csrf-token (wb-sparql/pq-number subject-label) predicate-p-number object) "(new)"))))))
+          (println claim-id "[already]")
+          (println (wb-api/create-quantity-object-claim wb-csrf-token (wb-sparql/pq-number subject-label) predicate-p-number object) "[new]"))))))
 
 
 
@@ -108,7 +108,7 @@
 		  (println (str label "... "))
     (try
       (if-let [q-number (wb-sparql/pq-number label)]
-        (println "\t" q-number "(already)")
+        (println "\t" q-number "[already]")
         (println "\t" (wb-api/create-item wb-csrf-token label "a UK country area")))
       (catch Throwable t 
         (println (.getMessage t))))))
