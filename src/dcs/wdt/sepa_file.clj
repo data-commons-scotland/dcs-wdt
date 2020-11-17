@@ -6,4 +6,7 @@
 (defn co2es []
   (with-open [reader (io/reader "sepa-CO2e.csv")]
     (doall
-      (misc/to-maps (csv/read-csv reader)))))
+      (->> reader
+        csv/read-csv
+        misc/to-maps
+        (misc/patch :council)))))

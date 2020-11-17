@@ -126,13 +126,47 @@
                                  (wb-sparql/pq-number "has quantity")
                                  quantity) "[new]")))))
 
-(defn write-co2e-items-in-wikibase []
+(defn write-co2e-items-into-wikibase []
   (doseq [co2e sepa-co2es]
-    (let [label (str "carbon equivalent " (:council co2e) " " (:year co2e))]
-      (println (str label "... "))
+    (let [area (:council co2e)
+          year (:year co2e)
+          label (str "carbon equivalent " area " " year)]
+      (println "Writing:" label)
       (if-let [q-number (wb-sparql/pq-number label)]
-        (println "\t" q-number "[already]")
-        (println "\t" (wb-api/create-item wb-csrf-token label (str "the CO2e emitted from " (:council co2e) " household waaste in " (:year co2e))) "[new]")))))
+        (println "Q-number:" q-number "[already]")
+        (println "Q-number" (wb-api/create-item wb-csrf-token label (str "the CO2e emitted from " area " household waste in " year)) "[new]")))))
+
+(defn write-co2e-claims-in-wikibase []
+  (doseq [src-co2e sepa-co2es]
+    (let [area (:council src-co2e)
+          year (:year src-co2e)
+          quantity (:TCO2e src-co2e)
+          co2e-label (str "carbon equivalent " area " " year)]
+      (println "Writing:" co2e-label "has area" area)
+      (if-let [claim-id (wb-sparql/claim-id co2e-label "for area")]
+          (println "claim-id:" claim-id "[already]")
+          (println "claim-id:" (wb-api/create-item-object-claim 
+                                 wb-csrf-token 
+                                 (wb-sparql/pq-number co2e-label) 
+                                 (wb-sparql/pq-number "for area")
+                                 (wb-sparql/pq-number area)) "[new]"))
+      (println "Writing:" co2e-label "for time" year)
+      (if-let [claim-id (wb-sparql/claim-id co2e-label "for time")]
+          (println "claim-id:" claim-id "[already]")
+          (println "claim-id:" (wb-api/create-year-object-claim 
+                                 wb-csrf-token 
+                                 (wb-sparql/pq-number co2e-label) 
+                                 (wb-sparql/pq-number "for time")
+                                 year) "[new]"))
+      (println "Writing:" co2e-label "has quantity" quantity)
+      (if-let [claim-id (wb-sparql/claim-id co2e-label "has quantity")]
+          (println "claim-id:" claim-id "[already]")
+          (println "claim-id:" (wb-api/create-quantity-object-claim 
+                                 wb-csrf-token 
+                                 (wb-sparql/pq-number co2e-label) 
+                                 (wb-sparql/pq-number "has quantity")
+                                 quantity) "[new]")))))
+
 
 
 (defn write-scotland-into-wikibase []

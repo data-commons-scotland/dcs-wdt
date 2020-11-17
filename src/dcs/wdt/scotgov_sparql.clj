@@ -17,7 +17,6 @@ SELECT
   (strafter(str(?areaUri), 'http://statistics.gov.scot/id/statistical-geography/') as ?ukGovCode) 
 
 WHERE {
-  VALUES ?label { 'Stirling' }
   ?areaUri uent:code <http://statistics.gov.scot/id/statistical-entity/S12> ;
            ugeo:status 'Live' ;
            rdfs:label ?label .
@@ -26,7 +25,8 @@ WHERE {
 
 (defn areas []
   (->> areas-sparql
-       (misc/exec-sparql service-url)))
+    (misc/exec-sparql service-url)
+    (misc/patch :label)))
 
 
 (def populations-sparql "
@@ -63,4 +63,5 @@ WHERE {
 
 (defn populations []
   (->> populations-sparql
-       (misc/exec-sparql service-url)))
+       (misc/exec-sparql service-url)
+       (misc/patch :areaLabel)))

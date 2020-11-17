@@ -27,3 +27,12 @@
        :body
        csv/read-csv
        to-maps))
+
+
+(defn patch [kw coll]
+  (map #(let [area (kw %)]
+            (cond 
+              (= area "Na h-Eileanan Siar") (assoc % kw "Outer Hebrides")
+              (str/starts-with? area "Orkney Islands") (assoc % kw "Orkney Islands")
+              :else %))
+       coll))
