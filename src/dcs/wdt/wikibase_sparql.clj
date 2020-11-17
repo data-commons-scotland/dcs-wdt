@@ -10,11 +10,9 @@
 (def pq-number-sparql "
 
 SELECT 
-  (strafter(str(?entity), 'http://strf8b46abcf478/entity/') as ?pqnumber)  
-
+  (strafter(str(?entity), '/entity/') as ?pqnumber)  
 WHERE {  
-  ?entity ?label 'LABEL'@en .
-  SERVICE wikibase:label { bd:serviceParam wikibase:language 'en'. } 
+  ?entity rdfs:label 'LABEL'@en .
 }
 ")
 
@@ -54,3 +52,32 @@ SELECT
     (some-> response
         first
         :statementId)))
+
+
+(def subject-count-sparql "
+SELECT 
+  (count(distinct(?subjectItem)) as ?count)
+  #?subjectItem ?subjectItemLabel ?predicateLabel
+WHERE {   
+  VALUES ?predicateLabel { 'has quantity'@en 
+                           'has UK government code'@en
+                           'for area'@en
+                           'for time'@en }
+  
+  ?subjectItem ?directProperty ?statement ; 
+               rdfs:label ?subjectItemLabel .
+  
+  ?statement ?ps ?_ .
+  
+  ?property rdfs:label ?predicateLabel ;
+            wikibase:claim ?directProperty ;
+            wikibase:statementProperty ?ps . 
+}
+")
+
+(defn subject-count []
+  (->> subject-count-sparql
+    (misc/exec-sparql service-url)
+    first
+    :count
+    Integer/parseInt))
