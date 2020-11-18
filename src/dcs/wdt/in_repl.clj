@@ -19,21 +19,21 @@
 
 
 (def sg-areas (atom nil))
-(def sg-populations (atom nil))
+(def sg-population-dataset (atom nil))
 (def sepa-co2es (atom nil))
 
 (defn load-datasets-from-upstream []
   
-  (println "Loading: Scot Gov areas")
+  (println "Loading: Scot Gov areas dataset")
   (reset! sg-areas (sg-sparql/areas))
   (println "Loaded:" (count @sg-areas))
   
-  (println "Loading: Scot Gov populations")
-  (reset! sg-populations (sg-sparql/populations))
+  (println "Loading: Scot Gov population dataset")
+  (reset! sg-population-dataset (sg-sparql/populations))
   (println "Loaded:" (count @sg-populations))
   
   
-  (println "Loading: SEPA CO2es")
+  (println "Loading: SEPA CO2e dataset")
   (reset! sepa-co2es (sepa-file/co2es))
   (println "Loaded:" (count @sepa-co2es)))
 
@@ -44,7 +44,7 @@
                  
                  ; common value, points to built-in data values
                  ["has quantity" "the quantity of this" "quantity"]
-                 ["has UK government code" "has the nine-character UK Government Statistical Service code" "external-id"] ;TODO "external-id"?
+                 ["has UK government code" "has the nine-character UK Government Statistical Service code" "external-id"]
                  
                  ; common "dimension", points to built-in datatype values
                  ["for time" "the year of this" "time"]
@@ -96,28 +96,52 @@
 
 ;----------------------
 
+(defn create-item-object-claim [wb-csrf-token item-qid predicate-pid object]
+  (wb-api/create-item-object-claim wb-csrf-token item-qid predicate-pid (wb-sparql/pq-number object)))
+
+(defn claim-creator-fn [predicate-label]
+  (->> predicates
+       (filter #(= predicate-label (first %)))
+       first
+       (get {"wikibase-item" create-item-object-claim
+             "quantity" wb-api/create-quantity-object-claim
+             "external-id" wb-api/create-string-object-claim
+             "time" wb-api/create-year-object-claim})))
+
 (def population-dataset-mapper
   {:item-label-fn (fn [row] (str "population " (:areaLabel row) " " (:year row)))
    :item-description-fn (fn [row] (str "the population of " (:areaLabel row) " in " (:year row)))
-   :claim-mappers [{:predicate "has quantity" :object-fn (fn [row] (:quantity row))}
-                   {:areaLabel :predicate "for area" :object-fn (fn [row] (:areaLabel row))}
-                   {:year :predicate "for time" :object-fn (fn [row] (:year row))}
-                   {:concept :predicate "for concept" :object-fn (fn [row] "population quantity")}]})
+   :claim-mappers [{:predicate-label "has quantity" :object-fn (fn [row] (:quantity row))}
+                   {:predicate-label "for area" :object-fn (fn [row] (:areaLabel row))}
+                   {:predicate-label "for time" :object-fn (fn [row] (:year row))}
+                   {:predicate-label "for concept" :object-fn (fn [_] "population quantity")}]})
 
 
 (defn write-dataset-to-wikibase [wb-csrf-token mapper dataset] ; dataset should be a list of uniform maps
-  (doseq [row dataset] ; remember that a row is really a map
-    (let [item-label ((:item-label-fn mapper) row)]
-      (println "Writing:" item-label)
-      (let [[item-qid item-status] (if-let [item-qid (wb-sparql/pq-number item-label)]
-                                     [item-qid "already"]
-                                     (let [item-description ((:item-description-fn mapper) row)
-                                           item-qid (wb-api/create-item wb-csrf-token item-label item-description)]
-                                       [item-qid "new"]))]
-        (println "Item:" item-qid (str "[" item-status "]"))
-        (doseq [claim-mapper (:claim-mappers mapper)]
-          (let [[claim-id claim-status ()]]
-            ))))))
+  (let [number-of-rows (count dataset)]
+    (doseq [[ix row] (map-indexed vector dataset)]          ; remember that a row is really a map
+      (println "Dataset row:" (inc ix) "of" number-of-rows)
+      (let [item-label ((:item-label-fn mapper) row)]
+        (println "Writing item:" item-label)
+        (let [[item-qid item-status] (if-let [item-qid (wb-sparql/pq-number item-label)]
+                                       [item-qid "already"]
+                                       (let [item-description ((:item-description-fn mapper) row)
+                                             item-qid (wb-api/create-item wb-csrf-token item-label item-description)]
+                                         [item-qid "new"]))]
+          (println "Item:" item-qid (str "[" item-status "]"))
+          (doseq [claim-mapper (:claim-mappers mapper)]
+            (let [predicate-label (:predicate-label claim-mapper)
+                  object ((:object-fn claim-mapper) row)]
+              (println "Writing claim:" item-label predicate-label object)
+              (let [[claim-id claim-status (if-let [claim-qid (wb-sparql/claim-id item-label predicate-label)]
+                                             [claim-id "already"]
+                                             (let [predicate-pid (wb-sparql/pq-number predicate-label)
+                                                   claim-id ((claim-creator-fn predicate-label) wb-csrf-token item-qid predicate-pid object)]
+                                               [claim-id "new"]))]]
+                (println "Claim:" claim-id (str "[" claim-status "]"))))))))))
+
+(defn write-population-dataset-to-wikibase []
+  (write-dataset-to-wikibase @wb-csrf-token population-dataset-mapper @sg-population-dataset))
 
 ;----------------------
 
