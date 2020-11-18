@@ -45,7 +45,7 @@ SELECT
   ?quantity
 
 WHERE {
-  VALUES ?areaLabel { 'Aberdeen City' }
+  #VALUES ?areaLabel { 'Aberdeen City' }
   ?areaUri uent:code <http://statistics.gov.scot/id/statistical-entity/S12> ;
            ugeo:status 'Live' ;
            rdfs:label ?areaLabel .

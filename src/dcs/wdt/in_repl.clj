@@ -18,96 +18,82 @@
 (println "Token:" (if (some? wb-csrf-token) "yes" "no"))
 
 
-(def sg-areas (atom nil))
-(def sg-population-dataset (atom nil))
-(def sepa-co2es (atom nil))
+(def predicates [; common classification or composition
+                 {:label "for concept" :description "the concept of this" :datatype "wikibase-item"}
+                 {:label "part of" :description "the containment structure of this" :datatype "wikibase-item"}
+                 
+                 ; common value, points to built-in data values
+                 {:label "has quantity" :description "the quantity of this" :datatype "quantity"}
+                 {:label "has UK government code" :description "has the nine-character UK Government Statistical Service code" :datatype "external-id"}
+                 
+                 ; common "dimension", points to built-in datatype values
+                 {:label "for time" :description "the year of this" :datatype "time"}
+                 
+                 ; common "dimension", points item values
+                 {:label "for area" :description "the area of this" :datatype "wikibase-item"}
+                 
+                 ; Household Waste "dimension", points to item values
+                 {:label "for end-state" :description "the waste management end-state of this" :datatype "wikibase-item"}
+                 {:label "for material" :description "the waste management material of this" :datatype "wikibase-item"}])
+
+(defn write-predicates-to-wikibase []
+  (let [number-of-rows (count predicates)]
+    (doseq [[ix row] (map-indexed vector predicates)] ; remember that a row is really a map
+      (println "Predicate row:" (inc ix) "of" number-of-rows)
+      (let [label (:label row)]
+        (println "Writing property:" label)
+        (let [[pid status] (if-let [pid (wb-sparql/pq-number label)]
+                             [pid "already"]
+                             [(wb-api/create-property wb-csrf-token label (:description row) (:datatype row)) "new"])]
+          (println "Property:" pid (str "[" status "]")))))))
+
+
+(def areas-dataset (atom nil))
+(def population-dataset (atom nil))
+(def co2e-dataset (atom nil))
 
 (defn load-datasets-from-upstream []
   
-  (println "Loading: Scot Gov areas dataset")
-  (reset! sg-areas (sg-sparql/areas))
-  (println "Loaded:" (count @sg-areas))
+  (println "Loading: areas dataset from Scot Gov")
+  (reset! areas-dataset (sg-sparql/areas))
+  (println "Loaded:" (count @areas-dataset))
   
-  (println "Loading: Scot Gov population dataset")
-  (reset! sg-population-dataset (sg-sparql/populations))
-  (println "Loaded:" (count @sg-population-dataset))
+  (println "Loading: population dataset from Scot Gov")
+  (reset! population-dataset (sg-sparql/populations))
+  (println "Loaded:" (count @population-dataset))
   
-  
-  (println "Loading: SEPA CO2e dataset")
-  (reset! sepa-co2es (sepa-file/co2es))
-  (println "Loaded:" (count @sepa-co2es)))
+  (println "Loading: C02e dataset from SEPA")
+  (reset! co2e-dataset (sepa-file/co2es))
+  (println "Loaded:" (count @co2e-dataset)))
 
+(def concepts-dataset [{:label "population, the concept" :description "the concept: population"}
+                       {:label "carbon equivalent, the concept" :description "the concept: carbon equivalent"}
+                       {:label "waste generated, the concept" :description "the concept: waste generated"}])
 
-(def predicates [; common classification or composition
-                 ["for concept" "the concept of this" "wikibase-item"]
-                 ["part of" "the containment structure of this" "wikibase-item"]
-                 
-                 ; common value, points to built-in data values
-                 ["has quantity" "the quantity of this" "quantity"]
-                 ["has UK government code" "has the nine-character UK Government Statistical Service code" "external-id"]
-                 
-                 ; common "dimension", points to built-in datatype values
-                 ["for time" "the year of this" "time"]
-                 
-                 ; common "dimension", points item values
-                 ["for area" "the area of this" "wikibase-item"]
-                 
-                 ; Household Waste "dimension", points to item values
-                 ["for end-state" "the waste management end-state of this" "wikibase-item"]
-                 ["for material" "the waste management material of this" "wikibase-item"]])
-
-(defn write-predicates-into-wikibase []
-  (doseq [[label description datatype] predicates]
-    (println "Writing:" label)
-    (if-let [p-number (wb-sparql/pq-number label)]
-      (println "Property:" p-number "[already]")
-      (println "Property:" (wb-api/create-property wb-csrf-token label description datatype) "[new]"))))
-
-
-(def concepts [["population, the concept" "the concept: population"]
-               ["carbon equivalent, the concept" "the concept: carbon equivalent"]
-               ["waste generated, the concept" "the concept: waste generated"]])
-
-(defn write-concept-items-into-wikibase []
-  (doseq [[label description] concepts]
-      (println "Writing:" label)
-      (if-let [q-number (wb-sparql/pq-number label)]
-        (println "Item:" q-number "[already]")
-        (println "Item:" (wb-api/create-item wb-csrf-token label description) "[new]"))))
-
-(defn write-area-items-in-wikibase []
-  (doseq [area @sg-areas]
-    (let [label (:label area)]
-      (println "Writing:" label)
-      (if-let [q-number (wb-sparql/pq-number label)]
-        (println "Item:" q-number "[already]")
-        (println "Item:" (wb-api/create-item wb-csrf-token label "a Scottish council area") "[new]")))))
-
-(defn write-area-claims-in-wikibase []
-  (let [predicate-label "has UK government code"
-        predicate-p-number (wb-sparql/pq-number predicate-label)]
-    (doseq [area @sg-areas]
-      (let [subject-label (:label area)
-            object (:ukGovCode area)]
-        (println "Writing" subject-label predicate-label "...")
-        (if-let [claim-id (wb-sparql/claim-id subject-label predicate-label)]
-          (println "Claim:" claim-id "[already]")
-          (println "Claim:" (wb-api/create-string-object-claim wb-csrf-token (wb-sparql/pq-number subject-label) predicate-p-number object) "[new]"))))))
-
-;----------------------
 
 (defn create-item-object-claim [wb-csrf-token item-qid predicate-pid object]
   (wb-api/create-item-object-claim wb-csrf-token item-qid predicate-pid (wb-sparql/pq-number object)))
 
 (defn claim-creator-fn [predicate-label]
   (->> predicates
-    (filter #(= predicate-label (first %)))
+    (filter #(= predicate-label (:label %)))
     first ; shouldbe only 1 anyway
-    (#(nth % 2)) ; 3rd column
+    :datatype
     (get {"wikibase-item" create-item-object-claim
           "quantity" wb-api/create-quantity-object-claim
           "external-id" wb-api/create-string-object-claim
           "time" wb-api/create-year-object-claim})))
+
+(def concepts-dataset-mapper
+  {:item-label-fn (fn [row] (:label row))
+   :item-description-fn (fn [row] (:description row))
+   :claim-mappers []})
+
+(def areas-dataset-mapper
+  {:item-label-fn (fn [row] (:label row))
+   :item-description-fn (fn [row] "a Scottish council area")
+   :claim-mappers [{:predicate-label "has UK government code" :object-fn (fn [row] (:ukGovCode row))}
+                   {:predicate-label "part of" :object-fn (fn [_] "Scotland")}]})
 
 (def population-dataset-mapper
   {:item-label-fn (fn [row] (str "population " (:areaLabel row) " " (:year row)))
@@ -117,6 +103,13 @@
                    {:predicate-label "for time" :object-fn (fn [row] (:year row))}
                    {:predicate-label "for concept" :object-fn (fn [_] "population, the concept")}]})
 
+(def co2e-dataset-mapper
+  {:item-label-fn (fn [row] (str "carbon equivalent " (:council row) " " (:year row)))
+   :item-description-fn (fn [row] (str "the CO2e emitted from " (:council row) " household waste in " (:year row)))
+   :claim-mappers [{:predicate-label "has quantity" :object-fn (fn [row] (:TCO2e row))}
+                   {:predicate-label "for area" :object-fn (fn [row] (:council row))}
+                   {:predicate-label "for time" :object-fn (fn [row] (:year row))}
+                   {:predicate-label "for concept" :object-fn (fn [_] "carbon equivalent, the concept")}]})
 
 (defn write-dataset-to-wikibase [wb-csrf-token mapper dataset] ; dataset should be a list of uniform maps
   (let [number-of-rows (count dataset)]
@@ -141,61 +134,19 @@
                                                 [claim-id "new"]))]
                 (println "Claim:" claim-id (str "[" claim-status "]"))))))))))
 
+(defn write-concepts-dataset-to-wikibase []
+  (write-dataset-to-wikibase wb-csrf-token concepts-dataset-mapper concepts-dataset))
+
+(defn write-areas-dataset-to-wikibase []
+  (write-dataset-to-wikibase wb-csrf-token areas-dataset-mapper @areas-dataset))
+
 (defn write-population-dataset-to-wikibase []
-  (write-dataset-to-wikibase wb-csrf-token population-dataset-mapper @sg-population-dataset))
+  (write-dataset-to-wikibase wb-csrf-token population-dataset-mapper @population-dataset))
+
+(defn write-co2e-dataset-to-wikibase []
+  (write-dataset-to-wikibase wb-csrf-token co2e-dataset-mapper @co2e-dataset))
 
 ;----------------------
-
-
-
-(defn write-co2e-items-into-wikibase []
-  (doseq [co2e @sepa-co2es]
-    (let [area (:council co2e)
-          year (:year co2e)
-          label (str "carbon equivalent " area " " year)]
-      (println "Writing:" label)
-      (if-let [q-number (wb-sparql/pq-number label)]
-        (println "Item:" q-number "[already]")
-        (println "Item" (wb-api/create-item wb-csrf-token label (str "the CO2e emitted from " area " household waste in " year)) "[new]")))))
-
-(defn write-co2e-claims-in-wikibase []
-  (doseq [src-co2e @sepa-co2es]
-    (let [area (:council src-co2e)
-          year (:year src-co2e)
-          quantity (:TCO2e src-co2e)
-          co2e-label (str "carbon equivalent " area " " year)]
-      (println "Writing:" co2e-label "is a" "carbon equivalent quantity")
-      (if-let [claim-id (wb-sparql/claim-id co2e-label "is a")]
-          (println "Claim:" claim-id "[already]")
-          (println "Claim:" (wb-api/create-item-object-claim 
-                                 wb-csrf-token 
-                                 (wb-sparql/pq-number co2e-label) 
-                                 (wb-sparql/pq-number "is a")
-                                 (wb-sparql/pq-number "carbon equivalent quantity")) "[new]"))
-      (println "Writing:" co2e-label "has area" area)
-      (if-let [claim-id (wb-sparql/claim-id co2e-label "for area")]
-          (println "Claim:" claim-id "[already]")
-          (println "Claim:" (wb-api/create-item-object-claim 
-                                 wb-csrf-token 
-                                 (wb-sparql/pq-number co2e-label) 
-                                 (wb-sparql/pq-number "for area")
-                                 (wb-sparql/pq-number area)) "[new]"))
-      (println "Writing:" co2e-label "for time" year)
-      (if-let [claim-id (wb-sparql/claim-id co2e-label "for time")]
-          (println "Statement:" claim-id "[already]")
-          (println "Statement:" (wb-api/create-year-object-claim 
-                                 wb-csrf-token 
-                                 (wb-sparql/pq-number co2e-label) 
-                                 (wb-sparql/pq-number "for time")
-                                 year) "[new]"))
-      (println "Writing:" co2e-label "has quantity" quantity)
-      (if-let [claim-id (wb-sparql/claim-id co2e-label "has quantity")]
-          (println "Statement:" claim-id "[already]")
-          (println "Statement:" (wb-api/create-quantity-object-claim 
-                                 wb-csrf-token 
-                                 (wb-sparql/pq-number co2e-label) 
-                                 (wb-sparql/pq-number "has quantity")
-                                 quantity) "[new]")))))
 
 
 
@@ -209,16 +160,6 @@
       (catch Throwable t 
         (println (.getMessage t))))))
 
-(defn write-part-ofs-into-wikibase []
-  (let [areas (sg-sparql/areas)
-        scotland (wb-sparql/pq-number "Scotland")
-        part-of (wb-sparql/pq-number "part of")]
-    (doseq [area areas]
-      (let [label (:label area)]
-        (println (str label "... "))
-        (try
-          (println "\t" (wb-api/create-item-object-claim wb-csrf-token (wb-sparql/pq-number label) part-of scotland))
-          (catch Throwable t (println (.getMessage t))))))))
 
 
 
