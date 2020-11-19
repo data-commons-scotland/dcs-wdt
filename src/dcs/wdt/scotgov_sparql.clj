@@ -45,7 +45,7 @@ SELECT
   ?quantity
 
 WHERE {
-  #VALUES ?areaLabel { 'Aberdeen City' }
+  #VALUES ?areaLabel { <http://statistics.gov.scot/doc/statistical-geography/S12000033> } # i.e. Aberdeen City only # TODO remove this restriction 
   ?areaUri uent:code <http://statistics.gov.scot/id/statistical-entity/S12> ;
            ugeo:status 'Live' ;
            rdfs:label ?areaLabel .
@@ -65,3 +65,43 @@ WHERE {
   (->> populations-sparql
        (misc/exec-sparql service-url)
        (misc/patch :areaLabel)))
+
+
+(def waste-generated-sparql "
+
+PREFIX qb: <http://purl.org/linked-data/cube#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX pdmx: <http://purl.org/linked-data/sdmx/2009/dimension#>
+PREFIX sdmx: <http://statistics.gov.scot/def/dimension/>
+PREFIX snum: <http://statistics.gov.scot/def/measure-properties/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT 
+    ?year
+    ?area
+    ?endState
+    ?material
+    ?tonnes 
+    
+WHERE {
+    VALUES ?periodUri { <http://reference.data.gov.uk/id/year/2017> } # i.e. 2017 only # TODO remove this restriction 
+
+    ?tonnageObs qb:dataSet <http://statistics.gov.scot/data/household-waste> .
+    ?tonnageObs pdmx:refArea ?areaUri .
+    ?tonnageObs pdmx:refPeriod ?periodUri .
+    ?tonnageObs sdmx:wasteCategory ?wasteCategoryUri .
+    ?tonnageObs sdmx:wasteManagement ?wasteManagementUri .
+    ?tonnageObs snum:count ?tonnes .
+  
+    ?areaUri rdfs:label ?area .
+    ?periodUri rdfs:label ?year .
+    ?wasteCategoryUri rdfs:label ?material .
+    ?wasteManagementUri rdfs:label ?endState .
+}
+")
+
+(defn waste-generated []
+  (->> waste-generated-sparql
+       (misc/exec-sparql service-url)
+       (misc/patch :area)))
+
