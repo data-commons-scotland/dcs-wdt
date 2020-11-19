@@ -17,5 +17,6 @@ WARNING: The project is at an early stage and this is mostly _placeholder_ conte
 ---
 
 Approach
-* As noddy as possible, easy code, code the happy path.
-* Minimise modifications to loaded, source datasets
+* As noddy as possible a way to get the job done.
+* Easy code... code the happy path.. don't try to code for problem paths.
+* Minimise modifications to loaded, source datasets.

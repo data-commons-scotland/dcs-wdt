@@ -8,6 +8,7 @@
     [dcs.wdt.writing :as writing]
     [dcs.wdt.misc :as misc]
     [dcs.wdt.wikibase-api :as wb-api]
+    [dcs.wdt.wikibase-apix :as wb-apix]
     [dcs.wdt.scotgov-sparql :as sg-sparql]
     [dcs.wdt.sepa-file :as sepa-file]
     [clojure.tools.namespace.repl :refer [refresh]]))
