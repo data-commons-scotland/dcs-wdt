@@ -3,7 +3,9 @@
     [taoensso.timbre :as log]
     [clojure.pprint :refer [pprint print-table]]
     [dcs.wdt.predicate :as predicate]
-    [dcs.wdt.dataset :as dataset]
+    [dcs.wdt.concept :as concept]
+    [dcs.wdt.mapping :as mapping]
+    [dcs.wdt.writing :as writing]
     [dcs.wdt.misc :as misc]
     [dcs.wdt.wikibase-api :as wb-api]
     [dcs.wdt.scotgov-sparql :as sg-sparql]
@@ -44,24 +46,24 @@
 
 
 (defn write-predicates-to-wikibase []
-  (predicate/write-predicates-to-wikibase wb-csrf-token))
+  (writing/write-predicates-to-wikibase wb-csrf-token))
 
 (defn write-concepts-dataset-to-wikibase []
-  (dataset/write-dataset-to-wikibase wb-csrf-token dataset/concepts-dataset-mapper dataset/concepts-dataset))
+  (writing/write-dataset-to-wikibase wb-csrf-token mapping/concepts-dataset-mapper concept/concepts-dataset))
 
 (defn write-areas-dataset-to-wikibase []
-  (dataset/write-dataset-to-wikibase wb-csrf-token dataset/areas-dataset-mapper @areas-dataset))
+  (writing/write-dataset-to-wikibase wb-csrf-token mapping/areas-dataset-mapper @areas-dataset))
 
 (defn write-population-dataset-to-wikibase []
-  (dataset/write-dataset-to-wikibase wb-csrf-token dataset/population-dataset-mapper @population-dataset))
+  (writing/write-dataset-to-wikibase wb-csrf-token mapping/population-dataset-mapper @population-dataset))
 
 (defn write-waste-generated-dataset-to-wikibase []
-  (dataset/write-dataset-to-wikibase wb-csrf-token dataset/end-states-dataset-mapper (distinct (map #(select-keys % [:endState]) @waste-generated-dataset)))
-  (dataset/write-dataset-to-wikibase wb-csrf-token dataset/materials-dataset-mapper (distinct (map #(select-keys % [:material]) @waste-generated-dataset)))
-  (dataset/write-dataset-to-wikibase wb-csrf-token dataset/waste-generated-dataset-mapper @waste-generated-dataset))
+  (writing/write-dataset-to-wikibase wb-csrf-token mapping/end-states-dataset-mapper (distinct (map #(select-keys % [:endState]) @waste-generated-dataset)))
+  (writing/write-dataset-to-wikibase wb-csrf-token mapping/materials-dataset-mapper (distinct (map #(select-keys % [:material]) @waste-generated-dataset)))
+  (writing/write-dataset-to-wikibase wb-csrf-token mapping/waste-generated-dataset-mapper @waste-generated-dataset))
 
 (defn write-co2e-dataset-to-wikibase []
-  (dataset/write-dataset-to-wikibase wb-csrf-token dataset/co2e-dataset-mapper @co2e-dataset))
+  (writing/write-dataset-to-wikibase wb-csrf-token mapping/co2e-dataset-mapper @co2e-dataset))
 
 
 

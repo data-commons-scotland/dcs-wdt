@@ -1,7 +1,4 @@
-(ns dcs.wdt.predicate
-  (:require
-    [dcs.wdt.wikibase-api :as wb-api]
-    [dcs.wdt.wikibase-sparql :as wb-sparql]))
+(ns dcs.wdt.predicate)
 
 
 (def predicates [; common classification or composition
@@ -22,27 +19,6 @@
                  {:label "for end-state" :description "the waste management end-state of this" :datatype "wikibase-item"}
                  {:label "for material" :description "the waste management material of this" :datatype "wikibase-item"}])
 
-(defn write-predicates-to-wikibase [wb-csrf-token]
-  (let [number-of-rows (count predicates)]
-    (doseq [[ix row] (map-indexed vector predicates)] ; remember that a row is really a map
-      (println "Predicate row:" (inc ix) "of" number-of-rows)
-      (let [label (:label row)]
-        (println "Writing property:" label)
-        (let [[pid status] (if-let [pid (wb-sparql/pq-number label)]
-                             [pid "already"]
-                             [(wb-api/create-property wb-csrf-token label (:description row) (:datatype row)) "new"])]
-          (println "Property:" pid (str "[" status "]")))))))
 
-(defn- create-item-object-claim [wb-csrf-token item-qid predicate-pid object]
-  (wb-api/create-item-object-claim wb-csrf-token item-qid predicate-pid (wb-sparql/pq-number object)))
 
-(defn claim-creator-fn [predicate-label]
-  (->> predicates
-    (filter #(= predicate-label (:label %)))
-    first ; shouldbe only 1 anyway
-    :datatype
-    (get {"wikibase-item" create-item-object-claim
-          "quantity" wb-api/create-quantity-object-claim
-          "external-id" wb-api/create-string-object-claim
-          "time" wb-api/create-year-object-claim})))
 
