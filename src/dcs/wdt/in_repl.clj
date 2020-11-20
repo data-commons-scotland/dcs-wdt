@@ -4,7 +4,6 @@
     [clojure.pprint :refer [pprint print-table]]
     [dcs.wdt.predicate :as predicate]
     [dcs.wdt.concept :as concept]
-    [dcs.wdt.mapping :as mapping]
     [dcs.wdt.mappingx :as mappingx]
     [dcs.wdt.writing :as writing]
     [dcs.wdt.writingx :as writingx]
@@ -52,21 +51,21 @@
   (writing/write-predicates-to-wikibase wb-csrf-token))
 
 (defn write-concepts-dataset-to-wikibase []
-  (writing/write-dataset-to-wikibase wb-csrf-token mapping/concepts-dataset-mapper concept/concepts-dataset))
+  (writingx/write-dataset-to-wikibase wb-csrf-token mappingx/concepts-dataset-mapper concept/concepts-dataset))
 
 (defn write-areas-dataset-to-wikibase []
-  (writing/write-dataset-to-wikibase wb-csrf-token mapping/areas-dataset-mapper @areas-dataset))
+  (writingx/write-dataset-to-wikibase wb-csrf-token mappingx/areas-dataset-mapper @areas-dataset))
 
 (defn write-population-dataset-to-wikibase []
   (writingx/write-dataset-to-wikibase wb-csrf-token mappingx/population-dataset-mapper @population-dataset))
 
 (defn write-waste-generated-dataset-to-wikibase []
-  (writing/write-dataset-to-wikibase wb-csrf-token mapping/end-states-dataset-mapper (distinct (map #(select-keys % [:endState]) @waste-generated-dataset)))
-  (writing/write-dataset-to-wikibase wb-csrf-token mapping/materials-dataset-mapper (distinct (map #(select-keys % [:material]) @waste-generated-dataset)))
+  (writingx/write-dataset-to-wikibase wb-csrf-token mappingx/end-states-dataset-mapper (distinct (map #(select-keys % [:endState]) @waste-generated-dataset)))
+  (writingx/write-dataset-to-wikibase wb-csrf-token mappingx/materials-dataset-mapper (distinct (map #(select-keys % [:material]) @waste-generated-dataset)))
   (writingx/write-dataset-to-wikibase wb-csrf-token mappingx/waste-generated-dataset-mapper @waste-generated-dataset))
 
 (defn write-co2e-dataset-to-wikibase []
-  (writing/write-dataset-to-wikibase wb-csrf-token mapping/co2e-dataset-mapper @co2e-dataset))
+  (writingx/write-dataset-to-wikibase wb-csrf-token mappingx/co2e-dataset-mapper @co2e-dataset))
 
 
 
