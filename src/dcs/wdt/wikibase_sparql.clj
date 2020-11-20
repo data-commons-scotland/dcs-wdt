@@ -7,24 +7,32 @@
 (def service-url "http://strf8b46abcf478:8282/proxy/wdqs/bigdata/namespace/wdq/sparql")
 
 
-(def pq-number-sparql "
+(def pqid-cache (atom {}))
+
+(def pqid-sparql "
 
 SELECT 
-  (strafter(str(?entity), '/entity/') as ?pqnumber)  
+  (strafter(str(?entity), '/entity/') as ?id)  
 WHERE {  
   ?entity rdfs:label 'LABEL'@en .
 }
 ")
 
-(defn pq-number [label]
-  (let [response (misc/exec-sparql service-url (str/replace pq-number-sparql "LABEL" label))
-        n (count response)]
-    (when (> n 1)
-      (throw (RuntimeException. (str "Expected 0 or 1 but got " n))))
-    (some-> response
-        first
-        :pqnumber)))
+(defn pqid [label]
+  (if-let [pqid (get @pqid-cache label)]
+    pqid
+    (let [response (misc/exec-sparql service-url (str/replace pqid-sparql "LABEL" label))
+          n (count response)]
+      (when (> n 1)
+        (throw (RuntimeException. (str "Expected 0 or 1 but got " n))))
+      (if-let [pqid (some-> response first :id)]
+        (do
+          (swap! pqid-cache assoc label pqid)
+          pqid)
+        nil))))
 
+(defn pq-number [label]
+  (pqid label))
 
 (def claim-id-sparql "
 SELECT  

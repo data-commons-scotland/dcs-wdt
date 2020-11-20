@@ -19,6 +19,9 @@
                  {:label "for end-state" :description "the waste management end-state of this" :datatype "wikibase-item"}
                  {:label "for material" :description "the waste management material of this" :datatype "wikibase-item"}])
 
-
-
-
+; 
+(defn datatype [label]
+  (->> predicates
+    (filter #(= label (:label %)))
+    first ; shouldbe only 1 anyway
+    :datatype))

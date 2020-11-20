@@ -5,7 +5,9 @@
     [dcs.wdt.predicate :as predicate]
     [dcs.wdt.concept :as concept]
     [dcs.wdt.mapping :as mapping]
+    [dcs.wdt.mappingx :as mappingx]
     [dcs.wdt.writing :as writing]
+    [dcs.wdt.writingx :as writingx]
     [dcs.wdt.misc :as misc]
     [dcs.wdt.wikibase-api :as wb-api]
     [dcs.wdt.wikibase-apix :as wb-apix]
@@ -56,12 +58,12 @@
   (writing/write-dataset-to-wikibase wb-csrf-token mapping/areas-dataset-mapper @areas-dataset))
 
 (defn write-population-dataset-to-wikibase []
-  (writing/write-dataset-to-wikibase wb-csrf-token mapping/population-dataset-mapper @population-dataset))
+  (writingx/write-dataset-to-wikibase wb-csrf-token mappingx/population-dataset-mapper @population-dataset))
 
 (defn write-waste-generated-dataset-to-wikibase []
   (writing/write-dataset-to-wikibase wb-csrf-token mapping/end-states-dataset-mapper (distinct (map #(select-keys % [:endState]) @waste-generated-dataset)))
   (writing/write-dataset-to-wikibase wb-csrf-token mapping/materials-dataset-mapper (distinct (map #(select-keys % [:material]) @waste-generated-dataset)))
-  (writing/write-dataset-to-wikibase wb-csrf-token mapping/waste-generated-dataset-mapper @waste-generated-dataset))
+  (writingx/write-dataset-to-wikibase wb-csrf-token mappingx/waste-generated-dataset-mapper @waste-generated-dataset))
 
 (defn write-co2e-dataset-to-wikibase []
   (writing/write-dataset-to-wikibase wb-csrf-token mapping/co2e-dataset-mapper @co2e-dataset))
