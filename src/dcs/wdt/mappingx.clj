@@ -3,6 +3,18 @@
             [dcs.wdt.wikibase-sparql :as wb-sparql]))
 
 
+; An example result fro applying a mapper
+;
+;   "carbon equivalent North Lanarkshire 2018"
+;   "the CO2e quantity from North Lanarkshire in 2018"
+;     [["P19" "wikibase-item" "Q41"]
+;      ["P107" "time" 2018]
+;      ["P110" "quantity" 353976.8102]
+;      ["P25" "wikibase-item" "Q218"]
+;      ["P111" "wikibase-item" "Q222"]]
+
+
+
 (defn concepts-dataset-mapper [row]
   [(:label row)
    (:description row)

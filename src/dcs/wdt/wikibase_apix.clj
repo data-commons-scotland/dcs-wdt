@@ -27,6 +27,7 @@
 ; Returns a value for :datavalue
 (defn- datavalue [datatype value]
   (condp = datatype
+    ;;TODO "external-id"
     "wikibase-item" (let [qid value]
                       {:value {:entity-type "item"
                                :numeric-id (subs qid 1)
@@ -61,19 +62,25 @@
     (map (fn [[predicate-pid object-datatype object-value]] 
            [predicate-pid (snakvec predicate-pid object-datatype object-value)]))
     (into {})))
- 
+
 ; Returns a value for the :data key.
-(defn- data [item-label item-description predicate-object-threes]
-  {:labels {:en {:language "en"
-                 :value item-label}}
-   :claims (claims predicate-object-threes)
-   :aliases {}
-   :descriptions {:en {:language "en"
-                       :value item-description}}
-   :sitelinks {}})
+(defn- data 
+  ([label description predicate-object-threes]
+    {:labels {:en {:language "en"
+                   :value label}}
+     :claims (claims predicate-object-threes)
+     :aliases {}
+     :descriptions {:en {:language "en"
+                         :value description}}
+     ;:sitelinks {} ...these aren't supported for property
+     })
+  ([label description datatype predicate-object-threes] ; For property data
+    (-> (data label description predicate-object-threes)
+      (assoc :datatype datatype)))) 
 
 
-(defn- write-item [form-params]
+; Make the HTTP call then parse its response.
+(defn- write-entity [form-params]
   (let [response (http-call http/post form-params)]
     (when (contains? response :error)
       (throw (RuntimeException. (-> response :error :info))))
@@ -81,33 +88,39 @@
       :entity
       :id)))
 
-(defn overwrite-item [csrf-token item-qid item-label item-description predicate-object-threes]
-  (write-item {:action "wbeditentity"
-               :id item-qid
+
+; Create a new entity.
+(defn- create-entity [csrf-token entity-type data]
+  (write-entity {:action "wbeditentity"
+               :new entity-type
+               :data (json/write-str data)
+               :token csrf-token}))
+
+; Overwrite an existing entity.
+(defn- overwrite-entity [csrf-token pqid data]
+  (write-entity {:action "wbeditentity"
+               :id pqid
                :clear true
-               :data (json/write-str (data item-label item-description predicate-object-threes))
+               :data (json/write-str data)
                :token csrf-token}))
 
-(defn create-item [csrf-token item-label item-description predicate-object-threes]
-  (write-item {:action "wbeditentity"
-               :new "item"
-               :data (json/write-str (data item-label item-description predicate-object-threes))
-               :token csrf-token}))
 
-  
-(comment """
+; Create a new item entity.
+(defn create-item [csrf-token label description predicate-object-threes entity-type]
+  (create-entity csrf-token "item" (data label description predicate-object-threes)))
 
-example invocation args
+; Create a new property.
+(defn create-property [csrf-token label description datatype predicate-object-threes entity-type]
+  (create-entity csrf-token "property" (data label description datatype predicate-object-threes)))
 
-                 "carbon equivalent North Lanarkshire 2018"
-                 "the CO2e quantity from North Lanarkshire in 2018"
-                 [["P19" "wikibase-item" "Q41"]
-                  ["P107" "time" 2018]
-                  ["P110" "quantity" 353976.8102]
-                  ["P25" "wikibase-item" "Q218"]
-                  ["P111" "wikibase-item" "Q222"]]
-""")
 
+; Overwrite an existing item.
+(defn overwrite-item [csrf-token pqid label description predicate-object-threes]
+  (overwrite-entity csrf-token pqid (data label description predicate-object-threes)))
+
+; Overwrite an existing property.
+(defn overwrite-property [csrf-token pqid label description datatype predicate-object-threes]
+  (overwrite-entity csrf-token pqid (data label description datatype predicate-object-threes)))
 
 
 

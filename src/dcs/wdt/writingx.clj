@@ -1,5 +1,6 @@
 (ns dcs.wdt.writingx
-  (:require [dcs.wdt.wikibase-apix :as wb-apix]
+  (:require [dcs.wdt.predicate :as predicate]
+            [dcs.wdt.wikibase-apix :as wb-apix]
             [dcs.wdt.wikibase-sparql :as wb-sparql]))
   
 
@@ -15,15 +16,13 @@
           (println "Item:" (wb-apix/create-item csrf-token label description threes) "[new]"))))))
           
 
-(comment """
-
-example invocation args
-
-                 "carbon equivalent North Lanarkshire 2018"
-                 "the CO2e quantity from North Lanarkshire in 2018"
-                 [["P19" "wikibase-item" "Q41"]
-                  ["P107" "time" 2018]
-                  ["P110" "quantity" 353976.8102]
-                  ["P25" "wikibase-item" "Q218"]
-                  ["P111" "wikibase-item" "Q222"]]
-""")
+(defn write-predicates-to-wikibase [csrf-token] ; dataset should be a list of uniform maps
+  (let [number-of-rows (count predicate/predicates)]
+    (doseq [[ix row] (map-indexed vector predicate/predicates)] ; remember that a row is really a map
+      (println "Predicate row:" (inc ix) "of" number-of-rows)
+      (let [{:keys [label description datatype]} row]
+        (println "Writing property:" label)
+        (if-let [pid (wb-sparql/pqid label)]
+          (println "Property:" pid "[unmodified]")
+          ;(println "Property:" (wb-apix/overwrite-property csrf-token pid label description datatype []) "[modified]")
+          (println "Property:" (wb-apix/create-property csrf-token label description datatype []) "[new]"))))))

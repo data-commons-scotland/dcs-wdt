@@ -5,7 +5,6 @@
     [dcs.wdt.predicate :as predicate]
     [dcs.wdt.concept :as concept]
     [dcs.wdt.mappingx :as mappingx]
-    [dcs.wdt.writing :as writing]
     [dcs.wdt.writingx :as writingx]
     [dcs.wdt.misc :as misc]
     [dcs.wdt.wikibase-api :as wb-api]
@@ -48,7 +47,7 @@
 
 
 (defn write-predicates-to-wikibase []
-  (writing/write-predicates-to-wikibase wb-csrf-token))
+  (writingx/write-predicates-to-wikibase wb-csrf-token))
 
 (defn write-concepts-dataset-to-wikibase []
   (writingx/write-dataset-to-wikibase wb-csrf-token mappingx/concepts-dataset-mapper concept/concepts-dataset))
@@ -67,7 +66,21 @@
 (defn write-co2e-dataset-to-wikibase []
   (writingx/write-dataset-to-wikibase wb-csrf-token mappingx/co2e-dataset-mapper @co2e-dataset))
 
+(comment """
 
+write-x-dataset-to-wikibase   ...really, write a dataset with the shape of x 
+
+write-layer-n-dataset-x-to-wikibase  ...where n will probably be:
+                                            0   given predicates and items
+                                            1   source item
+                                            2   predicates
+                                            3.m supporting dimensions
+                                            4   the actual 'quantity' items
+
+
+
+
+""")
 
 
 
