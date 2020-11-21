@@ -31,9 +31,6 @@ WHERE {
           pqid)
         nil))))
 
-(defn pq-number [label]
-  (pqid label))
-
 (def claim-id-sparql "
 SELECT  
   (strafter(str(?statement), 'http://strf8b46abcf478/entity/statement/') as ?statementId)  
