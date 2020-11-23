@@ -37,7 +37,7 @@
 (defn write-household-waste-dataset-to-wikibase []
   (household-waste/write-to-wikibase wb-csrf-token (household-waste/dataset)))
 
-(defn write-co2e-dataset-to-wikibase []
+(defn write-household-co2e-dataset-to-wikibase []
   (household-co2e/write-to-wikibase wb-csrf-token (household-co2e/dataset)))
 
 (comment """

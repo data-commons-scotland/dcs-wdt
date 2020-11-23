@@ -5,15 +5,15 @@
             [dcs.wdt.misc :as misc]
             [dcs.wdt.wikibase-sparql :as wb-sparql]
             [dcs.wdt.writing :as writing]
-            [dcs.wdt.dataset.base :refer [FOR_TIME FOR_CONCEPT PART_OF]]))
+            [dcs.wdt.dataset.base :refer [for-time for-concept part-of]]))
 
-(def FOR_AREA "for area")
-(def HAS_UK_GOV_CODE "has UK government code")
+(def for-area "for area")
+(def has-uk-gov-code "has UK government code")
 
-(def AREA_THE_CONCEPT "area (concept)")
+(def area-the-concept "area (concept)")
 
 (defn- concept-mapper [row]
-  [AREA_THE_CONCEPT
+  [area-the-concept
    "area, the concept" 
    []])
 
@@ -21,18 +21,18 @@
   [(:label row)
    (:description row)
    (:datatype row)
-   [[(let [p FOR_CONCEPT] [(wb-sparql/pqid p) (writing/datatype p) (wb-sparql/pqid AREA_THE_CONCEPT)])]]])
+   [[(wb-sparql/pqid for-concept) (writing/datatype for-concept) (wb-sparql/pqid area-the-concept)]]])
 
 (defn- essence-mapper [row]
   [(:label row)
    "a Scottish council area"
-   [(let [p HAS_UK_GOV_CODE] [(wb-sparql/pqid p) (writing/datatype p) (:ukGovCode row)])
-    (let [p PART_OF] [(wb-sparql/pqid p) (writing/datatype p) (wb-sparql/pqid "Scotland")])
-    (let [p FOR_CONCEPT] [(wb-sparql/pqid p) (writing/datatype p) (wb-sparql/pqid AREA_THE_CONCEPT)])]])
+   [[(wb-sparql/pqid has-uk-gov-code) (writing/datatype has-uk-gov-code) (:ukGovCode row)]
+    ;TODO [(wb-sparql/pqid part-of) (writing/datatype part-of) (wb-sparql/pqid "Scotland")]
+    [(wb-sparql/pqid for-concept) (writing/datatype for-concept) (wb-sparql/pqid area-the-concept)]]])
    
 (def predicate-dataset
-  [{:label FOR_AREA :description "the area of this" :datatype "wikibase-item"}
-   {:label HAS_UK_GOV_CODE :description "has the nine-character UK Government Statistical Service code" :datatype "external-id"}])
+  [{:label for-area :description "the area of this" :datatype "wikibase-item"}
+   {:label has-uk-gov-code :description "has the nine-character UK Government Statistical Service code" :datatype "external-id"}])
 
 (defn dataset []
   (->> "area-dataset.sparql"

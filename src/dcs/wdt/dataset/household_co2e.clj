@@ -1,21 +1,26 @@
 (ns dcs.wdt.dataset.household-co2e
   (:require [clojure.java.io :as io]
-            [clojure.data.csv :as csv]
+            [clojure.data.csv :as csv][taoensso.timbre :as log]
             [dcs.wdt.misc :as misc]
             [dcs.wdt.wikibase-sparql :as wb-sparql]
             [dcs.wdt.writing :as writing]
-            [dcs.wdt.dataset.base :refer [HAS_QUANTITY FOR_TIME FOR_CONCEPT]]
-            [dcs.wdt.dataset.area :refer [FOR_AREA]]))
+            [dcs.wdt.dataset.base :refer [has-quantity for-time for-concept]]
+            [dcs.wdt.dataset.area :refer [for-area]]))
 
-(def CARBON_EQUIVALENT_THE_CONCEPT "carbon equivalent (concept)")
+(def carbon-equiv-the-concept "carbon equivalent (concept)")
 
-(defn- value-mapper [row]
+(defn- concept-mapper [row]
+  [carbon-equiv-the-concept
+   "carbon equivalent, the concept" 
+   []])
+
+(defn- essence-mapper [row]
   [(str "carbon equivalent " (:council row) " " (:year row))
    (str "the CO2e emitted from " (:council row) " household waste in " (:year row))
-   [(let [p HAS_QUANTITY] [(wb-sparql/pqid p) (writing/datatype p) (:TCO2e row)])
-    (let [p FOR_AREA] [(wb-sparql/pqid p) (writing/datatype p) (wb-sparql/pqid (:council row))])
-    (let [p FOR_TIME] [(wb-sparql/pqid p) (writing/datatype p) (:year row)])
-    (let [p FOR_CONCEPT] [(wb-sparql/pqid p) (writing/datatype p) (wb-sparql/pqid CARBON_EQUIVALENT_THE_CONCEPT)])]])
+   [[(wb-sparql/pqid has-quantity) (writing/datatype has-quantity) (:TCO2e row)]
+    [(wb-sparql/pqid for-area) (writing/datatype for-area) (wb-sparql/pqid (:council row))]
+    [(wb-sparql/pqid for-time) (writing/datatype for-time) (:year row)]
+    [(wb-sparql/pqid for-concept) (writing/datatype for-concept) (wb-sparql/pqid carbon-equiv-the-concept)]]])
 
 (defn dataset []
   (with-open [reader (io/reader (io/resource "household-co2e-dataset.csv"))]
@@ -26,5 +31,7 @@
         (misc/patch :council)))))
 
 (defn write-to-wikibase [wb-csrf-token dataset]
-  (writing/write-dataset-to-wikibase-items wb-csrf-token [CARBON_EQUIVALENT_THE_CONCEPT "carbon equivalent, the concept" []] [:placeholder-row])
-  (writing/write-dataset-to-wikibase-items wb-csrf-token value-mapper dataset))
+  (log/info "Writing supporting data (dimension values, predicates, etc.)")
+  (writing/write-dataset-to-wikibase-items wb-csrf-token concept-mapper [:placeholder-row])
+  (log/info "Writing essence data")(log/info "Writing essence data")
+  (writing/write-dataset-to-wikibase-items wb-csrf-token essence-mapper dataset))

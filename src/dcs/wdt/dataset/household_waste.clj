@@ -5,38 +5,47 @@
             [dcs.wdt.misc :as misc]
             [dcs.wdt.wikibase-sparql :as wb-sparql]
             [dcs.wdt.writing :as writing]
-            [dcs.wdt.dataset.base :refer [HAS_QUANTITY FOR_TIME FOR_CONCEPT]]
-            [dcs.wdt.dataset.area :refer [FOR_AREA]]))
+            [dcs.wdt.dataset.base :refer [has-quantity for-time for-concept]]
+            [dcs.wdt.dataset.area :refer [for-area]]))
 
-(def FOR_END_STATE "for end-state")
-#_(def FOR_MATERIAL "for material")
+(def for-end-state "for end-state")
+#_(def for-material "for material")
 
-(def HOUSEHOLD_WASTE_THE_CONCEPT "household waste (concept)")
+(def household-waste-the-concept "household waste (concept)")
 
 (defn- concept-mapper [row]
-  [HOUSEHOLD_WASTE_THE_CONCEPT
+  [household-waste-the-concept
    "household waste, the concept" 
    []])
+
+(defn- predicate-mapper [row]
+  [(:label row)
+   (:description row)
+   (:datatype row)
+   [[(wb-sparql/pqid for-concept) (writing/datatype for-concept) (wb-sparql/pqid household-waste-the-concept)]]])
 
 (defn- end-state-mapper [row]
   [(:endState row)
    "a household waste end-state"
-   [(let [p "for concept"] [(wb-sparql/pqid p) (writing/datatype p) (wb-sparql/pqid HOUSEHOLD_WASTE_THE_CONCEPT)])]])
+   [[(wb-sparql/pqid for-concept) (writing/datatype for-concept) (wb-sparql/pqid household-waste-the-concept)]]])
 
 #_(defn- material-mapper [row]
   [(:material row)
    "a waste generated material"
-   [(let [p "for concept"] [(wb-sparql/pqid p) (writing/datatype p) (wb-sparql/pqid "household waste (concept)")])]])
+   [[(wb-sparql/pqid for-concept) (writing/datatype for-concept) (wb-sparql/pqid "household waste (concept)")]]])
 
 (defn- essence-mapper [row]
   [(str "household waste " (:area row) " " (:year row)  " " (:endState row) #_" " #_(:material row))
    (str "the household waste in " (:area row) " in " (:year row) " ending up " (:endState row) #_" comprised of " #_(:material row))
-   [(let [p HAS_QUANTITY] [(wb-sparql/pqid p) (writing/datatype p) (:tonnes row)])
-    (let [p FOR_AREA] [(wb-sparql/pqid p) (writing/datatype p) (wb-sparql/pqid (:area row))])
-    (let [p FOR_TIME] [(wb-sparql/pqid p) (writing/datatype p) (:year row)])
-    (let [p FOR_END_STATE] [(wb-sparql/pqid p) (writing/datatype p) (wb-sparql/pqid (:endState row))])
-    #_(let [p FOR_MATERIAL] [(wb-sparql/pqid p) (writing/datatype p) (wb-sparql/pqid (:material row))])
-    (let [p FOR_CONCEPT] [(wb-sparql/pqid p) (writing/datatype p) (wb-sparql/pqid HOUSEHOLD_WASTE_THE_CONCEPT)])]])
+   [[(wb-sparql/pqid has-quantity) (writing/datatype has-quantity) (:tonnes row)]
+    [(wb-sparql/pqid for-area) (writing/datatype for-area) (wb-sparql/pqid (:area row))]
+    [(wb-sparql/pqid for-time) (writing/datatype for-time) (:year row)]
+    [(wb-sparql/pqid for-end-state) (writing/datatype for-end-state) (wb-sparql/pqid (:endState row))]
+    #_[(wb-sparql/pqid for-material) (writing/datatype for-material) (wb-sparql/pqid (:material row))]
+    [(wb-sparql/pqid for-concept) (writing/datatype for-concept) (wb-sparql/pqid household-waste-the-concept)]]])
+
+(def predicate-dataset
+  [{:label for-end-state :description "the end-state of this" :datatype "wikibase-item"}])
 
 (defn dataset []
   (->> "household-waste-dataset.sparql"
@@ -48,6 +57,7 @@
 (defn write-to-wikibase [wb-csrf-token dataset]
   (log/info "Writing supporting data (dimension values, predicates, etc.)")
   (writing/write-dataset-to-wikibase-items wb-csrf-token concept-mapper [:placeholder-row])
+  (writing/write-dataset-to-wikibase-predicates wb-csrf-token predicate-mapper predicate-dataset)
   (writing/write-dataset-to-wikibase-items wb-csrf-token end-state-mapper (distinct (map #(select-keys % [:endState]) dataset)))
   #_(writing/write-dataset-to-wikibase-items wb-csrf-token material-mapper (distinct (map #(select-keys % [:material]) dataset)))
   (log/info "Writing essence data")

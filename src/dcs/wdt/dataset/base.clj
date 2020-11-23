@@ -6,10 +6,10 @@
             [dcs.wdt.wikibase-sparql :as wb-sparql]
             [dcs.wdt.writing :as writing]))
 
-(def HAS_QUANTITY "has quantity")
-(def FOR_TIME "for time")
-(def FOR_CONCEPT "for concept")
-(def PART_OF "part of")
+(def has-quantity "has quantity")
+(def for-time "for time")
+(def for-concept "for concept")
+(def part-of "part of")
 
 (defn- essence-mapper [row]
   [(:label row)
@@ -18,10 +18,10 @@
    []])   
 
 (def dataset
-  [{:label HAS_QUANTITY :description "the quantity of this" :dataset "quantity"}
-   {:label FOR_TIME :description "the year of this" :datatype "time"}
-   {:label FOR_CONCEPT :description "the concept of this" :datatype "wikibase-item"}
-   {:label PART_OF :description "the containment structure of this" :datatype "wikibase-item"}])
+  [{:label has-quantity :description "the quantity of this" :datatype "quantity"}
+   {:label for-time :description "the year of this" :datatype "time"}
+   {:label for-concept :description "the concept of this" :datatype "wikibase-item"}
+   {:label part-of :description "the containment structure of this" :datatype "wikibase-item"}])
 
 (defn write-to-wikibase [wb-csrf-token dataset]
  (log/info "Writing essence data")

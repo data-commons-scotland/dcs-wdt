@@ -1,21 +1,27 @@
 (ns dcs.wdt.dataset.population
   (:require [clojure.java.io :as io]
             [clojure.data.csv :as csv]
+            [taoensso.timbre :as log]
             [dcs.wdt.misc :as misc]
             [dcs.wdt.wikibase-sparql :as wb-sparql]
             [dcs.wdt.writing :as writing]
-            [dcs.wdt.dataset.base :refer [HAS_QUANTITY FOR_TIME FOR_CONCEPT]]
-            [dcs.wdt.dataset.area :refer [FOR_AREA]]))
+            [dcs.wdt.dataset.base :refer [has-quantity for-time for-concept]]
+            [dcs.wdt.dataset.area :refer [for-area]]))
 
-(def POPULATION_THE_CONCEPT "population (concept)")
+(def population-the-concept "population (concept)")
+
+(defn- concept-mapper [row]
+  [population-the-concept
+   "population, the concept" 
+   []])
 
 (defn- essence-mapper [row]
   [(str "population " (:areaLabel row) " " (:year row))
    (str "the population of " (:areaLabel row) " in " (:year row))
-   [(let [p HAS_QUANTITY] [(wb-sparql/pqid p) (writing/datatype p) (:quantity row)])
-    (let [p FOR_AREA] [(wb-sparql/pqid p) (writing/datatype p) (wb-sparql/pqid (:areaLabel row))])
-    (let [p FOR_TIME] [(wb-sparql/pqid p) (writing/datatype p) (:year row)])
-    (let [p FOR_CONCEPT] [(wb-sparql/pqid p) (writing/datatype p) (wb-sparql/pqid POPULATION_THE_CONCEPT)])]])
+   [[(wb-sparql/pqid has-quantity) (writing/datatype has-quantity) (:quantity row)]
+    [(wb-sparql/pqid for-area) (writing/datatype for-area) (wb-sparql/pqid (:areaLabel row))]
+    [(wb-sparql/pqid for-time) (writing/datatype for-time) (:year row)]
+    [(wb-sparql/pqid for-concept) (writing/datatype for-concept) (wb-sparql/pqid population-the-concept)]]])
 
 (defn dataset []
   (->> "population-dataset.sparql"
@@ -25,5 +31,7 @@
     (misc/patch :areaLabel)))
 
 (defn write-to-wikibase [wb-csrf-token dataset]
-  (writing/write-dataset-to-wikibase-items wb-csrf-token [POPULATION_THE_CONCEPT "population, the concept" []] [:placeholder-row])
+  (log/info "Writing supporting data (dimension values, predicates, etc.)")
+  (writing/write-dataset-to-wikibase-items wb-csrf-token concept-mapper [:placeholder-row])
+  (log/info "Writing essence data")
   (writing/write-dataset-to-wikibase-items wb-csrf-token essence-mapper dataset))

@@ -9,6 +9,7 @@
       (println "Dataset row:" (inc ix) "of" number-of-rows)
       (let [[label description threes] (mapper row)]
         (println "Writing item:" label)
+        (println "Detail:" label "|" description "|" threes)
         (if-let [qid (wb-sparql/pqid label)]
           (println "Item:" qid "[unmodified]")
           ;(println "Item:" (wb-api/overwrite-item csrf-token qid label description threes) "[modified]")
@@ -21,6 +22,7 @@
       (println "Predicate row:" (inc ix) "of" number-of-rows)
       (let [[label description datatype threes] (mapper row)]
         (println "Writing property:" label)
+        ;(println "Detail:" label "|" description "|" datatype "|" threes)
         (if-let [pid (wb-sparql/pqid label)]
           (println "Property:" pid "[unmodified]")
           ;(println "Property:" (wb-api/overwrite-property csrf-token pid label description datatype []) "[modified]")

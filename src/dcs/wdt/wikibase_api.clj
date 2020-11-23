@@ -111,7 +111,6 @@
 ; Returns a value for :datavalue
 (defn- datavalue [datatype value]
   (condp = datatype
-    ;;TODO "external-id"
     "wikibase-item" (let [qid value]
                       {:value {:entity-type "item"
                                :numeric-id (subs qid 1)
@@ -128,7 +127,10 @@
     "quantity" (let [quantity value]
                  {:value {:amount (str "+" quantity)
                           :unit "1"}
-                  :type "quantity"})))
+                  :type "quantity"})
+    "external-id" (let [external-id value]
+                    {:value external-id
+                     :type "string"})))
 
 ; Returns a values for what is roughly a claim
 (defn- snakvec [predicate-pid datatype object-value]
