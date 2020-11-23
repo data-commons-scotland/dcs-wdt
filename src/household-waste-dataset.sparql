@@ -1,0 +1,36 @@
+PREFIX qb: <http://purl.org/linked-data/cube#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX pdmx: <http://purl.org/linked-data/sdmx/2009/dimension#>
+PREFIX sdmx: <http://statistics.gov.scot/def/dimension/>
+PREFIX snum: <http://statistics.gov.scot/def/measure-properties/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT 
+    ?year
+    ?area
+    ?endState
+    ?material
+    ?tonnes 
+    
+WHERE {
+    VALUES ?wasteManagementUri {
+      <http://statistics.gov.scot/def/concept/waste-management/recycled>  
+      <http://statistics.gov.scot/def/concept/waste-management/landfilled>
+      <http://statistics.gov.scot/def/concept/waste-management/other-diversion>
+    } # i.e. ignore the 'pre 2014' data and "Waste Generated" summed data
+    VALUES ?wasteCategoryUri { 
+      <http://statistics.gov.scot/def/concept/waste-category/total-waste> 
+    } # i.e. ignore the individual materials - just get their sum
+
+    ?tonnageObs qb:dataSet <http://statistics.gov.scot/data/household-waste> .
+    ?tonnageObs pdmx:refArea ?areaUri .
+    ?tonnageObs pdmx:refPeriod ?periodUri .
+    ?tonnageObs sdmx:wasteCategory ?wasteCategoryUri .
+    ?tonnageObs sdmx:wasteManagement ?wasteManagementUri .
+    ?tonnageObs snum:count ?tonnes .
+  
+    ?areaUri rdfs:label ?area .
+    ?periodUri rdfs:label ?year .
+    ?wasteCategoryUri rdfs:label ?material .
+    ?wasteManagementUri rdfs:label ?endState .
+}

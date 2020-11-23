@@ -1,4 +1,4 @@
-(ns dcs.wdt.wikibase-apix
+(ns dcs.wdt.wikibase-api
   (:require
     [taoensso.timbre :as log]
     [clj-http.client :as http]
@@ -58,6 +58,26 @@
   (get-csrf-token))
 
 
+
+; --------------------------------------------
+
+
+(def datatype-cache (atom {}))
+
+; Returns the predicates datatype
+(defn datatype [pid]
+  (if-let [datatype (get @datatype-cache pid)]
+    datatype
+    (let [response (http-call http/get
+                              {:action "wbgetentities"
+                               :ids pid
+                               :props "datatype"})]
+      (if-let [datatype (some-> response :entities (get (keyword pid)):datatype)]
+        (do
+          (swap! datatype-cache assoc pid datatype)
+          datatype)
+        nil))))
+  
 
 ; --------------------------------------------
 
@@ -170,11 +190,11 @@
 
 
 ; Create a new item entity.
-(defn create-item [csrf-token label description predicate-object-threes entity-type]
+(defn create-item [csrf-token label description predicate-object-threes]
   (create-entity csrf-token "item" (data label description predicate-object-threes)))
 
 ; Create a new property.
-(defn create-property [csrf-token label description datatype predicate-object-threes entity-type]
+(defn create-property [csrf-token label description datatype predicate-object-threes]
   (create-entity csrf-token "property" (data label description datatype predicate-object-threes)))
 
 

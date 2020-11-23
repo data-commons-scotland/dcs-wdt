@@ -1,0 +1,13 @@
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX uent: <http://statistics.data.gov.uk/def/statistical-entity#>
+PREFIX ugeo: <http://statistics.data.gov.uk/def/statistical-geography#>
+
+SELECT 
+  ?label
+  (strafter(str(?areaUri), 'http://statistics.gov.scot/id/statistical-geography/') as ?ukGovCode) 
+
+WHERE {
+  ?areaUri uent:code <http://statistics.gov.scot/id/statistical-entity/S12> ;
+           ugeo:status 'Live' ;
+           rdfs:label ?label .
+}

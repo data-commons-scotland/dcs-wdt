@@ -28,7 +28,7 @@
        csv/read-csv
        to-maps))
 
-
+; Align English area labels
 (defn patch [kw coll]
   (map #(let [area (kw %)]
             (cond 

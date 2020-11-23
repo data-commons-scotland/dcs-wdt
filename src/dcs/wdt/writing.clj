@@ -1,10 +1,9 @@
-(ns dcs.wdt.writingx
-  (:require [dcs.wdt.predicate :as predicate]
-            [dcs.wdt.wikibase-apix :as wb-api]
+(ns dcs.wdt.writing
+  (:require [dcs.wdt.wikibase-api :as wb-api]
             [dcs.wdt.wikibase-sparql :as wb-sparql]))
   
 
-(defn write-dataset-to-wikibase [csrf-token mapper dataset] ; dataset should be a list of uniform maps
+(defn write-dataset-to-wikibase-items [csrf-token mapper dataset] ; dataset should be a list of uniform maps
   (let [number-of-rows (count dataset)]
     (doseq [[ix row] (map-indexed vector dataset)] ; remember that a row is really a map
       (println "Dataset row:" (inc ix) "of" number-of-rows)
@@ -16,13 +15,18 @@
           (println "Item:" (wb-api/create-item csrf-token label description threes) "[new]"))))))
           
 
-(defn write-predicates-to-wikibase [csrf-token] ; dataset should be a list of uniform maps
-  (let [number-of-rows (count predicate/predicates)]
-    (doseq [[ix row] (map-indexed vector predicate/predicates)] ; remember that a row is really a map
+(defn write-dataset-to-wikibase-predicates [csrf-token mapper dataset] ; dataset should be a list of uniform maps
+  (let [number-of-rows (count dataset)]
+    (doseq [[ix row] (map-indexed vector dataset)] ; remember that a row is really a map
       (println "Predicate row:" (inc ix) "of" number-of-rows)
-      (let [{:keys [label description datatype]} row]
+      (let [[label description datatype threes] (mapper row)]
         (println "Writing property:" label)
         (if-let [pid (wb-sparql/pqid label)]
           (println "Property:" pid "[unmodified]")
           ;(println "Property:" (wb-api/overwrite-property csrf-token pid label description datatype []) "[modified]")
-          (println "Property:" (wb-api/create-property csrf-token label description datatype []) "[new]"))))))
+          (println "Property:" (wb-api/create-property csrf-token label description datatype threes) "[new]"))))))
+
+(defn datatype [label]
+  (-> label
+    wb-sparql/pqid
+    wb-api/datatype))
