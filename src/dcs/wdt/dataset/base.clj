@@ -3,7 +3,7 @@
             [clojure.data.csv :as csv]
             [taoensso.timbre :as log]
             [dcs.wdt.misc :as misc]
-            [dcs.wdt.wikibase-sparql :as wb-sparql]
+            [dcs.wdt.wikibase-sparql :as wbq]
             [dcs.wdt.writing :as writing]))
 
 (def has-quantity "has quantity")
@@ -30,5 +30,8 @@
    {:label part-of :description "the containment structure of this" :datatype "wikibase-item"}])
 
 (defn write-to-wikibase [wb-csrf-token dataset]
- (log/info "Writing essence data")
+ (log/info "Writing core data")
  (writing/write-dataset-to-wikibase-predicates wb-csrf-token mapper dataset))
+
+(defn counts []
+  {:predicate-property -1})

@@ -3,7 +3,7 @@
             [clojure.data.csv :as csv]
             [taoensso.timbre :as log]
             [dcs.wdt.misc :as misc]
-            [dcs.wdt.wikibase-sparql :as wb-sparql]
+            [dcs.wdt.wikibase-sparql :as wbq]
             [dcs.wdt.writing :as writing]
             [dcs.wdt.dataset.base :as base :refer [for-time for-concept part-of]]))
 
@@ -16,14 +16,14 @@
   [(:label row)
    (:description row)
    (:datatype row)
-   [[(wb-sparql/pqid for-concept) (writing/datatype for-concept) (wb-sparql/pqid area-the-concept)]]])
+   [[(wbq/pqid for-concept) (writing/datatype for-concept) (wbq/pqid area-the-concept)]]])
 
 (defn- mapper [row]
   [(:label row)
    "a Scottish council area"
-   [[(wb-sparql/pqid has-uk-gov-code) (writing/datatype has-uk-gov-code) (:ukGovCode row)]
-    ;TODO [(wb-sparql/pqid part-of) (writing/datatype part-of) (wb-sparql/pqid "Scotland")]
-    [(wb-sparql/pqid for-concept) (writing/datatype for-concept) (wb-sparql/pqid area-the-concept)]]])
+   [[(wbq/pqid has-uk-gov-code) (writing/datatype has-uk-gov-code) (:ukGovCode row)]
+    ;TODO [(wbq/pqid part-of) (writing/datatype part-of) (wbq/pqid "Scotland")]
+    [(wbq/pqid for-concept) (writing/datatype for-concept) (wbq/pqid area-the-concept)]]])
    
 (def concept-dataset 
   [{:label area-the-concept :description "area, the concept"}])
@@ -43,5 +43,10 @@
   (log/info "Writing supporting data (dimension values, predicates, etc.)")
   (writing/write-dataset-to-wikibase-items wb-csrf-token base/concept-mapper concept-dataset)
   (writing/write-dataset-to-wikibase-predicates wb-csrf-token predicate-mapper predicate-dataset)
-  (log/info "Writing essence data")
+  (log/info "Writing core data")
   (writing/write-dataset-to-wikibase-items wb-csrf-token mapper dataset))
+
+(defn counts []
+  {:concept-item -1
+   :predicate-property -1
+   :core-item (wbq/count (str "select (count(?item) as ?count) { ?item wdt:P4 wd:Q1; wdt:P7 ?ukGovCode. }"))})

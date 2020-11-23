@@ -59,29 +59,9 @@ SELECT
         :statementId)))
 
 
-(def subject-count-sparql "
-SELECT 
-  (count(distinct(?subjectItem)) as ?count)
-  #?subjectItem ?subjectItemLabel ?predicateLabel
-WHERE {   
-  VALUES ?predicateLabel { 'has quantity'@en 
-                           'has UK government code'@en
-                           'for area'@en
-                           'for time'@en }
-  
-  ?subjectItem ?directProperty ?statement ; 
-               rdfs:label ?subjectItemLabel .
-  
-  ?statement ?ps ?_ .
-  
-  ?property rdfs:label ?predicateLabel ;
-            wikibase:claim ?directProperty ;
-            wikibase:statementProperty ?ps . 
-}
-")
 
-(defn subject-count []
-  (->> subject-count-sparql
+(defn count [sparql]
+  (->> sparql
     (misc/exec-sparql service-url)
     first
     :count

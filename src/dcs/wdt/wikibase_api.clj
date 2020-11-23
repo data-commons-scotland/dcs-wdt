@@ -8,14 +8,14 @@
     [clojure.pprint :as pp]))
 
 
-(def wb-api-url "http://strf8b46abcf478/api.php")
+(def wbi-url "http://strf8b46abcf478/api.php")
 
 
 (defn- http-call [meth-fn params]
   (let [params-type (if (= http/get meth-fn)
                       :query-params
                       :form-params)
-        response (meth-fn wb-api-url
+        response (meth-fn wbi-url
                           {params-type (merge {:format "json"}
                                               params)})]
     (log/debug response)
