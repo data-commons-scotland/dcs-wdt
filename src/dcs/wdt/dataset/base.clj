@@ -11,7 +11,13 @@
 (def for-concept "for concept")
 (def part-of "part of")
 
-(defn- essence-mapper [row]
+; Used by other datasets 
+(defn concept-mapper [row]
+  [(:label row)
+   (:description row)
+   []])
+
+(defn- mapper [row]
   [(:label row)
    (:description row)
    (:datatype row)
@@ -25,4 +31,4 @@
 
 (defn write-to-wikibase [wb-csrf-token dataset]
  (log/info "Writing essence data")
- (writing/write-dataset-to-wikibase-predicates wb-csrf-token essence-mapper dataset))
+ (writing/write-dataset-to-wikibase-predicates wb-csrf-token mapper dataset))
