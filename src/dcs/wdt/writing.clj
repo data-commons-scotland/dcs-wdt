@@ -27,8 +27,3 @@
           (println "Property:" pid "[unmodified]")
           ;(println "Property:" (wbi/overwrite-property csrf-token pid label description datatype []) "[modified]")
           (println "Property:" (wbi/create-property csrf-token label description datatype threes) "[new]"))))))
-
-(defn datatype [label]
-  (-> label
-    wbq/pqid
-    wbi/datatype))

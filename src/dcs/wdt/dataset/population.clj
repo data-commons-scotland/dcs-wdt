@@ -5,21 +5,22 @@
             [dcs.wdt.misc :as misc]
             [dcs.wdt.wikibase-sparql :as wbq]
             [dcs.wdt.writing :as writing]
-            [dcs.wdt.dataset.base :as base :refer [has-quantity for-time for-concept]]
+            [dcs.wdt.reading :as reading]
+            [dcs.wdt.dataset.base :as base :refer [has-quantity for-time instance-of]]
             [dcs.wdt.dataset.area :refer [for-area]]))
 
-(def population-the-concept "population (concept)")
+(def population-class "population (class)")
 
 (defn- mapper [row]
   [(str "population " (:areaLabel row) " " (:year row))
    (str "the population of " (:areaLabel row) " in " (:year row))
-   [[(wbq/pqid has-quantity) (writing/datatype has-quantity) (:quantity row)]
-    [(wbq/pqid for-area) (writing/datatype for-area) (wbq/pqid (:areaLabel row))]
-    [(wbq/pqid for-time) (writing/datatype for-time) (:year row)]
-    [(wbq/pqid for-concept) (writing/datatype for-concept) (wbq/pqid population-the-concept)]]])
+   [[(wbq/pqid has-quantity) (reading/datatype has-quantity) (:quantity row)]
+    [(wbq/pqid for-area) (reading/datatype for-area) (wbq/pqid (:areaLabel row))]
+    [(wbq/pqid for-time) (reading/datatype for-time) (:year row)]
+    [(wbq/pqid instance-of) (reading/datatype instance-of) (wbq/pqid population-class)]]])
 
-(def concept-dataset 
-  [{:label population-the-concept :description "population, the concept"}])
+(def class-dataset
+  [{:label population-class :description "population, the class"}])
 
 (defn dataset []
   (->> "population-dataset.sparql"
@@ -30,14 +31,7 @@
 
 (defn write-to-wikibase [wb-csrf-token dataset]
   (log/info "Writing supporting data (dimension values, predicates, etc.)")
-  (writing/write-dataset-to-wikibase-items wb-csrf-token base/concept-mapper concept-dataset)
+  (writing/write-dataset-to-wikibase-items wb-csrf-token base/class-mapper class-dataset)
   (log/info "Writing core data")
   (writing/write-dataset-to-wikibase-items wb-csrf-token mapper dataset))
 
-
-(defn count-in-wikibase []
-  {:concept-item (wbq/count (format "select (count(?item) as ?count) { ?item rdfs:label '%s'@en. }"
-                                    population-the-concept))
-   :core-item (wbq/count (format "select (count(?item) as ?count) { ?item wdt:%s wd:%s; wdt:%s ?quantity. }"
-                                 (wbq/pqid for-concept) (wbq/pqid population-the-concept) 
-                                 (wbq/pqid has-quantity)))})

@@ -8,6 +8,7 @@
     [dcs.wdt.misc :as misc]
     [dcs.wdt.wikibase-api :as wbi]
     [dcs.wdt.wikibase-sparql :as wbq]
+    [dcs.wdt.reading :as reading]
     [dcs.wdt.dataset.base :as base]
     [dcs.wdt.dataset.area :as area]
     [dcs.wdt.dataset.population :as population]
@@ -43,9 +44,8 @@
 
 (defn counts-in-wikibase[]
   (print-table
-    [:dataset :concept-item :predicate-property :end-state-item :core-item ]
-    [(assoc (base/count-in-wikibase) :dataset "base")
-     (assoc (area/count-in-wikibase) :dataset "area")
-     (assoc (population/count-in-wikibase) :dataset "population")
-     (assoc (household-waste/count-in-wikibase) :dataset "household waste")
-     (assoc (household-co2e/count-in-wikibase) :dataset "household co2e")]))
+    [{:class area/area-class :count-of-instances (reading/count-instances area/area-class)}
+     {:class population/population-class :count-of-instances (reading/count-instances population/population-class)}
+     {:class household-waste/end-state-class :count-of-instances (reading/count-instances household-waste/end-state-class)}
+     {:class household-waste/household-waste-class :count-of-instances (reading/count-instances household-waste/household-waste-class)}
+     {:class household-co2e/carbon-equiv-class :count-of-instances (reading/count-instances household-co2e/carbon-equiv-class)}]))

@@ -1,8 +1,8 @@
 (ns dcs.wdt.misc
-	(:require [clj-http.client :as http]
-    	[clojure.string :as str]
-    	[clojure.data.csv :as csv])
-	(:import java.net.URLEncoder))
+  (:require [clojure.string :as str]
+            [clojure.data.csv :as csv]
+            [clj-http.client :as http])
+  (:import java.net.URLEncoder))
 
 (defn envvar [name]
   (if-let [value (System/getenv name)]
@@ -36,3 +36,4 @@
               (str/starts-with? area "Orkney Islands") (assoc % kw "Orkney Islands")
               :else %))
        coll))
+
