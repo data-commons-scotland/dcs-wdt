@@ -33,3 +33,8 @@
  (log/info "Writing core data")
  (writing/write-dataset-to-wikibase-predicates wb-csrf-token mapper dataset))
 
+
+(defn count-instances [class-label]
+  (wbq/count (format "select (count(?item) as ?count) { ?item wdt:%s wd:%s. }"
+                     (wbq/pqid instance-of) 
+                     (wbq/pqid class-label))))

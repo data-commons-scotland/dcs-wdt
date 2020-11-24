@@ -7,23 +7,25 @@ PREFIX uent: <http://statistics.data.gov.uk/def/statistical-entity#>
 PREFIX ugeo: <http://statistics.data.gov.uk/def/statistical-geography#>
 
 SELECT 
-  ?areaLabel
   ?year
-  ?quantity
+  ?area
+  ?population
 
 WHERE {
-  #VALUES ?areaLabel { <http://statistics.gov.scot/doc/statistical-geography/S12000033> } # i.e. Aberdeen City only
-  
-  ?areaUri uent:code <http://statistics.gov.scot/id/statistical-entity/S12> ;
+  VALUES ?areaType { 
+           <http://statistics.gov.scot/id/statistical-entity/S92>
+           <http://statistics.gov.scot/id/statistical-entity/S12> }
+           
+  ?areaUri uent:code ?areaType;
            ugeo:status 'Live' ;
-           rdfs:label ?areaLabel .
+           rdfs:label ?area .
            
   ?populationUri qb:dataSet <http://statistics.gov.scot/data/population-estimates-current-geographic-boundaries> ;
                  pdmx:refArea ?areaUri ;
                  pdmx:refPeriod ?periodUri ;
                  sdmx:age <http://statistics.gov.scot/def/concept/age/all> ;
                  sdmx:sex <http://statistics.gov.scot/def/concept/sex/all> ;
-                 snum:count ?quantity .
+                 snum:count ?population .
   
   ?periodUri rdfs:label ?year .
 }

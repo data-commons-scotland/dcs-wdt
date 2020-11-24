@@ -5,6 +5,7 @@
             [dcs.wdt.misc :as misc]
             [dcs.wdt.wikibase-sparql :as wbq]
             [dcs.wdt.writing :as writing]
+            [dcs.wdt.reading :as reading]
             [dcs.wdt.dataset.base :as base :refer [has-quantity for-time instance-of]]
             [dcs.wdt.dataset.area :refer [for-area]]))
 

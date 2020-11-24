@@ -44,8 +44,8 @@
 
 (defn counts-in-wikibase[]
   (print-table
-    [{:class area/area-class :count-of-instances (reading/count-instances area/area-class)}
-     {:class population/population-class :count-of-instances (reading/count-instances population/population-class)}
-     {:class household-waste/end-state-class :count-of-instances (reading/count-instances household-waste/end-state-class)}
-     {:class household-waste/household-waste-class :count-of-instances (reading/count-instances household-waste/household-waste-class)}
-     {:class household-co2e/carbon-equiv-class :count-of-instances (reading/count-instances household-co2e/carbon-equiv-class)}]))
+    [{:class area/area-class :count-of-instances (base/count-instances area/area-class)}
+     {:class population/population-class :count-of-instances (base/count-instances population/population-class)}
+     {:class household-waste/end-state-class :count-of-instances (base/count-instances household-waste/end-state-class)}
+     {:class household-waste/household-waste-class :count-of-instances (base/count-instances household-waste/household-waste-class)}
+     {:class household-co2e/carbon-equiv-class :count-of-instances (base/count-instances household-co2e/carbon-equiv-class)}]))

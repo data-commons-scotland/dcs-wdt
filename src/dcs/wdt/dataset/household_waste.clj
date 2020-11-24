@@ -5,6 +5,7 @@
             [dcs.wdt.misc :as misc]
             [dcs.wdt.wikibase-sparql :as wbq]
             [dcs.wdt.writing :as writing]
+            [dcs.wdt.reading :as reading]
             [dcs.wdt.dataset.base :as base :refer [has-quantity for-time instance-of]]
             [dcs.wdt.dataset.area :refer [for-area]]))
 
@@ -24,7 +25,7 @@
 (defn- end-state-mapper [row]
   [(:endState row)
    "a household waste end-state"
-   [[(wbq/pqid instance-of) (writing/datatype instance-of) (wbq/pqid end-state-class)]]])
+   [[(wbq/pqid instance-of) (reading/datatype instance-of) (wbq/pqid end-state-class)]]])
 
 #_(defn- material-mapper [row]
   [(:material row)
@@ -34,12 +35,12 @@
 (defn- mapper [row]
   [(str "household waste " (:area row) " " (:year row)  " " (:endState row) #_" " #_(:material row))
    (str "the household waste in " (:area row) " in " (:year row) " ending up " (:endState row) #_" comprised of " #_(:material row))
-   [[(wbq/pqid has-quantity) (writing/datatype has-quantity) (:tonnes row)]
-    [(wbq/pqid for-area) (writing/datatype for-area) (wbq/pqid (:area row))]
-    [(wbq/pqid for-time) (writing/datatype for-time) (:year row)]
-    [(wbq/pqid for-end-state) (writing/datatype for-end-state) (wbq/pqid (:endState row))]
-    #_[(wbq/pqid for-material) (writing/datatype for-material) (wbq/pqid (:material row))]
-    [(wbq/pqid instance-of) (writing/datatype instance-of) (wbq/pqid household-waste-class)]]])
+   [[(wbq/pqid has-quantity) (reading/datatype has-quantity) (:tonnes row)]
+    [(wbq/pqid for-area) (reading/datatype for-area) (wbq/pqid (:area row))]
+    [(wbq/pqid for-time) (reading/datatype for-time) (:year row)]
+    [(wbq/pqid for-end-state) (reading/datatype for-end-state) (wbq/pqid (:endState row))]
+    #_[(wbq/pqid for-material) (reading/datatype for-material) (wbq/pqid (:material row))]
+    [(wbq/pqid instance-of) (reading/datatype instance-of) (wbq/pqid household-waste-class)]]])
 
 (def class-dataset
   [{:label household-waste-class :description "household waste, the class"}

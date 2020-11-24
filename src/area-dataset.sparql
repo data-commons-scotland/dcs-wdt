@@ -7,7 +7,13 @@ SELECT
   (strafter(str(?areaUri), 'http://statistics.gov.scot/id/statistical-geography/') as ?ukGovCode) 
 
 WHERE {
-  ?areaUri uent:code <http://statistics.gov.scot/id/statistical-entity/S12> ;
+  VALUES ?areaType { 
+           <http://statistics.gov.scot/id/statistical-entity/S92>
+           <http://statistics.gov.scot/id/statistical-entity/S12> }
+           
+  ?areaUri uent:code ?areaType;
            ugeo:status 'Live' ;
            rdfs:label ?label .
 }
+
+

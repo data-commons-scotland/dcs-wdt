@@ -12,10 +12,10 @@
 (def population-class "population (class)")
 
 (defn- mapper [row]
-  [(str "population " (:areaLabel row) " " (:year row))
-   (str "the population of " (:areaLabel row) " in " (:year row))
-   [[(wbq/pqid has-quantity) (reading/datatype has-quantity) (:quantity row)]
-    [(wbq/pqid for-area) (reading/datatype for-area) (wbq/pqid (:areaLabel row))]
+  [(str "population " (:area row) " " (:year row))
+   (str "the population of " (:area row) " in " (:year row))
+   [[(wbq/pqid has-quantity) (reading/datatype has-quantity) (:population row)]
+    [(wbq/pqid for-area) (reading/datatype for-area) (wbq/pqid (:area row))]
     [(wbq/pqid for-time) (reading/datatype for-time) (:year row)]
     [(wbq/pqid instance-of) (reading/datatype instance-of) (wbq/pqid population-class)]]])
 
@@ -27,7 +27,7 @@
     io/resource
     slurp
     (misc/exec-sparql "http://statistics.gov.scot/sparql")
-    (misc/patch :areaLabel)))
+    (misc/patch :area)))
 
 (defn write-to-wikibase [wb-csrf-token dataset]
   (log/info "Writing supporting data (dimension values, predicates, etc.)")
