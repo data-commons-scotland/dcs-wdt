@@ -72,12 +72,12 @@
                               {:action "wbgetentities"
                                :ids pid
                                :props "datatype"})]
-      (if-let [datatype (some-> response :entities (get (keyword pid)):datatype)]
+      (if-let [datatype (some-> response :entities (get (keyword pid)) :datatype)]
         (do
           (swap! datatype-cache assoc pid datatype)
           datatype)
         nil))))
-  
+
 
 ; --------------------------------------------
 

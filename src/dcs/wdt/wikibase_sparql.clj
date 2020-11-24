@@ -31,6 +31,12 @@ WHERE {
           pqid)
         nil))))
 
+; Strict
+(defn pqid-s [label]
+  (if-let [pqid (pqid label)]
+    pqid
+    (throw (RuntimeException. (str "Entity '" label "' not found. (Perhaps because of the delay in propogating to the SPARQL subsystem. If so, retry!)")))))
+
 (def claim-id-sparql "
 SELECT  
   (strafter(str(?statement), 'http://strf8b46abcf478/entity/statement/') as ?statementId)  

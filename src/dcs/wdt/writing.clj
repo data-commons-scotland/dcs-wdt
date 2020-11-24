@@ -9,7 +9,7 @@
       (println "Dataset row:" (inc ix) "of" number-of-rows)
       (let [[label description threes] (mapper row)]
         (println "Writing item:" label)
-        (println "Detail:" label "|" description "|" threes)
+        ;(println "Detail:" label "|" description "|" threes)
         (if-let [qid (wbq/pqid label)]
           (println "Item:" qid "[unmodified]")
           ;(println "Item:" (wbi/overwrite-item csrf-token qid label description threes) "[modified]")

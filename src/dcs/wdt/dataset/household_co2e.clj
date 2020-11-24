@@ -14,10 +14,10 @@
 (defn- mapper [row]
   [(str "carbon equivalent " (:council row) " " (:year row))
    (str "the CO2e emitted from " (:council row) " household waste in " (:year row))
-   [[(wbq/pqid has-quantity) (reading/datatype has-quantity) (:TCO2e row)]
-    [(wbq/pqid for-area) (reading/datatype for-area) (wbq/pqid (:council row))]
-    [(wbq/pqid for-time) (reading/datatype for-time) (:year row)]
-    [(wbq/pqid instance-of) (reading/datatype instance-of) (wbq/pqid carbon-equiv-class)]]])
+   [[(wbq/pqid-s has-quantity) (reading/datatype has-quantity) (:TCO2e row)]
+    [(wbq/pqid-s for-area) (reading/datatype for-area) (wbq/pqid-s (:council row))]
+    [(wbq/pqid-s for-time) (reading/datatype for-time) (:year row)]
+    [(wbq/pqid-s instance-of) (reading/datatype instance-of) (wbq/pqid-s carbon-equiv-class)]]])
 
 (def class-dataset
   [{:label carbon-equiv-class :description "carbon equivalent, the class"}])

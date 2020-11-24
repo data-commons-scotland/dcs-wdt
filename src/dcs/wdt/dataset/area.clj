@@ -22,15 +22,15 @@
 (defn- scotland-mapper [row]
   [(:label row)
    "a UK country area"
-   [[(wbq/pqid has-uk-gov-code) (reading/datatype has-uk-gov-code) (:ukGovCode row)]
-    [(wbq/pqid instance-of) (reading/datatype instance-of) (wbq/pqid area-class)]]])
+   [[(wbq/pqid-s has-uk-gov-code) (reading/datatype has-uk-gov-code) (:ukGovCode row)]
+    [(wbq/pqid-s instance-of) (reading/datatype instance-of) (wbq/pqid-s area-class)]]])
 
 (defn- mapper [row]
   [(:label row)
    "a Scottish council area"
-   [[(wbq/pqid has-uk-gov-code) (reading/datatype has-uk-gov-code) (:ukGovCode row)]
-    [(wbq/pqid part-of) (reading/datatype part-of) (wbq/pqid "Scotland")]
-    [(wbq/pqid instance-of) (reading/datatype instance-of) (wbq/pqid area-class)]]])
+   [[(wbq/pqid-s has-uk-gov-code) (reading/datatype has-uk-gov-code) (:ukGovCode row)]
+    [(wbq/pqid-s part-of) (reading/datatype part-of) (wbq/pqid-s "Scotland")]
+    [(wbq/pqid-s instance-of) (reading/datatype instance-of) (wbq/pqid-s area-class)]]])
    
 (def class-dataset
   [{:label area-class :description "area, the class"}])

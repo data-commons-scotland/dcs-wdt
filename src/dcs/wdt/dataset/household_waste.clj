@@ -35,12 +35,12 @@
 (defn- mapper [row]
   [(str "household waste " (:area row) " " (:year row)  " " (:endState row) #_" " #_(:material row))
    (str "the household waste in " (:area row) " in " (:year row) " ending up " (:endState row) #_" comprised of " #_(:material row))
-   [[(wbq/pqid has-quantity) (reading/datatype has-quantity) (:tonnes row)]
-    [(wbq/pqid for-area) (reading/datatype for-area) (wbq/pqid (:area row))]
-    [(wbq/pqid for-time) (reading/datatype for-time) (:year row)]
-    [(wbq/pqid for-end-state) (reading/datatype for-end-state) (wbq/pqid (:endState row))]
-    #_[(wbq/pqid for-material) (reading/datatype for-material) (wbq/pqid (:material row))]
-    [(wbq/pqid instance-of) (reading/datatype instance-of) (wbq/pqid household-waste-class)]]])
+   [[(wbq/pqid-s has-quantity) (reading/datatype has-quantity) (:tonnes row)]
+    [(wbq/pqid-s for-area) (reading/datatype for-area) (wbq/pqid-s (:area row))]
+    [(wbq/pqid-s for-time) (reading/datatype for-time) (:year row)]
+    [(wbq/pqid-s for-end-state) (reading/datatype for-end-state) (wbq/pqid-s (:endState row))]
+    #_[(wbq/pqid for-material) (reading/datatype for-material) (wbq/pqid-s (:material row))]
+    [(wbq/pqid-s instance-of) (reading/datatype instance-of) (wbq/pqid-s household-waste-class)]]])
 
 (def class-dataset
   [{:label household-waste-class :description "household waste, the class"}

@@ -14,10 +14,10 @@
 (defn- mapper [row]
   [(str "population " (:area row) " " (:year row))
    (str "the population of " (:area row) " in " (:year row))
-   [[(wbq/pqid has-quantity) (reading/datatype has-quantity) (:population row)]
-    [(wbq/pqid for-area) (reading/datatype for-area) (wbq/pqid (:area row))]
-    [(wbq/pqid for-time) (reading/datatype for-time) (:year row)]
-    [(wbq/pqid instance-of) (reading/datatype instance-of) (wbq/pqid population-class)]]])
+   [[(wbq/pqid-s has-quantity) (reading/datatype has-quantity) (:population row)]
+    [(wbq/pqid-s for-area) (reading/datatype for-area) (wbq/pqid-s (:area row))]
+    [(wbq/pqid-s for-time) (reading/datatype for-time) (:year row)]
+    [(wbq/pqid-s instance-of) (reading/datatype instance-of) (wbq/pqid-s population-class)]]])
 
 (def class-dataset
   [{:label population-class :description "population, the class"}])

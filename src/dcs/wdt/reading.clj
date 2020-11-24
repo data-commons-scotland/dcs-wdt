@@ -5,5 +5,5 @@
 ; The datatype of the predicate that has the given label.
 (defn datatype [label]
   (-> label
-      wbq/pqid
+      wbq/pqid-s
       wbi/datatype))
