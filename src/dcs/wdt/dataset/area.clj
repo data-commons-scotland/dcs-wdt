@@ -46,7 +46,13 @@
   (log/info "Writing core data")
   (writing/write-dataset-to-wikibase-items wb-csrf-token mapper dataset))
 
-(defn counts []
-  {:concept-item -1
+(defn count-n-wikibase []
+  (wbq/count (str "select (count(?item) as ?count) { ?item wdt:P4 wd:Q1; wdt:P7 ?ukGovCode. }")))
+
+(defn count-in-wikibase []
+  {:concept-item (wbq/count (format "select (count(?item) as ?count) { ?item rdfs:label '%s'@en. }"
+                                    area-the-concept))
    :predicate-property -1
-   :core-item (wbq/count (str "select (count(?item) as ?count) { ?item wdt:P4 wd:Q1; wdt:P7 ?ukGovCode. }"))})
+   :core-item (wbq/count (format "select (count(?item) as ?count) { ?item wdt:%s wd:%s; wdt:%s ?quantity. }"
+                     (wbq/pqid for-concept) (wbq/pqid area-the-concept) 
+                     (wbq/pqid has-uk-gov-code)))})

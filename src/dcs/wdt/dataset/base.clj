@@ -33,5 +33,5 @@
  (log/info "Writing core data")
  (writing/write-dataset-to-wikibase-predicates wb-csrf-token mapper dataset))
 
-(defn counts []
+(defn count-in-wikibase []
   {:predicate-property -1})

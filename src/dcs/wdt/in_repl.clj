@@ -41,11 +41,11 @@
   (household-co2e/write-to-wikibase wb-csrf-token (household-co2e/dataset)))
 
 
-(defn counts []
+(defn counts-in-wikibase[]
   (print-table
     [:dataset :concept-item :predicate-property :end-state-item :core-item ]
-    [(assoc (base/counts) :dataset "base")
-     (assoc (area/counts) :dataset "area")
-     (assoc (population/counts) :dataset "population")
-     (assoc (household-waste/counts) :dataset "household waste")
-     (assoc (household-co2e/counts) :dataset "household co2e")]))
+    [(assoc (base/count-in-wikibase) :dataset "base")
+     (assoc (area/count-in-wikibase) :dataset "area")
+     (assoc (population/count-in-wikibase) :dataset "population")
+     (assoc (household-waste/count-in-wikibase) :dataset "household waste")
+     (assoc (household-co2e/count-in-wikibase) :dataset "household co2e")]))

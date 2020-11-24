@@ -71,7 +71,7 @@
   (log/info "Writing core data")
   (writing/write-dataset-to-wikibase-items wb-csrf-token mapper dataset))
 
-(defn counts []
+(defn count-in-wikibase []
   {:concept-item (wbq/count (format "select (count(?item) as ?count) { ?item rdfs:label '%s'@en. }"
                                     household-waste-the-concept))
    :predicate-property -1

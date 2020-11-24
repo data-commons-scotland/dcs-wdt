@@ -35,7 +35,7 @@
   (log/info "Writing core data")(log/info "Writing essence data")
   (writing/write-dataset-to-wikibase-items wb-csrf-token mapper dataset))
 
-(defn counts []
+(defn count-in-wikibase []
   {:concept-item (wbq/count (format "select (count(?item) as ?count) { ?item rdfs:label '%s'@en. }"
                                     carbon-equiv-the-concept))
    :core-item (wbq/count (format "select (count(?item) as ?count) { ?item wdt:%s wd:%s; wdt:%s ?quantity. }"
