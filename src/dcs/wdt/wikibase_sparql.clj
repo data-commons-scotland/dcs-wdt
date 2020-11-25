@@ -4,7 +4,8 @@
     [dcs.wdt.misc :as misc]))
 
 
-(def service-url "http://strf8b46abcf478:8282/proxy/wdqs/bigdata/namespace/wdq/sparql")
+;(def service-url "http://strf8b46abcf478:8282/proxy/wdqs/bigdata/namespace/wdq/sparql")
+(def service-url "https://waste-commons-scotland.wiki.opencura.com/query/sparql?")
 
 
 (def pqid-cache (atom {}))

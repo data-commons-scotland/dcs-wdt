@@ -8,8 +8,8 @@
     [clojure.pprint :as pp]))
 
 
-(def wbi-url "http://strf8b46abcf478/api.php")
-
+;(def wbi-url "http://strf8b46abcf478/api.php")
+(def wbi-url "https://waste-commons-scotland.wiki.opencura.com/w/api.php")
 
 (defn- http-call [meth-fn params]
   (let [params-type (if (= http/get meth-fn)
