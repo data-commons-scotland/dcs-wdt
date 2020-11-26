@@ -25,7 +25,7 @@
 (defn- end-state-mapper [row]
   [(:endState row)
    "a household waste end-state"
-   [[(wbq/pqid instance-of) (reading/datatype instance-of) (wbq/pqid end-state-class)]]])
+   [[(wbq/pqid-s instance-of) (reading/datatype instance-of) (wbq/pqid-s end-state-class)]]])
 
 #_(defn- material-mapper [row]
   [(:material row)

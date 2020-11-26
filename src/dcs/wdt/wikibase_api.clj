@@ -2,11 +2,13 @@
   (:require
     [taoensso.timbre :as log]
     [clj-http.client :as http]
+    [clj-http.cookies :as cookies]
     [clojure.string :as s]
     [clojure.data :refer [diff]]
     [clojure.data.json :as json]
     [clojure.pprint :as pp]))
 
+(def cookie-store (cookies/cookie-store))
 
 ;(def wbi-url "http://strf8b46abcf478/api.php")
 (def wbi-url "https://waste-commons-scotland.wiki.opencura.com/w/api.php")
@@ -17,7 +19,9 @@
                       :form-params)
         response (meth-fn wbi-url
                           {params-type (merge {:format "json"}
-                                              params)})]
+                                              params)
+
+                           :cookie-store cookie-store})]
     (log/debug response)
     (-> response
       :body
