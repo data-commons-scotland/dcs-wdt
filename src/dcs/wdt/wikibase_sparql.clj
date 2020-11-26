@@ -7,15 +7,15 @@
 ;(def service-url "http://strf8b46abcf478:8282/proxy/wdqs/bigdata/namespace/wdq/sparql")
 (def service-url "https://waste-commons-scotland.wiki.opencura.com/query/sparql?")
 
-;(def host-for-wcs-prefixes "wikbase.svc")
-(def host-for-wcs-prefixes "waste-commons-scotland.wiki.opencura.com")
+;(def host-for-prefixes "wikbase.svc")
+(def host-for-prefixes "waste-commons-scotland.wiki.opencura.com")
 
-(def wcs-prefixes (format (str """
-prefix wcs-wd: <http://%s/entity/>
-prefix wcs-wdt: <http://%s/prop/direct/>
+(def prefixes (format (str """
+prefix wd: <http://%s/entity/>
+prefix wdt: <http://%s/prop/direct/>
 """)
-                          host-for-wcs-prefixes
-                          host-for-wcs-prefixes))
+                          host-for-prefixes
+                          host-for-prefixes))
 
 
 (def pqid-cache (atom {}))

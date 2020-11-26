@@ -47,7 +47,7 @@
 
 
 (defn count-instances [class-label]
-  (wbq/count (format "%sselect (count(?item) as ?count) { ?item wcs-wdt:%s wcs-wd:%s . }"
-                     wbq/wcs-prefixes
+  (wbq/count (format "%sselect (count(?item) as ?count) { ?item wdt:%s wd:%s . }"
+                     wbq/prefixes
                      (wbq/pqid instance-of) 
                      (wbq/pqid class-label))))
