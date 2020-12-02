@@ -8,15 +8,94 @@ The WDT is an output of the
 https://www.stir.ac.uk/research/hub/contract/933675[Data Commons Scotland]
 research project.
 
-The features of WDT include:
-
-* TODO 
-
-WARNING: The project is at an early stage and this is mostly _placeholder_ content.
+WARNING: This is software is very rough'n'ready - it is at a proof-of-concept level.
 
 ---
 
-Approach
-* As noddy as possible a way to get the job done.
-* Easy code... code the happy path.. don't try to code for problem paths.
-* Minimise modifications to loaded, source datasets.
+== Outline
+
+[source]
+----
+/* order datasets & dataset-aspects, most independent first */
+for each dataset in [base, area, population, household-waste, co2e]
+  for each dataset-aspect in [class-item, predicates, supporting-dimensions, measurements]
+    for each record in the dataset-aspect
+      if the record is not already represented in the Wikibase
+        write-to-wikibase a property or item to represent the record
+----
+
+== Use
+
+=== Setting up the tools, environment, etc.
+
+Prerequisite software:
+
+* Git 2.24.0 (_-ish_)
+* JDK 11.0.5 (_-ish_)
+* Clojure 1.10.1 (_-ish_)
+* Leiningen 2.9.3 (_-ish_)
+
+Environment variables:
+[source]
+----
+WB_USERNAME=<the username of the Wikibase bot, e.g. AshMcC@dcs-wdt>
+WB_PASSWORD=<the password of the Wikibase bot>
+----
+
+=== Get the software
+
+[source]
+----
+C:\>git clone https://github.com/data-commons-scotland/dcs-wdt.git
+Cloning into 'dcs-wdt'...
+remote: Enumerating objects: 333, done.
+remote: Counting objects: 100% (333/333), done.
+remote: Compressing objects: 100% (165/165), done.
+Receiving objects:  87% (290/333)used 270 (delta 112), pack-reused 0R
+Receiving objects: 100% (333/333), 63.10 KiB | 897.00 KiB/s, done.
+Resolving deltas: 100% (175/175), done.
+----
+
+=== Run
+
+[source]
+----
+C:\dcs-wdt>\bin\lein.bat repl
+WARNING: count already refers to: #'clojure.core/count in namespace: dcs.wdt.wikibase-sparql, being replaced by: #'dcs.wdt.wikibase-sparql/count
+Authenticating: as AshMcC@dcs-wdt
+Token: yes
+
+;; Etc. start-up.
+
+;; Find out how many items have been written into the Wikibase already...
+
+dcs.wdt.in-repl=> (counts-in-wikibase)
+
+|                    :class | :count-of-instances |
+|---------------------------+---------------------|
+|              area (class) |                  33 |
+|        population (class) |                 616 |
+|         end-state (class) |                   3 |
+|   household waste (class) |                 781 |
+| carbon equivalent (class) |                  64 |
+nil
+
+;; What write- functionas are available?...
+
+dcs.wdt.in-repl=> (write-  ;; and TAB for completion-suggestions
+write-area-dataset-to-wikibase              write-base-dataset-to-wikibase
+write-household-co2e-dataset-to-wikibase    write-household-waste-dataset-to-wikibase
+write-population-dataset-to-wikibase
+
+;; Write the base dataset to the Wikibase...
+
+dcs.wdt.in-repl=> (write-base-dataset-to-wikibase)
+2020-12-02T14:50:47.137Z STRF8B46ABCF478 INFO [dcs.wdt.dataset.base:45] - Writing core data
+Predicate row: 1 of 4
+Writing property: has quantity
+Property: P5 [unmodified]
+Predicate row: 2 of 4
+Writing property: for time
+
+;; Etc.
+----
