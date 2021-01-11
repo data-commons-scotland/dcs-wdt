@@ -21,6 +21,9 @@ WHERE {
     VALUES ?wasteCategoryUri { 
       <http://statistics.gov.scot/def/concept/waste-category/total-waste> 
     } # i.e. ignore the individual materials - just get their sum
+    ### VALUES ?areaUri {
+    ###  <http://statistics.gov.scot/id/statistical-geography/S12000017>
+    ### } # i.e. just Highland 
 
     ?tonnageObs qb:dataSet <http://statistics.gov.scot/data/household-waste> .
     ?tonnageObs pdmx:refArea ?areaUri .

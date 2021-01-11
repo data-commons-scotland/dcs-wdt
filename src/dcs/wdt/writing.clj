@@ -9,10 +9,10 @@
       (println "Dataset row:" (inc ix) "of" number-of-rows)
       (let [[label description threes] (mapper row)]
         (println "Writing item:" label)
-        ;(println "Detail:" label "|" description "|" threes)
+        (println "Detail:" label "|" description "|" threes)
         (if-let [qid (wbq/pqid label)]
           (println "Item:" qid "[unmodified]")
-          ;(println "Item:" (wbi/overwrite-item csrf-token qid label description threes) "[modified]")
+          #_(println "Item:" (wbi/overwrite-item csrf-token qid label description threes) "[modified]")
           (println "Item:" (wbi/create-item csrf-token label description threes) "[new]"))))))
           
 
@@ -22,8 +22,8 @@
       (println "Predicate row:" (inc ix) "of" number-of-rows)
       (let [[label description datatype threes] (mapper row)]
         (println "Writing property:" label)
-        ;(println "Detail:" label "|" description "|" datatype "|" threes)
+        (println "Detail:" label "|" description "|" datatype "|" threes)
         (if-let [pid (wbq/pqid label)]
           (println "Property:" pid "[unmodified]")
-          ;(println "Property:" (wbi/overwrite-property csrf-token pid label description datatype []) "[modified]")
+          #_(println "Property:" (wbi/overwrite-property csrf-token pid label description datatype []) "[modified]")
           (println "Property:" (wbi/create-property csrf-token label description datatype threes) "[new]"))))))
