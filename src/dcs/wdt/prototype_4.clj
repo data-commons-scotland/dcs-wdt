@@ -185,27 +185,39 @@
 
     (letfn [(pop-lookup [area year] (-> dataset-pop-for-lookup (get [area year]) first :population))]
 
-      (let [dataset-mgmt-for-output (map #(hash-map :areaLabel (:area %)
+      (let [dataset-mgmt-for-output (map #(hash-map :area (:area %)
                                                     :year (:year %)
-                                                    :endStateLabel (:endState %)
-                                                    :quantity (with-precision 8 (/ (:tonnes %) (pop-lookup (:area %) (:year %)))))
-                                         dataset-mgmt)]
+                                                    :endState (:endState %)
+                                                    :tonnes (with-precision 8 (/ (:tonnes %) (pop-lookup (:area %) (:year %)))))
+                                         dataset-mgmt)
+            min-year (->> dataset-mgmt-for-output (map :year) (apply min))
+            max-year (->> dataset-mgmt-for-output (map :year) (apply max))
+            max-tonnes-per-year (->> dataset-mgmt-for-output (group-by (juxt :area :year)) vals (map (fn [vec-of-3] (->> vec-of-3 (map :tonnes) (apply +)))) (apply max))]
 
         (println (str "Writing to the file " filename-mgmt "..."))
-        (let [content (str "/* Generated  at " (java.time.LocalDateTime/now) " */"
-                           "const quantities = " (json/write-str dataset-mgmt-for-output) ";\n"
-                           "export { quantities };")]
+        (let [content (str "/* Generated  at " (java.time.LocalDateTime/now) " from SEPA, NRS and Scottish Government data. */\n"
+                           "const records = " (json/write-str dataset-mgmt-for-output) ";\n"
+                           "const minYear = " min-year ";\n"
+                           "const maxYear = " max-year ";\n"
+                           "const maxTonnesPerYear = " max-tonnes-per-year ";\n"
+                           "export { records, minYear, maxYear, maxTonnesPerYear };")]
           (spit filename-mgmt content)
           (println "Wrote")))
 
-      (let [dataset-co2e-for-output (map #(hash-map :areaLabel (:area %)
+      (let [dataset-co2e-for-output (map #(hash-map :area (:area %)
                                                     :year (:year %)
-                                                    :quantity (with-precision 8 (/ (:tonnes %) (pop-lookup (:area %) (:year %)))))
-                                         dataset-co2e)]
+                                                    :tonnes (with-precision 8 (/ (:tonnes %) (pop-lookup (:area %) (:year %)))))
+                                         dataset-co2e)
+            min-year (->> dataset-co2e-for-output (map :year) (apply min))
+            max-year (->> dataset-co2e-for-output (map :year) (apply max))
+            max-tonnes-per-year (->> dataset-co2e-for-output (map :tonnes) (apply max))]
 
         (println (str "Writing to the file " filename-co2e "..."))
-        (let [content (str "/* Generated  at " (java.time.LocalDateTime/now) " */\n"
-                           "const quantities = " (json/write-str dataset-co2e-for-output) ";\n"
-                           "export { quantities };")]
+        (let [content (str "/* Generated  at " (java.time.LocalDateTime/now) " from SEPA, NRS and Scottish Government data. */\n"
+                           "const records = " (json/write-str dataset-co2e-for-output) ";\n"
+                           "const minYear = " min-year ";\n"
+                           "const maxYear = " max-year ";\n"
+                           "const maxTonnesPerYear = " max-tonnes-per-year ";\n"
+                           "export { records, minYear, maxYear, maxTonnesPerYear };")]
           (spit filename-co2e content)
           (println "Wrote"))))))
