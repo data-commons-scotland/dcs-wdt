@@ -41,7 +41,7 @@
                 (map csv-file-to-maps)
                 flatten
                 (map #(assoc % :record-type :household-co2e)))]
-    (when-let [error (upstream-base/check-year-totals expected-year-totals db)]
+    (when-let [error (upstream-base/check-year-totals :tonnes expected-year-totals db)]
       (throw (RuntimeException. (format "household-co2e has year-totals error...\nExpected: %s\nActual: %s" (first error) (second error)))))
     (log/infof "household-co2e records: %s" (count db))
     db))

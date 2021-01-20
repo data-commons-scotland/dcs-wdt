@@ -19,8 +19,8 @@
            ;; Generate JavaScript/JSON files for prototype-4. Run using: `clj -X:gen-files`
            :gen-files {:exec-fn   dcs.wdt.prototype-4/gen-files}
 
-           ;; Run household-vs-business. Run using: `clj -X:hvb`
-           :hvb {:exec-fn   dcs.wdt.household-vs-business/quick-sizing}
+           ;; Fetch the CSV files from SPARQL queries: `clj -X:csv`
+           :csv {:exec-fn   dcs.wdt.prototype-4.db/csv-files-from-sparql}
 
            ;; Create a db from CSV files. Run using: `clj -X:db`
            :db {:exec-fn   dcs.wdt.prototype-4.db/glimpse-db}

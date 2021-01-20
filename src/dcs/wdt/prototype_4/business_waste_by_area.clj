@@ -70,7 +70,7 @@
                 (map csv-file-to-maps)
                 flatten
                 (map #(assoc % :record-type :business-waste-by-area)))]
-    (when-let [error (upstream-base/check-year-totals expected-year-totals db)]
+    (when-let [error (upstream-base/check-year-totals :tonnes expected-year-totals db)]
       (throw (RuntimeException. (format "business-waste-by-area has year-totals error...\nExpected: %s\nActual: %s" (first error) (second error)))))
     (log/infof "business-waste-by-area records: %s" (count db))
     db))

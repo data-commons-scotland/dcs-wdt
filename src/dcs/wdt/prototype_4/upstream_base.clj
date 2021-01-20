@@ -3,9 +3,11 @@
             [clojure.java.io :as io]
             [clojure.data :as data]
             [clojure.data.csv :as csv]
+            [clj-http.client :as http]
             [taoensso.timbre :as log]
             [dcs.wdt.prototype-4.db-base :as db-base])
-  (:import java.io.PushbackReader))
+  (:import java.io.PushbackReader
+           java.net.URLEncoder))
 
 (def area-aliases {"Aberdeen"           "Aberdeen City"
                    "Dundee"             "Dundee City"
@@ -30,8 +32,8 @@
   (let [pbr (PushbackReader. reader)
         c (.read pbr)]
     (when (not= 65279 c)
-      (.unread pbr c)))
-  reader)
+      (.unread pbr c))
+    pbr))
 
 (defn csv-file-to-maps [file]
   (->> file
@@ -54,13 +56,22 @@
        (filter #(and (.isFile %)
                      (str/ends-with? (.getName %) ".csv")))))
 
-(defn check-year-totals [expected db]
+(defn check-year-totals [quantity-field-kw expected db]
   (let [actual (into {}
                      (for [year (distinct (map :year db))]
                        [year (->> db
                                   (filter #(= year (:year %)))
-                                  (map :tonnes)
+                                  (map quantity-field-kw)
                                   (apply +))]))
         diff (take 2 (data/diff expected actual))]
     (when (some some? diff)
       diff)))
+
+(def scotgov-service-url "http://statistics.gov.scot/sparql")
+
+(defn exec-sparql [service-url sparql]
+  (:body (http/post service-url
+                    {:body    (str "query=" (URLEncoder/encode sparql))
+                     :headers {"Accept"       "text/csv"
+                               "Content-Type" "application/x-www-form-urlencoded"}
+                     :debug   false})))
