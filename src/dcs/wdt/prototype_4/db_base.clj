@@ -71,3 +71,7 @@
                        "Vegetal wastes"
                        "Waste containing PCB"
                        "Wood wastes"])
+
+(def end-states ["Landfilled"
+                 "Other Diversion"
+                 "Recycled"])

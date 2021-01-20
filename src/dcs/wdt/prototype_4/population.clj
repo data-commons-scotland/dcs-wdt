@@ -14,7 +14,7 @@
                            2018 5438100
                            2019 5463300})
 
-(def csv-file-str "data/upstream-oriented/population/csv-extract/population.csv")
+(def csv-file-str "data/upstream-oriented/population/csv-extract/2011-onwards.csv")
 
 (def sparql "
 PREFIX qb: <http://purl.org/linked-data/cube#>

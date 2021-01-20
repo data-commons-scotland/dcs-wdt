@@ -22,6 +22,7 @@
 (def years-set (set db-base/years))
 (def areas-set (set db-base/areas))
 (def waste-categories-set (set db-base/waste-categories))
+(def end-state-set (set db-base/end-states))
 
 (defn rows-to-maps [rows]
   (map zipmap
