@@ -64,7 +64,7 @@
                              (filter #(= :household-waste (:record-type %)))
                              ;; Calculate the tonnes roll-up for each (area, year) pair
                              (group-by (juxt :area :year))
-                             (map (fn [[[area year] coll]] {:designation "household"
+                             (map (fn [[[area year] coll]] {:designation "Household"
                                                             :area   area
                                                             :year   year
                                                             :tonnes (->> coll
@@ -74,7 +74,7 @@
                              (filter #(= :business-waste-by-area (:record-type %)))
                              ;; Calculate the tonnes roll-up for each (area, year) pair
                              (group-by (juxt :area :year))
-                             (map (fn [[[area year] coll]] {:designation "business"
+                             (map (fn [[[area year] coll]] {:designation "Business"
                                                             :area   area
                                                             :year   year
                                                             :tonnes (->> coll
