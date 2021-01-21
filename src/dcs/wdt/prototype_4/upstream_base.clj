@@ -19,10 +19,17 @@
 
 (def waste-category-aliases {"Discarded equipment (excl discarded vehicles, batteries and accumulators)" "Discarded equipment (excluding discarded vehicles, batteries and accumulators wastes)"})
 
+(def economic-sector-aliases {"Agriculture Forestry  Fishing" "Agriculture, forestry and fishing"
+                              "Chemical manufacture" "Manufacture of chemicals, plastics and pharmaceuticals"
+                              "Food & drink manufacture" "Manufacture of food and beverage products"
+                              "Manufacturing of wood products" "Manufacture of wood products"
+                              "Mining & quarrying" "Mining and quarrying"})
+
 (def years-set (set db-base/years))
 (def areas-set (set db-base/areas))
 (def waste-categories-set (set db-base/waste-categories))
-(def end-state-set (set db-base/end-states))
+(def end-states-set (set db-base/end-states))
+(def economic-sectors-set (set db-base/economic-sectors))
 
 (defn rows-to-maps [rows]
   (map zipmap

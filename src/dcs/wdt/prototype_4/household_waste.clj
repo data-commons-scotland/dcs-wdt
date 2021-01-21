@@ -75,7 +75,7 @@ WHERE {
         end-state (get m "endState")]
     (if (and (contains? upstream-base/areas-set area)
              (contains? upstream-base/waste-categories-set waste-category)
-             (contains? upstream-base/end-state-set end-state))
+             (contains? upstream-base/end-states-set end-state))
       {:area area
        :waste-category waste-category
        :end-state end-state

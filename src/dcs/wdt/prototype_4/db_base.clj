@@ -1,5 +1,11 @@
 (ns dcs.wdt.prototype-4.db-base)
 
+(def record-types [:population
+                   :household-waste
+                   :household-co2e
+                   :business-waste-by-area
+                   :business-waste-by-sector])
+
 (def years (range 2011 2020))
 
 (def areas ["Aberdeen City"
@@ -75,3 +81,14 @@
 (def end-states ["Landfilled"
                  "Other Diversion"
                  "Recycled"])
+
+(def economic-sectors ["Agriculture, forestry and fishing"
+                       "Commerce"
+                       "Manufacture of chemicals, plastics and pharmaceuticals"
+                       "Manufacture of food and beverage products"
+                       "Manufacture of wood products"
+                       "Mining and quarrying"
+                       "Other manufacturing"
+                       "Power industry"
+                       "Waste management"
+                       "Water industry"])
