@@ -1,8 +1,8 @@
-(ns dcs.wdt.prototype-4.household-waste
+(ns dcs.wdt.prototype-4.ingest.household-waste
   (:require [clojure.string :as str]
             [clojure.java.io :as io]
             [taoensso.timbre :as log]
-            [dcs.wdt.prototype-4.upstream-base :as upstream-base]))
+            [dcs.wdt.prototype-4.ingest.shared :as shared]))
 
 (def expected-year-totals {2011 2536497   ;; Upstream provided value is 2606759
                            2012 2445584   ;; Upstream provided value is 2500995
@@ -14,7 +14,7 @@
                            2018 2404503   ;; Upstream provided value is 2405246
                            2019 2421207}) ;; Upstream provided value is 2421790
 
-(def csv-file-str "data/upstream-oriented/household-waste/csv-extract/2011-onwards.csv")
+(def csv-file-str "data/ingesting/household-waste/csv-extract/2011-onwards.csv")
 
 (def sparql "
 PREFIX qb: <http://purl.org/linked-data/cube#>
@@ -59,8 +59,8 @@ WHERE {
 ")
 
 (defn csv-file-from-sparql []
-  (log/infof "Executing SPARQL query for household-waste against: %s" upstream-base/scotgov-service-url)
-  (let [contents (upstream-base/exec-sparql upstream-base/scotgov-service-url sparql)
+  (log/infof "Executing SPARQL query for household-waste against: %s" shared/scotgov-service-url)
+  (let [contents (shared/exec-sparql shared/scotgov-service-url sparql)
         file (io/file csv-file-str)]
     (log/infof "CSV rows: %s" (count (str/split-lines contents)))
     (io/make-parents (.getAbsolutePath file))
@@ -69,13 +69,13 @@ WHERE {
 
 (defn customise-map [m]
   (let [area (let [v (get m "area")]
-               (get upstream-base/area-aliases v v))
+               (get shared/area-aliases v v))
         waste-category (let [v (get m "material")]
-               (get upstream-base/waste-category-aliases v v))
+               (get shared/waste-category-aliases v v))
         end-state (get m "endState")]
-    (if (and (contains? upstream-base/areas-set area)
-             (contains? upstream-base/waste-categories-set waste-category)
-             (contains? upstream-base/end-states-set end-state))
+    (if (and (contains? shared/areas-set area)
+             (contains? shared/waste-categories-set waste-category)
+             (contains? shared/end-states-set end-state))
       {:area area
        :waste-category waste-category
        :end-state end-state
@@ -85,10 +85,10 @@ WHERE {
           nil))))
 
 (defn csv-file-to-maps [file]
-  (let [customise-map (partial upstream-base/customise-map-fn customise-map)]
+  (let [customise-map (partial shared/customise-map-fn customise-map)]
     (->> file
          (#(do (log/infof "Reading CSV file: %s" (.getAbsolutePath %)) %))
-         upstream-base/csv-file-to-maps
+         shared/csv-file-to-maps
          (#(do (log/infof "CSV data rows: %s" (count %)) %))
          (#(do (log/infof "Candidate records: %s" (count %)) %))
          (map customise-map)
@@ -100,7 +100,7 @@ WHERE {
                 io/file
                 csv-file-to-maps
                 (map #(assoc % :record-type :household-waste)))]
-    (when-let [error (upstream-base/check-year-totals :tonnes expected-year-totals db)]
+    (when-let [error (shared/check-year-totals :tonnes expected-year-totals db)]
       (throw (RuntimeException. (format "household-waste has year-totals error...\nExpected: %s\nActual: %s" (first error) (second error)))))
     (log/infof "household-waste records: %s" (count db))
     db))

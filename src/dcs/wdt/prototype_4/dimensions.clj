@@ -1,4 +1,4 @@
-(ns dcs.wdt.prototype-4.db-base)
+(ns dcs.wdt.prototype-4.dimensions)
 
 (def record-types [:population
                    :household-waste

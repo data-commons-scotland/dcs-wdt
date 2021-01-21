@@ -1,7 +1,7 @@
-(ns dcs.wdt.prototype-4.business-waste-by-sector
+(ns dcs.wdt.prototype-4.ingest.business-waste-by-sector
   (:require [clojure.string :as str]
             [taoensso.timbre :as log]
-            [dcs.wdt.prototype-4.upstream-base :as upstream-base]))
+            [dcs.wdt.prototype-4.ingest.shared :as shared]))
 
 (def expected-year-totals {2011 4025735   ;; Upstream provided value is 4025733
                            2012 3639623   ;; Upstream provided value is 3639627
@@ -16,8 +16,8 @@
 
 (defn split-by-economic-sector [m]
   (let [waste-category (get m waste-category-column-label)
-        ;; Remove the waste-category entry and any blank-keyed entry that might have been created because of blank columns in the CSV
-        remaining-m (dissoc m waste-category-column-label "")]
+        ;; Remove the waste-category entry
+        remaining-m (dissoc m waste-category-column-label)]
     (for [[k v] remaining-m]
       {:waste-category waste-category
        :economic-sector k
@@ -31,16 +31,16 @@
                  (str/replace "\n" " ")
                  str/trim
                  (as-> v0
-                       (get upstream-base/economic-sector-aliases v0 v0)))
+                       (get shared/economic-sector-aliases v0 v0)))
         waste-category (-> m
                            :waste-category
                            (str/replace "†" "")
                            (str/replace "*" "")
                            str/trim
                            (as-> v0
-                                 (get upstream-base/waste-category-aliases v0 v0)))]
-    (if (and (contains? upstream-base/economic-sectors-set economic-sector)
-             (contains? upstream-base/waste-categories-set waste-category))
+                                 (get shared/waste-category-aliases v0 v0)))]
+    (if (and (contains? shared/economic-sectors-set economic-sector)
+             (contains? shared/waste-categories-set waste-category))
       {:economic-sector           economic-sector
        :waste-category waste-category
        :tonnes         (-> m
@@ -54,10 +54,10 @@
 
 (defn csv-file-to-maps [file]
   (let [year (Integer/parseInt (re-find #"\d{4}" (.getName file)))
-        customise-map (partial upstream-base/customise-map-fn customise-map)]
+        customise-map (partial shared/customise-map-fn customise-map)]
     (->> file
          (#(do (log/infof "Reading CSV file: %s" (.getAbsolutePath %)) %))
-         upstream-base/csv-file-to-maps
+         shared/csv-file-to-maps
          (#(do (log/infof "CSV data rows: %s" (count %)) %))
          (map split-by-economic-sector)
          flatten
@@ -68,12 +68,12 @@
          (map #(assoc % :year year)))))
 
 (defn db-from-csv-files []
-  (let [db (->> "data/upstream-oriented/business-waste/csv-extracts/by-sector/"
-                upstream-base/find-csv-files
+  (let [db (->> "data/ingesting/business-waste/csv-extracts/by-sector/"
+                shared/find-csv-files
                 (map csv-file-to-maps)
                 flatten
                 (map #(assoc % :record-type :business-waste-by-sector)))]
-    (when-let [error (upstream-base/check-year-totals :tonnes expected-year-totals db)]
+    (when-let [error (shared/check-year-totals :tonnes expected-year-totals db)]
       (throw (RuntimeException. (format "business-waste-by-sector has year-totals error...\nExpected: %s\nActual: %s" (first error) (second error)))))
     (log/infof "business-waste-by-sector records: %s" (count db))
     db))

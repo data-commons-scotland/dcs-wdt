@@ -1,11 +1,11 @@
-(ns dcs.wdt.prototype-4.upstream-base
+(ns dcs.wdt.prototype-4.ingest.shared
   (:require [clojure.string :as str]
             [clojure.java.io :as io]
             [clojure.data :as data]
             [clojure.data.csv :as csv]
             [clj-http.client :as http]
             [taoensso.timbre :as log]
-            [dcs.wdt.prototype-4.db-base :as db-base])
+            [dcs.wdt.prototype-4.dimensions :as dim])
   (:import java.io.PushbackReader
            java.net.URLEncoder))
 
@@ -25,11 +25,11 @@
                               "Manufacturing of wood products" "Manufacture of wood products"
                               "Mining & quarrying" "Mining and quarrying"})
 
-(def years-set (set db-base/years))
-(def areas-set (set db-base/areas))
-(def waste-categories-set (set db-base/waste-categories))
-(def end-states-set (set db-base/end-states))
-(def economic-sectors-set (set db-base/economic-sectors))
+(def years-set (set dim/years))
+(def areas-set (set dim/areas))
+(def waste-categories-set (set dim/waste-categories))
+(def end-states-set (set dim/end-states))
+(def economic-sectors-set (set dim/economic-sectors))
 
 (defn rows-to-maps [rows]
   (map zipmap
