@@ -25,7 +25,10 @@
            ;; Create a db from CSV files. Run using: `clj -X:db`
            :db {:exec-fn   dcs.wdt.prototype-4.api/glimpse-db}
 
-           ;; Generate JavaScript/JSON files for time-series-map. Run using: `clj -X:js`
+           ;; Generate JavaScript files for time-series-map. Run using: `clj -X:js`
            :js {:exec-fn   dcs.wdt.prototype-4.api/generate-js-files-for-time-series-map}
+
+           ;; Generate JSON file for data grid & graph. Run using: `clj -X:json`
+           :json {:exec-fn   dcs.wdt.prototype-4.api/generate-json-file-for-data-grid-and-graph}
            }}
 

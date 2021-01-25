@@ -3,7 +3,8 @@
             [taoensso.timbre :as log]
             [dcs.wdt.prototype-4.dimensions :as dim]
             [dcs.wdt.prototype-4.ingest.api :as ingest]
-            [dcs.wdt.prototype-4.export.time-series-map :as time-series-map]))
+            [dcs.wdt.prototype-4.export.time-series-map :as time-series-map]
+            [dcs.wdt.prototype-4.export.data_grid_and_graph :as data-grid-and-graph]))
 
 (defn counts [db]
   (into {}
@@ -30,3 +31,8 @@
   (log/set-level! :info)
   (let [db (ingest/db-from-csv-files)]
     (time-series-map/generate-js-files db)))
+
+(defn generate-json-file-for-data-grid-and-graph [_]
+  (log/set-level! :info)
+  (let [db (ingest/db-from-csv-files)]
+    (data-grid-and-graph/generate-json-file db)))
