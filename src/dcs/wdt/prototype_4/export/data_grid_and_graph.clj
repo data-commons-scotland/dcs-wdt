@@ -10,14 +10,17 @@
 
 
 (defn generate-json-file [db]
-  (let [ignored-areas #{"Offshore" "Unknown"}
+  (let [
+        ;; --------- household and business waste by area ---------
+
+        ignored-areas #{"Offshore" "Unknown"}
 
         household-waste (->> db
                              (remove #(contains? ignored-areas (:area %)))
                              (filter #(= :household-waste (:record-type %)))
                              ;; Calculate the tonnes roll-up for each (area, year, waste-category) triple
                              (group-by (juxt :area :year :waste-category))
-                             (map (fn [[[area year waste-category] coll]] {:record-type    :household-waste
+                             (map (fn [[[area year waste-category] coll]] {:generator     :household
                                                                            :area           area
                                                                            :year           year
                                                                            :waste-category waste-category
@@ -27,7 +30,7 @@
         household-waste-areas-count (count (distinct (map :area household-waste)))
         household-waste-averages (->> household-waste
                                       (group-by (juxt :year :waste-category))
-                                      (map (fn [[[year waste-category] coll]] {:record-type    :household-waste
+                                      (map (fn [[[year waste-category] coll]] {:generator      :household
                                                                                :area           "average"
                                                                                :year           year
                                                                                :waste-category waste-category
@@ -39,11 +42,11 @@
         business-waste (->> db
                             (remove #(contains? ignored-areas (:area %)))
                             (filter #(= :business-waste-by-area (:record-type %)))
-                            (map #(assoc % :record-type :business-waste)))
+                            (map #(assoc % :generator :business)))
         business-waste-areas-count (count (distinct (map :area business-waste)))
         business-waste-averages (->> business-waste
                                      (group-by (juxt :year :waste-category))
-                                     (map (fn [[[year waste-category] coll]] {:record-type    :business-waste
+                                     (map (fn [[[year waste-category] coll]] {:generator      :business
                                                                               :area           "average"
                                                                               :year           year
                                                                               :waste-category waste-category
@@ -52,7 +55,20 @@
                                                                                                               (apply +))
                                                                                                          business-waste-areas-count))})))
 
-        data-for-output (concat household-waste business-waste household-waste-averages business-waste-averages)
+        by-area (->> [household-waste business-waste household-waste-averages business-waste-averages]
+                      (apply concat)
+                      (map #(assoc % :top-selector :by-area)))
+
+        ;; --------- business waste by economic sector ---------
+
+        by-economic-sector (->> db
+                                (filter #(= :business-waste-by-sector (:record-type %)))
+                                (map #(assoc % :generator :business
+                                               :top-selector :by-economic-sector)))
+
+        ;; --------- into a JSON file ---------
+
+        data-for-output (concat by-area by-economic-sector)
         file (io/file filename)]
 
     (log/infof "Writing %s records" (count data-for-output))
