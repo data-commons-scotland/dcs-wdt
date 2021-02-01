@@ -44,7 +44,7 @@
   (let [household-co2e (filter #(= :household-co2e (:record-type %)) db)
         output-records (map (fn [{:keys [area year end-state tonnes]}] {:area   area
                                                                         :year   year
-                                                                        :tonnes (double (/ tonnes (lookup-population area year)))})
+                                                                        :tonnes (double (with-precision 8 (/ tonnes (lookup-population area year))))})
                             household-co2e)
         min-year (->> output-records (map :year) (apply min))
         max-year (->> output-records (map :year) (apply max))

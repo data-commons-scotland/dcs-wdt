@@ -95,7 +95,7 @@ WHERE {
          (remove nil?)
          (#(do (log/infof "Accepted records: %s" (count %)) %)))))
 
-(defn db-from-csv-files []
+(defn db-from-csv-file []
   (let [db (->> csv-file-str
                 io/file
                 csv-file-to-maps

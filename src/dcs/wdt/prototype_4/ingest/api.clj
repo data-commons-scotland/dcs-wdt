@@ -6,9 +6,9 @@
             [dcs.wdt.prototype-4.ingest.business-waste-by-sector :as business-waste-by-sector]))
 
 (defn db-from-csv-files []
-  (concat (population/db-from-csv-files)
-          (household-waste/db-from-csv-files)
-          (household-co2e/db-from-csv-files)
+  (concat (population/db-from-csv-file)
+          (household-waste/db-from-csv-file)
+          (household-co2e/db-from-csv-file)
           (business-waste-by-area/db-from-csv-files)
           (business-waste-by-sector/db-from-csv-files)))
 
