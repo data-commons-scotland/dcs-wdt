@@ -15,15 +15,19 @@
            :sparql {:exec-fn dcs.wdt.prototype-4.api/csv-files-from-sparql}
 
            ;; Create a db from CSV files. Run using: `clj -X:db`
-           :db     {:exec-fn dcs.wdt.prototype-4.api/db}
+           :db     {:exec-fn dcs.wdt.prototype-4.api/db
+                    :jvm-opts ["-Xmx2g"]}
 
            ;; Generate JavaScript files for time-series-map. Run using: `clj -X:js`
-           :js     {:exec-fn dcs.wdt.prototype-4.api/generate-js-files-for-time-series-map}
+           :js     {:exec-fn dcs.wdt.prototype-4.api/generate-js-files-for-time-series-map
+                    :jvm-opts ["-Xmx2g"]}
 
            ;; Generate JSON file for data grid & graph. Run using: `clj -X:json`
-           :json   {:exec-fn dcs.wdt.prototype-4.api/generate-json-file-for-data-grid-and-graph}
+           :json   {:exec-fn dcs.wdt.prototype-4.api/generate-json-file-for-data-grid-and-graph
+                    :jvm-opts ["-Xmx2g"]}
 
            ;; Generate CSV files for general use. Run using: `clj -X:csv`
-           :csv    {:exec-fn dcs.wdt.prototype-4.api/generate-csv-files-for-general-use}
+           :csv    {:exec-fn dcs.wdt.prototype-4.api/generate-csv-files-for-general-use
+                    :jvm-opts ["-Xmx2g"]}
            }}
 
