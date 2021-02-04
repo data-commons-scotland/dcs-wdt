@@ -1,34 +1,29 @@
 {:paths   ["src"]
 
  :deps    {
-           org.clojure/tools.namespace            {:mvn/version "1.0.0"}
-           org.clojure/data.csv                   {:mvn/version "1.0.0"}
-           org.clojure/data.json                  {:mvn/version "1.0.0"}
-           clj-http/clj-http                      {:mvn/version "3.10.3"}
-           com.taoensso/timbre                    {:mvn/version "5.1.0"}
+           org.clojure/tools.namespace {:mvn/version "1.0.0"}
+           org.clojure/data.csv        {:mvn/version "1.0.0"}
+           org.clojure/data.json       {:mvn/version "1.0.0"}
+           clj-http/clj-http           {:mvn/version "3.10.3"}
+           com.taoensso/timbre         {:mvn/version "5.1.0"}
 
-           org.clojure/clojure                    {:mvn/version "1.10.1"}
-
-           ;; For gen-files
-           ;org.clojure/data.csv {:mvn/version "1.0.0"}
-           ;org.clojure/data.json {:mvn/version "1.0.0"}
-           ;clj-http/clj-http {:mvn/version "3.10.1"}
+           org.clojure/clojure         {:mvn/version "1.10.1"}
            }
 
  :aliases {
-           ;; Generate JavaScript/JSON files for prototype-4. Run using: `clj -X:gen-files`
-           :gen-files {:exec-fn   dcs.wdt.prototype-4/gen-files}
-
            ;; Create the CSV files from SPARQL queries: `clj -X:csv`
-           :csv {:exec-fn   dcs.wdt.prototype-4.api/csv-files-from-sparql}
+           :sparql {:exec-fn dcs.wdt.prototype-4.api/csv-files-from-sparql}
 
            ;; Create a db from CSV files. Run using: `clj -X:db`
-           :db {:exec-fn   dcs.wdt.prototype-4.api/glimpse-db}
+           :db     {:exec-fn dcs.wdt.prototype-4.api/db}
 
            ;; Generate JavaScript files for time-series-map. Run using: `clj -X:js`
-           :js {:exec-fn   dcs.wdt.prototype-4.api/generate-js-files-for-time-series-map}
+           :js     {:exec-fn dcs.wdt.prototype-4.api/generate-js-files-for-time-series-map}
 
            ;; Generate JSON file for data grid & graph. Run using: `clj -X:json`
-           :json {:exec-fn   dcs.wdt.prototype-4.api/generate-json-file-for-data-grid-and-graph}
+           :json   {:exec-fn dcs.wdt.prototype-4.api/generate-json-file-for-data-grid-and-graph}
+
+           ;; Generate CSV files for general use. Run using: `clj -X:csv`
+           :csv    {:exec-fn dcs.wdt.prototype-4.api/generate-csv-files-for-general-use}
            }}
 

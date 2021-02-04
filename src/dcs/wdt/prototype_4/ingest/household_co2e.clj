@@ -16,31 +16,36 @@
 
 (def csv-file-str "data/ingesting/household-co2e/csv-extract/2011-onwards.csv")
 
-(def area-column-label "Region")
+(def region-column-label "Region")
 
 (defn split-by-year [m]
-  (let [area (get m area-column-label)
-        ;; Remove the area entry
-        remaining-m (dissoc m area-column-label)]
+  (let [region (get m region-column-label)
+        ;; Remove the region entry
+        remaining-m (dissoc m region-column-label)]
     (for [[k v] remaining-m]
-      {:area area
-       :year k
+      {:region region
+       :year   k
        :tonnes v})))
 
-(defn customise-map [m]
-  (let [area (-> m
-                 :area
-                 (as-> v0
-                       (get shared/area-aliases v0 v0)))]
-    (if (contains? shared/areas-set area)
-      {:area area
-       :year (Integer/parseInt (:year m))
+(defn customise-map
+  "Converts an externally-oriented map to an internally-oriented map."
+  [m]
+  (let [region (-> m
+                   :region
+                   (as-> v0
+                         (get shared/region-aliases v0 v0)))]
+    (if (contains? shared/regions-set region)
+      {:region region
+       :year   (Integer/parseInt (:year m))
        :tonnes (bigdec (:tonnes m))}
       (do (log/debugf "Ignoring: %s" m)
           nil))))
 
-(defn csv-file-to-maps [file]
-  (let [customise-map (partial shared/customise-map-fn customise-map)]
+(defn csv-file-to-maps
+  "Parses a household-co2e CSV file
+  to return a seq of :household-co2e maps (internal DB records)."
+  [file]
+  (let [customise-map (partial shared/customise-map customise-map)]
     (->> file
          (#(do (log/infof "Reading CSV file: %s" (.getAbsolutePath %)) %))
          shared/csv-file-to-maps
@@ -59,5 +64,4 @@
                 (map #(assoc % :record-type :household-co2e)))]
     (when-let [error (shared/check-year-totals :tonnes expected-year-totals db)]
       (throw (RuntimeException. (format "household-co2e has year-totals error...\nExpected: %s\nActual: %s" (first error) (second error)))))
-    (log/infof "household-co2e records: %s" (count db))
     db))

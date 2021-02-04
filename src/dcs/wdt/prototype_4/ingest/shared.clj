@@ -1,4 +1,5 @@
 (ns dcs.wdt.prototype-4.ingest.shared
+  "Forms that are used by more than one of the ingest namespaces."
   (:require [clojure.string :as str]
             [clojure.java.io :as io]
             [clojure.data :as data]
@@ -9,55 +10,73 @@
   (:import java.io.PushbackReader
            java.net.URLEncoder))
 
-(def area-aliases {"Aberdeen"           "Aberdeen City"
-                   "Dundee"             "Dundee City"
-                   "Edinburgh"          "City of Edinburgh"
-                   "Eilean Siar"        "Outer Hebrides"
-                   "Glasgow"            "Glasgow City"
-                   "Na h-Eileanan Siar" "Outer Hebrides"
-                   "Orkney"             "Orkney Islands"})
+(def region-aliases
+  "For mapping to a consistent set of reasonable regions in the internal database."
+  {"Aberdeen"            "Aberdeen City"
+   "Argyll & Bute"       "Argyll and Bute"
+   "Dumfries & Galloway" "Dumfries and Galloway"
+   "Dundee"              "Dundee City"
+   "Edinburgh"           "City of Edinburgh"
+   "Eilean Siar"         "Outer Hebrides"
+   "Glasgow"             "Glasgow City"
+   "Na h-Eileanan Siar"  "Outer Hebrides"
+   "Orkney"              "Orkney Islands"
+   "Perth & Kinross"     "Perth and Kinross"
+   "Shetland"            "Shetland Islands"})
 
-(def waste-category-aliases {"Discarded equipment (excl discarded vehicles, batteries and accumulators)" "Discarded equipment (excluding discarded vehicles, batteries and accumulators wastes)"})
+(def type-aliases
+  "For mapping to a consistent set of reasonable waste types in the internal database."
+  {"Discarded equipment (excl discarded vehicles, batteries and accumulators)" "Discarded equipment (excluding discarded vehicles, batteries and accumulators wastes)"})
 
-(def economic-sector-aliases {"Agriculture Forestry  Fishing" "Agriculture, forestry and fishing"
-                              "Chemical manufacture" "Manufacture of chemicals, plastics and pharmaceuticals"
-                              "Food & drink manufacture" "Manufacture of food and beverage products"
+(def business-sector-aliases {"Agriculture Forestry  Fishing"  "Agriculture, forestry and fishing"
+                              "Chemical manufacture"           "Manufacture of chemicals, plastics and pharmaceuticals"
+                              "Food & drink manufacture"       "Manufacture of food and beverage products"
                               "Manufacturing of wood products" "Manufacture of wood products"
-                              "Mining & quarrying" "Mining and quarrying"})
+                              "Mining & quarrying"             "Mining and quarrying"})
 
 (def years-set (set dim/years))
-(def areas-set (set dim/areas))
-(def waste-categories-set (set dim/waste-categories))
-(def end-states-set (set dim/end-states))
-(def economic-sectors-set (set dim/economic-sectors))
+(def regions-set (set dim/regions))
+(def types-set (set dim/types))
+(def managements-set (set dim/managements))
+(def business-sectors-set (set dim/business-sectors))
 
-(defn rows-to-maps [rows]
+(defn- rows-to-maps
+  [rows]
   (map zipmap
        (repeat (first rows))
        (rest rows)))
 
-(defn skip-byte-order-marker [reader]
+(defn- skip-byte-order-marker
+  [reader]
   (let [pbr (PushbackReader. reader)
         c (.read pbr)]
     (when (not= 65279 c)
       (.unread pbr c))
     pbr))
 
-(defn csv-file-to-maps [file]
-  (->> file
-       io/reader
-       skip-byte-order-marker
-       csv/read-csv
-       rows-to-maps))
+(defn csv-file-to-maps
+  "file should represent a CSV file.
+  Returns a seq of maps, each map representing a data row from the CSV file."
+  [file]
+  (-> file
+      io/reader
+      skip-byte-order-marker
+      csv/read-csv
+      rows-to-maps))
 
-(defn customise-map-fn [customise-map-fn m]
+(defn customise-map
+  "Runs the given and logs any Throwable that results."
+  [customise-map-fn m]
   (try
     (customise-map-fn m)
     (catch Throwable t
       (do (log/errorf "%s - Bad value in: %s" (.getMessage t) m)
           (throw t)))))
 
-(defn find-csv-files [dir]
+(defn find-csv-files
+  "dir should be a string representing a directory.
+  Returns a seq on Files, each File being a .csv ."
+  [dir]
   (->> dir
        io/file
        file-seq

@@ -4,15 +4,15 @@
             [taoensso.timbre :as log]
             [dcs.wdt.prototype-4.ingest.shared :as shared]))
 
-(def expected-year-totals {2011 2536497   ;; Upstream provided value is 2606759
-                           2012 2445584   ;; Upstream provided value is 2500995
-                           2013 2413544   ;; Upstream provided value is 2412630
-                           2014 2458875   ;; Upstream provided value is 2459557
-                           2015 2468472   ;; Upstream provided value is 2468781
-                           2016 2498516   ;; Upstream provided value is 2498978
-                           2017 2460059   ;; Upstream provided value is 2460820
-                           2018 2404503   ;; Upstream provided value is 2405246
-                           2019 2421207}) ;; Upstream provided value is 2421790
+(def expected-year-totals {2011 2536497                     ;; Upstream provided value is 2606759
+                           2012 2445584                     ;; Upstream provided value is 2500995
+                           2013 2413544                     ;; Upstream provided value is 2412630
+                           2014 2458875                     ;; Upstream provided value is 2459557
+                           2015 2468472                     ;; Upstream provided value is 2468781
+                           2016 2498516                     ;; Upstream provided value is 2498978
+                           2017 2460059                     ;; Upstream provided value is 2460820
+                           2018 2404503                     ;; Upstream provided value is 2405246
+                           2019 2421207})                   ;; Upstream provided value is 2421790
 
 (def csv-file-str "data/ingesting/household-waste/csv-extract/2011-onwards.csv")
 
@@ -26,9 +26,9 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
 SELECT
   ?year
-  ?area
-  ?endState
-  ?material
+  ?region
+  ?management
+  ?type
   ?tonnes
 
 WHERE {
@@ -38,7 +38,7 @@ WHERE {
           <http://statistics.gov.scot/def/concept/waste-management/other-diversion>
         } # i.e. ignore the 'pre 2014' data and 'Waste Generated' summed data
        ###VALUES ?wasteCategoryUri {
-       ###   <http://statistics.gov.scot/def/concept/waste-category/total-waste>
+       ###   <http://statistics.gov.scot/def/concept/type/total-waste>
        ###} # i.e. ignore the individual materials - just get their sum
        ### VALUES ?areaUri {
        ###  <http://statistics.gov.scot/id/statistical-geography/S12000017>
@@ -51,10 +51,10 @@ WHERE {
        ?tonnageObs sdmx:wasteManagement ?wasteManagementUri .
        ?tonnageObs snum:count ?tonnes .
 
-       ?areaUri rdfs:label ?area .
+       ?areaUri rdfs:label ?region .
        ?periodUri rdfs:label ?year .
-       ?wasteCategoryUri rdfs:label ?material .
-       ?wasteManagementUri rdfs:label ?endState .
+       ?wasteCategoryUri rdfs:label ?type .
+       ?wasteManagementUri rdfs:label ?management .
 }
 ")
 
@@ -67,25 +67,30 @@ WHERE {
     (spit file contents)
     (log/infof "Writing CSV file: %s" (.getAbsolutePath file))))
 
-(defn customise-map [m]
-  (let [area (let [v (get m "area")]
-               (get shared/area-aliases v v))
-        waste-category (let [v (get m "material")]
-               (get shared/waste-category-aliases v v))
-        end-state (get m "endState")]
-    (if (and (contains? shared/areas-set area)
-             (contains? shared/waste-categories-set waste-category)
-             (contains? shared/end-states-set end-state))
-      {:area area
-       :waste-category waste-category
-       :end-state end-state
-       :year (Integer/parseInt (get m "year"))
-       :tonnes (Integer/parseInt (get m "tonnes"))}
+(defn customise-map
+  "Converts an externally-oriented map to an internally-oriented map."
+  [m]
+  (let [region (let [v (get m "region")]
+                 (get shared/region-aliases v v))
+        type (let [v (get m "type")]
+               (get shared/type-aliases v v))
+        management (get m "management")]
+    (if (and (contains? shared/regions-set region)
+             (contains? shared/types-set type)
+             (contains? shared/managements-set management))
+      {:region     region
+       :year       (Integer/parseInt (get m "year"))
+       :type       type
+       :management management
+       :tonnes     (Integer/parseInt (get m "tonnes"))}
       (do (log/debugf "Ignoring: %s" m)
           nil))))
 
-(defn csv-file-to-maps [file]
-  (let [customise-map (partial shared/customise-map-fn customise-map)]
+(defn csv-file-to-maps
+  "Parses a household-waste CSV file
+  to return a seq of :household-waste maps (internal DB records)."
+  [file]
+  (let [customise-map (partial shared/customise-map customise-map)]
     (->> file
          (#(do (log/infof "Reading CSV file: %s" (.getAbsolutePath %)) %))
          shared/csv-file-to-maps
@@ -102,5 +107,4 @@ WHERE {
                 (map #(assoc % :record-type :household-waste)))]
     (when-let [error (shared/check-year-totals :tonnes expected-year-totals db)]
       (throw (RuntimeException. (format "household-waste has year-totals error...\nExpected: %s\nActual: %s" (first error) (second error)))))
-    (log/infof "household-waste records: %s" (count db))
     db))

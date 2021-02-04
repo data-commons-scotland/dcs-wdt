@@ -11,64 +11,64 @@
 
 (defn generate-json-file [db]
   (let [
-        ;; --------- household and business waste by area ---------
+        ;; --------- household and business waste by region ---------
 
-        ignored-areas #{"Offshore" "Unknown"}
+        ignored-regions #{"Offshore" "Unknown"}
 
         household-waste (->> db
-                             (remove #(contains? ignored-areas (:area %)))
+                             (remove #(contains? ignored-regions (:region %)))
                              (filter #(= :household-waste (:record-type %)))
-                             ;; Calculate the tonnes roll-up for each (area, year, waste-category) triple
-                             (group-by (juxt :area :year :waste-category))
-                             (map (fn [[[area year waste-category] coll]] {:generator     :household
-                                                                           :area           area
-                                                                           :year           year
-                                                                           :waste-category waste-category
-                                                                           :tonnes         (->> coll
-                                                                                                (map :tonnes)
-                                                                                                (apply +))})))
-        household-waste-areas-count (count (distinct (map :area household-waste)))
+                             ;; Calculate the tonnes roll-up for each (region, year, type) triple
+                             (group-by (juxt :region :year :type))
+                             (map (fn [[[region year type] coll]] {:generator :household
+                                                                   :region    region
+                                                                   :year      year
+                                                                   :type      type
+                                                                   :tonnes    (->> coll
+                                                                                   (map :tonnes)
+                                                                                   (apply +))})))
+        household-waste-regions-count (count (distinct (map :region household-waste)))
         household-waste-averages (->> household-waste
-                                      (group-by (juxt :year :waste-category))
-                                      (map (fn [[[year waste-category] coll]] {:generator      :household
-                                                                               :area           "average"
-                                                                               :year           year
-                                                                               :waste-category waste-category
-                                                                               :tonnes         (double (/ (->> coll
-                                                                                                               (map :tonnes)
-                                                                                                               (apply +))
-                                                                                                          household-waste-areas-count))})))
+                                      (group-by (juxt :year :type))
+                                      (map (fn [[[year type] coll]] {:generator :household
+                                                                     :region    "average"
+                                                                     :year      year
+                                                                     :type      type
+                                                                     :tonnes    (double (/ (->> coll
+                                                                                                (map :tonnes)
+                                                                                                (apply +))
+                                                                                           household-waste-regions-count))})))
 
         business-waste (->> db
-                            (remove #(contains? ignored-areas (:area %)))
-                            (filter #(= :business-waste-by-area (:record-type %)))
+                            (remove #(contains? ignored-regions (:region %)))
+                            (filter #(= :business-waste-by-region (:record-type %)))
                             (map #(assoc % :generator :business)))
-        business-waste-areas-count (count (distinct (map :area business-waste)))
+        business-waste-regions-count (count (distinct (map :region business-waste)))
         business-waste-averages (->> business-waste
-                                     (group-by (juxt :year :waste-category))
-                                     (map (fn [[[year waste-category] coll]] {:generator      :business
-                                                                              :area           "average"
-                                                                              :year           year
-                                                                              :waste-category waste-category
-                                                                              :tonnes         (double (/ (->> coll
-                                                                                                              (map :tonnes)
-                                                                                                              (apply +))
-                                                                                                         business-waste-areas-count))})))
+                                     (group-by (juxt :year :type))
+                                     (map (fn [[[year type] coll]] {:generator :business
+                                                                    :region    "average"
+                                                                    :year      year
+                                                                    :type      type
+                                                                    :tonnes    (double (/ (->> coll
+                                                                                               (map :tonnes)
+                                                                                               (apply +))
+                                                                                          business-waste-regions-count))})))
 
-        by-area (->> [household-waste business-waste household-waste-averages business-waste-averages]
-                      (apply concat)
-                      (map #(assoc % :top-selector :by-area)))
+        by-region (->> [household-waste business-waste household-waste-averages business-waste-averages]
+                       (apply concat)
+                       (map #(assoc % :top-selector :by-region)))
 
         ;; --------- business waste by economic sector ---------
 
-        by-economic-sector (->> db
+        by-business-sector (->> db
                                 (filter #(= :business-waste-by-sector (:record-type %)))
                                 (map #(assoc % :generator :business
-                                               :top-selector :by-economic-sector)))
+                                               :top-selector :by-business-sector)))
 
         ;; --------- into a JSON file ---------
 
-        data-for-output (concat by-area by-economic-sector)
+        data-for-output (concat by-region by-business-sector)
         file (io/file filename)]
 
     (log/infof "Writing %s records" (count data-for-output))

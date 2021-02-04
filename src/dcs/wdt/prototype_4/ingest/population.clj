@@ -27,7 +27,7 @@ PREFIX ugeo: <http://statistics.data.gov.uk/def/statistical-geography#>
 
 SELECT
 ?year
-?area
+?region
 ?population
 
 WHERE {
@@ -37,7 +37,7 @@ WHERE {
 
   ?areaUri uent:code ?areaType;
            ugeo:status 'Live' ;
-           rdfs:label ?area .
+           rdfs:label ?region .
 
   ?populationUri qb:dataSet <http://statistics.gov.scot/data/population-estimates-current-geographic-boundaries> ;
                  pdmx:refArea ?areaUri ;
@@ -61,18 +61,23 @@ WHERE {
     (spit file contents)
     (log/infof "Writing CSV file: %s" (.getAbsolutePath file))))
 
-(defn customise-map [m]
-  (let [area (let [v (get m "area")]
-               (get shared/area-aliases v v))]
-    (if (contains? shared/areas-set area)
-      {:area area
-       :year (Integer/parseInt (get m "year"))
+(defn customise-map
+  "Converts an externally-oriented map to an internally-oriented map."
+  [m]
+  (let [region (let [v (get m "region")]
+                 (get shared/region-aliases v v))]
+    (if (contains? shared/regions-set region)
+      {:region     region
+       :year       (Integer/parseInt (get m "year"))
        :population (Integer/parseInt (get m "population"))}
       (do (log/debugf "Ignoring: %s" m)
           nil))))
 
-(defn csv-file-to-maps [file]
-  (let [customise-map (partial shared/customise-map-fn customise-map)]
+(defn csv-file-to-maps
+  "Parses a population CSV file
+  to return a seq of :population maps (internal DB records)."
+  [file]
+  (let [customise-map (partial shared/customise-map customise-map)]
     (->> file
          (#(do (log/infof "Reading CSV file: %s" (.getAbsolutePath %)) %))
          shared/csv-file-to-maps
@@ -89,5 +94,4 @@ WHERE {
                 (map #(assoc % :record-type :population)))]
     (when-let [error (shared/check-year-totals :population expected-year-totals db)]
       (throw (RuntimeException. (format "population has year-totals error...\nExpected: %s\nActual: %s" (first error) (second error)))))
-    (log/infof "population records: %s" (count db))
     db))
