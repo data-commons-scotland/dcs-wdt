@@ -54,6 +54,8 @@
          (#(do (log/infof "Reading CSV file: %s" (.getAbsolutePath %)) %))
          shared/csv-file-to-maps
          (#(do (log/infof "CSV data rows: %s" (count %)) %))
+         (take 12)
+         (#(do (log/warnf "For speed (while dev-ing) taking only the first few CSV rows: %s" (count %)) %))
          (map split-by-year-quarter)
          flatten
          (#(do (log/infof "Candidate records: %s" (count %)) %))

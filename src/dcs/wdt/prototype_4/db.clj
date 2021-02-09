@@ -4,7 +4,10 @@
             [dcs.wdt.prototype-4.dimensions :as dims]
             [dcs.wdt.prototype-4.ingest.api :as ingest]))
 
-(def important-dims [:record-type :region :business-sector :year :quarter :type :management :site-name :permit :io :ewc-description :population :tonnes :tonnes-input :tonnes-treated-recovered :tonnes-output])
+(def important-dims [:record-type
+                     :region :business-sector :year :quarter
+                     :type :management :site-name :permit :easting :northing :io :ewc-description
+                     :population :tonnes :tonnes-input :tonnes-treated-recovered :tonnes-output])
 
 (defn ord
   "Associates each important dimension with an ordinal value, for use when sorting."

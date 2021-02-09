@@ -1,5 +1,6 @@
 (ns dcs.wdt.prototype-4.ingest.api
-  (:require [dcs.wdt.prototype-4.ingest.meta :as meta]
+  (:require [taoensso.timbre :as log]
+            [dcs.wdt.prototype-4.ingest.meta :as meta]
             [dcs.wdt.prototype-4.ingest.population :as population]
             [dcs.wdt.prototype-4.ingest.household-waste :as household-waste]
             [dcs.wdt.prototype-4.ingest.household-co2e :as household-co2e]
