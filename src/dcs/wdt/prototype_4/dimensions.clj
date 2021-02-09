@@ -99,6 +99,30 @@
    "Waste management"
    "Water industry"])
 
+(def sortable-dims [:record-type
+                    :region :business-sector
+                    :year :quarter
+                    :type :management :site-name :permit :easting :northing
+                    :status :io :ewc-code :ewc-description :operator :activity :sector
+                    :population :tonnes :tonnes-input :tonnes-treated-recovered :tonnes-output])
+(def place-it-last (count sortable-dims))
+
+(defn ord
+  "Associates the dimension with an ordinal value - useful for sorting."
+  [dimension]
+  (let [v (.indexOf sortable-dims dimension)]
+    (if (= -1 v)
+      place-it-last
+      v)))
+
+(defn min-max-useful?
+  [dimension]
+  (contains? #{:year :population :tonnes :tonnes-input :tonnes-treated-recovered :tonnes-output} dimension))
+
+(defn count-useful?
+  [dimension]
+  (not (contains? #{:easting :northing :population :tonnes :tonnes-input :tonnes-treated-recovered :tonnes-output} dimension)))
+
 ;; TODO Put elsewhere since not really a dimension?
 (def record-types
   "Records types (except for :meta) of the internal database."
