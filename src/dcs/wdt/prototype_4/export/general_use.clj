@@ -17,19 +17,20 @@
       [(name rtype) n
        (:creator source) (:created-when source)
        (:supplier source) (:supply-url source)
-       (:licence source ) (:notes source)])))
+       (:licence source) (:notes source)])))
 
 (defn- dimensions-metadata [db]
-  (apply concat                                             ;; flatten one level
-         (for [rtype dims/record-types]
-           (let [sub-db (filter #(= rtype (:record-type %)) db)
-                 record (first sub-db)
-                 dims (sort-by dims/ord (keys (dissoc record :record-type)))]
-             (for [dim dims]
-               (let [dim-vals (distinct (map dim sub-db))]
-                 [(name rtype) (name dim) (dim record)
-                  (when (dims/count-useful? dim) (count dim-vals))
-                  (when (dims/min-max-useful? dim) (apply min dim-vals)) (when (dims/min-max-useful? dim) (apply max dim-vals))]))))))
+  (sort-by (comp dims/ord keyword first)                    ;; sort by dimension (with the ordering defined by ord)
+           (apply concat                                    ;; flatten one level
+                  (for [rtype dims/record-types]
+                    (let [sub-db (filter #(= rtype (:record-type %)) db)
+                          record (first sub-db)
+                          dims (sort-by dims/ord (keys (dissoc record :record-type)))]
+                      (for [dim dims]
+                        (let [dim-vals (sort-by dims/ord (distinct (map dim sub-db)))]
+                          [(name dim) (name rtype) (dim record)
+                           (when (dims/count-useful? dim) (count dim-vals))
+                           (when (dims/min-max-useful? dim) (apply min dim-vals)) (when (dims/min-max-useful? dim) (apply max dim-vals))])))))))
 
 
 (defn- generate-metadata-csv-files [db]
@@ -45,7 +46,7 @@
       (with-open [wtr (io/writer file)]
         (csv/write-csv wtr (cons header-row data-rows))))
     (let [data-rows (dimensions-metadata db)
-          header-row ["dataset" "dimension" "example value of dimension"
+          header-row ["dimension" "dataset" "example value of dimension"
                       "count of values of dimension, when useful"
                       "min value of dimension, when useful" "max value of dimension, when useful"]
           file (io/file (str metadata-dir "dimensions.csv"))]
@@ -71,7 +72,7 @@
 
 (defn- print-describing-tables-for-the-metadata [db]
   (let [data-rows (dimensions-metadata db)
-        ks [:record-type :dimension :example :count-distincts :min :max]
+        ks [:dimension :record-type :example :count-distincts :min :max]
         data-maps (map #(zipmap ks %) data-rows)]
     (pp/print-table data-maps))
   (let [data-rows (datasets-metadata db)

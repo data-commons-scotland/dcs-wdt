@@ -24,8 +24,8 @@
    "Perth & Kinross"     "Perth and Kinross"
    "Shetland"            "Shetland Islands"})
 
-(def type-aliases
-  "For mapping to a consistent set of reasonable waste types in the internal database."
+(def material-aliases
+  "For mapping to a consistent set of reasonable waste materials in the internal database."
   {"Discarded equipment (excl discarded vehicles, batteries and accumulators)" "Discarded equipment (excluding discarded vehicles, batteries and accumulators wastes)"})
 
 (def business-sector-aliases {"Agriculture Forestry  Fishing"  "Agriculture, forestry and fishing"
@@ -36,7 +36,7 @@
 
 (def years-set (set dim/years))
 (def regions-set (set dim/regions))
-(def types-set (set dim/types))
+(def materials-set (set dim/materials))
 (def managements-set (set dim/managements))
 (def business-sectors-set (set dim/business-sectors))
 

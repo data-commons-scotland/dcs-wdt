@@ -41,6 +41,7 @@
    :permit          (get m "Permit / Licence Number")
    :operator        (get m "Operator Organisation")
    :io              (get m "Input / Output Table")
+   :material        "TODO"
    :ewc-code        (get m "EWC Code")
    :ewc-description (get m "EWC Description")
    :tonnes          (bigdec' (:tonnes m))})

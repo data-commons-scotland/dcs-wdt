@@ -1,5 +1,5 @@
 (ns dcs.wdt.prototype-4.dimensions
-  "Dimensions that have 'controlled' values.")
+  "Dimension stuff... ordering, controlled values, etc.")
 
 (def years
   "2011-2019 inclusive."
@@ -43,8 +43,8 @@
    "Offshore"
    "Unknown"])
 
-(def types
-  "Waste material types/categories."
+(def materials
+  "Waste material materials/categories."
   ["Acid, alkaline or saline wastes"
    "Animal and mixed food waste"
    "Animal faeces, urine and manure"
@@ -102,8 +102,8 @@
 (def sortable-dims [:record-type
                     :region :business-sector
                     :year :quarter
-                    :type :management :site-name :permit :easting :northing
-                    :status :io :ewc-code :ewc-description :operator :activity :sector
+                    :site-name :permit :status :latitude :longitude
+                    :io :material :management :ewc-code :ewc-description :operator :activity :sector
                     :population :tonnes :tonnes-input :tonnes-treated-recovered :tonnes-output])
 (def place-it-last (count sortable-dims))
 
@@ -121,11 +121,10 @@
 
 (defn count-useful?
   [dimension]
-  (not (contains? #{:easting :northing :population :tonnes :tonnes-input :tonnes-treated-recovered :tonnes-output} dimension)))
+  (not (contains? #{:population :tonnes :tonnes-input :tonnes-treated-recovered :tonnes-output} dimension)))
 
-;; TODO Put elsewhere since not really a dimension?
 (def record-types
-  "Records types (except for :meta) of the internal database."
+  "Record types of the internal database."
   [:population
    :household-waste
    :household-co2e

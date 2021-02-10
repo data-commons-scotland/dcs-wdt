@@ -1,15 +1,10 @@
 (ns dcs.wdt.prototype-4.export.cluster-map
   (:require [clojure.java.io :as io]
             [clojure.data.json :as json]
-            [taoensso.timbre :as log]
-            [geocoordinates.core :as geo])
+            [taoensso.timbre :as log])
   (:import java.io.FileWriter))
 
 (def file (io/file "data/exporting/cluster-map/waste-sites.geojson"))
-
-(defn- coordinates [easting northing]
-  (let [latlng (geo/easting-northing->latitude-longitude {:easting easting :northing northing} :national-grid)]
-    [(:longitude latlng) (:latitude latlng)]))
 
 (def mock-template {:type       "FeatureCollection"
                     :features   []
@@ -39,7 +34,7 @@
 (defn generate-json-file [db]
   (let [sub-db (filter #(= :waste-site (:record-type %)) db)
         features (map #(hash-map :geometry {:type        "Point"
-                                            :coordinates (coordinates (:easting %) (:northing %))}
+                                            :coordinates [(:longitude %) (:latitude %)]}
                                  :type "Feature"
                                  :properties {"5065" (str (inc (rand-int 4)))
                                               "5055" "2021-02-08"

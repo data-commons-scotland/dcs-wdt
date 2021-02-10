@@ -12,18 +12,18 @@
                            2017 3335634                     ;; Upstream provided value is 3335638
                            2018 3236531})                   ;; Upstream provided value is 3236534})
 
-(def type-column-label "waste-category")                    ;; Expected to have been edited into each CSV extract
+(def material-column-label "waste-category")                ;; Expected to have been edited into each CSV extract
 
 (defn split-by-region
   "Convert the given map with multiple regions to a seq of maps, each with a single region."
   [m]
-  (let [type (get m type-column-label)
-        ;; Remove the type entry
-        remaining-m (dissoc m type-column-label)]
+  (let [material (get m material-column-label)
+        ;; Remove the material entry
+        remaining-m (dissoc m material-column-label)]
     (for [[k v] remaining-m]
-      {:type   type
-       :region k
-       :tonnes v})))
+      {:material material
+       :region   k
+       :tonnes   v})))
 
 (defn customise-map
   "Converts an externally-oriented map to an internally-oriented map."
@@ -34,22 +34,22 @@
                    (str/replace "*" "")
                    (as-> v0
                          (get shared/region-aliases v0 v0)))
-        type (-> m
-                 :type
-                 (str/replace "*" "")
-                 str/trim
-                 (as-> v0
-                       (get shared/type-aliases v0 v0)))]
+        material (-> m
+                     :material
+                     (str/replace "*" "")
+                     str/trim
+                     (as-> v0
+                           (get shared/material-aliases v0 v0)))]
     (if (and (contains? shared/regions-set region)
-             (contains? shared/types-set type))
-      {:region region
-       :type   type
-       :tonnes (-> m
-                   :tonnes
-                   (str/replace "," "")
-                   (str/replace "-" "0")
-                   str/trim
-                   Integer/parseInt)}
+             (contains? shared/materials-set material))
+      {:region   region
+       :material material
+       :tonnes   (-> m
+                     :tonnes
+                     (str/replace "," "")
+                     (str/replace "-" "0")
+                     str/trim
+                     Integer/parseInt)}
       (do (log/debugf "Ignoring: %s" m)
           nil))))
 

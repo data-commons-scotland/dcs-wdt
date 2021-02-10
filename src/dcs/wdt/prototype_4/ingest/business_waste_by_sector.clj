@@ -12,17 +12,17 @@
                            2017 3335632                     ;; Upstream provided value is 3335638
                            2018 3236538})                   ;; Upstream provided value is 3236534})
 
-(def type-column-label "waste-category")                    ;; Expected to have been edited into each CSV extract
+(def material-column-label "waste-category")                ;; Expected to have been edited into each CSV extract
 
 (defn split-by-business-sector
   "Convert the given map with multiple business-sectors to a seq of maps, each with a single business-sector."
   [m]
-  (let [type (get m type-column-label)
-        ;; Remove the type entry
-        remaining-m (dissoc m type-column-label)]
+  (let [material (get m material-column-label)
+        ;; Remove the material entry
+        remaining-m (dissoc m material-column-label)]
     (for [[k v] remaining-m]
       {:business-sector k
-       :type            type
+       :material        material
        :tonnes          v})))
 
 (defn customise-map
@@ -36,17 +36,17 @@
                             str/trim
                             (as-> v0
                                   (get shared/business-sector-aliases v0 v0)))
-        type (-> m
-                 :type
-                 (str/replace "†" "")
-                 (str/replace "*" "")
-                 str/trim
-                 (as-> v0
-                       (get shared/type-aliases v0 v0)))]
+        material (-> m
+                     :material
+                     (str/replace "†" "")
+                     (str/replace "*" "")
+                     str/trim
+                     (as-> v0
+                           (get shared/material-aliases v0 v0)))]
     (if (and (contains? shared/business-sectors-set business-sector)
-             (contains? shared/types-set type))
+             (contains? shared/materials-set material))
       {:business-sector business-sector
-       :type            type
+       :material        material
        :tonnes          (-> m
                             :tonnes
                             (str/replace "," "")

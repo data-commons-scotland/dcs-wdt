@@ -28,7 +28,7 @@ SELECT
   ?year
   ?region
   ?management
-  ?type
+  ?material
   ?tonnes
 
 WHERE {
@@ -53,7 +53,7 @@ WHERE {
 
        ?areaUri rdfs:label ?region .
        ?periodUri rdfs:label ?year .
-       ?wasteCategoryUri rdfs:label ?type .
+       ?wasteCategoryUri rdfs:label ?material .
        ?wasteManagementUri rdfs:label ?management .
 }
 ")
@@ -72,15 +72,15 @@ WHERE {
   [m]
   (let [region (let [v (get m "region")]
                  (get shared/region-aliases v v))
-        type (let [v (get m "type")]
-               (get shared/type-aliases v v))
+        material (let [v (get m "material")]
+                   (get shared/material-aliases v v))
         management (get m "management")]
     (if (and (contains? shared/regions-set region)
-             (contains? shared/types-set type)
+             (contains? shared/materials-set material)
              (contains? shared/managements-set management))
       {:region     region
        :year       (Integer/parseInt (get m "year"))
-       :type       type
+       :material   material
        :management management
        :tonnes     (Integer/parseInt (get m "tonnes"))}
       (do (log/debugf "Ignoring: %s" m)
