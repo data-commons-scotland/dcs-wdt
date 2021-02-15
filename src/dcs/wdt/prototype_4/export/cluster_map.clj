@@ -22,9 +22,9 @@
                                                                 "6" "grey"}
                                                        :name   "Materials"}
                                                "9990" {:name "Region"}
-                                               "9991" {:name "Site name"}
-                                               "9992" {:name "Permit"}
-                                               "9993" {:name "Status"}
+                                               "9993" {:name "Site name"}
+                                               "9991" {:name "Permit"}
+                                               "9992" {:name "Status"}
                                                "9994" {:name "Site activity"}
                                                "9995" {:name "Site sector"}
                                                "9996" {:name "Tonnes input"}}
@@ -36,16 +36,19 @@
         features (map #(hash-map :geometry {:type        "Point"
                                             :coordinates [(:longitude %) (:latitude %)]}
                                  :type "Feature"
-                                 :properties {"5065" (str (inc (rand-int 4)))
-                                              "5055" "2021-02-08"
-                                              "5074" (str (inc (rand-int 6)))
-                                              "9990" (:region %)
-                                              "9991" (:permit %)
-                                              "9992" (:status %)
-                                              "9993" (:site-name %)
-                                              "9994" (:activity %)
-                                              "9995" (:sector %)
-                                              "9996" (:tonnes-input %)})
+                                 :properties {"5065"           (str (inc (rand-int 4)))
+                                              "5055"           "2021-02-08"
+                                              "5074"           (str (inc (rand-int 6)))
+                                              "9990"           (:region %)
+                                              "9991"           (:permit %)
+                                              "9992"           (:status %)
+                                              "9993"           (:site-name %)
+                                              "9994"           (:activity %)
+                                              "9995"           (:sector %)
+                                              "9996"           (:tonnes-input %)
+                                              "tonnesIncoming" (let [materials (random-sample 0.5 (range 1 7))
+                                                                     tonnes (repeatedly (count materials) (fn [] inc (rand-int 100)))]
+                                                                 (zipmap materials tonnes))})
                       sub-db)
         mock (assoc mock-template :features features)]
     (log/infof "Writing %s records" (count features))

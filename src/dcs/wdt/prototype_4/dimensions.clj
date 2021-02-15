@@ -39,7 +39,7 @@
    "Stirling"
    "West Dunbartonshire"
    "West Lothian"
-   ;; Specials
+   ;; Special
    "Offshore"
    "Unknown"])
 
@@ -77,7 +77,9 @@
    "Used oils"
    "Vegetal wastes"
    "Waste containing PCB"
-   "Wood wastes"])
+   "Wood wastes"
+   ;; Special
+   "Uncategorised"])
 
 (def managements
   "Waste management."
@@ -131,4 +133,5 @@
    :business-waste-by-region
    :business-waste-by-sector
    :waste-site
-   :waste-site-io])
+   :waste-site-io
+   :material-coding])

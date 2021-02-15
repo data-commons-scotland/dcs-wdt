@@ -42,4 +42,10 @@
                               :supplier     "SEPA"
                               :supply-url   "https://www.sepa.org.uk/data-visualisation/waste-sites-and-capacity-tool"
                               :licence      "OGL v2.0 http://www.nationalarchives.gov.uk/doc/open-government-licence/version/2/"
-                              :notes        "Published through a web-based data tool, the data can be downloaded as a CSV file."}})
+                              :notes        "Published through a web-based data tool, the data can be downloaded as a CSV file."}
+   :material-coding          {:creator      "SEPA"
+                              :created-when 2020
+                              :supplier     "SEPA"
+                              :supply-url   "https://www.sepa.org.uk/data-visualisation/waste-sites-and-capacity-tool"
+                              :licence      "OGL v2.0 http://www.nationalarchives.gov.uk/doc/open-government-licence/version/2/"
+                              :notes        "Published through a web-based data tool, the data can be downloaded as CSV files."}})
