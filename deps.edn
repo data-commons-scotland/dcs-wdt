@@ -12,26 +12,26 @@
 
  :aliases {
            ;; Create the CSV files from SPARQL queries: `clj -X:csv`
-           :sparql  {:exec-fn dcs.wdt.prototype-4.api/csv-files-from-sparql}
+           :sparql          {:exec-fn dcs.wdt.prototype-4.api/csv-files-from-sparql}
 
            ;; Create a db from CSV files then describe it on the console. Run using: `clj -X:db`
-           :db      {:exec-fn  dcs.wdt.prototype-4.api/db
-                     :jvm-opts ["-Xmx3g"]}
+           :db              {:exec-fn  dcs.wdt.prototype-4.api/db
+                             :jvm-opts ["-Xmx3g"]}
 
            ;; Generate CSV files for general use. Run using: `clj -X:general`
-           :general {:exec-fn  dcs.wdt.prototype-4.api/generate-csv-files-for-general-use
-                     :jvm-opts ["-Xmx3g"]}
+           :general         {:exec-fn  dcs.wdt.prototype-4.api/generate-csv-files-for-general-use
+                             :jvm-opts ["-Xmx3g"]}
 
            ;; Generate JavaScript files for time-series-map. Run using: `clj -X:tseries`
-           :tseries {:exec-fn  dcs.wdt.prototype-4.api/generate-js-files-for-time-series-map
-                     :jvm-opts ["-Xmx3g"]}
+           :tseries         {:exec-fn  dcs.wdt.prototype-4.api/generate-js-files-for-time-series-map
+                             :jvm-opts ["-Xmx3g"]}
 
            ;; Generate JSON file for data grid & graph. Run using: `clj -X:grid`
-           :grid    {:exec-fn  dcs.wdt.prototype-4.api/generate-json-file-for-data-grid-and-graph
-                     :jvm-opts ["-Xmx3g"]}
+           :grid            {:exec-fn  dcs.wdt.prototype-4.api/generate-json-file-for-data-grid-and-graph
+                             :jvm-opts ["-Xmx3g"]}
 
            ;; Generate JSON file for cluster-map. Run using: `clj -X:cluster`
-           :cluster {:exec-fn  dcs.wdt.prototype-4.api/generate-json-file-for-cluster-map
-                     :jvm-opts ["-Xmx3g"]}
+           :cluster         {:exec-fn  dcs.wdt.prototype-4.api/generate-json-file-for-cluster-map
+                             :jvm-opts ["-Xmx3g"]}
            }}
 
