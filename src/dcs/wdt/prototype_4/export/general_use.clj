@@ -1,5 +1,6 @@
 (ns dcs.wdt.prototype-4.export.general-use
-  (:require [clojure.java.io :as io]
+  (:require [clojure.string :as str]
+            [clojure.java.io :as io]
             [clojure.data.csv :as csv]
             [clojure.pprint :as pp]
             [taoensso.timbre :as log]
@@ -17,7 +18,8 @@
       [(name rtype) n
        (:creator source) (:created-when source)
        (:supplier source) (:supply-url source)
-       (:licence source) (:notes source)])))
+       (:licence source) (:licence-url source)
+       (:notes source)])))
 
 (defn- dimensions-metadata [db]
   (sort-by (comp dims/ord keyword first)                    ;; sort by dimension (with the ordering defined by ord)
@@ -39,7 +41,8 @@
           header-row ["dataset" "number of records"
                       "creator of source data" "creation date of source data"
                       "supplier of source data" "supply URL of source data"
-                      "licence of source data" "sourcing notes"]
+                      "licence of source data" "licence URL of source data"
+                      "sourcing notes"]
           file (io/file (str metadata-dir "datasets.csv"))]
       (log/infof "Writing %s records to: %s" (count data-rows) (.getAbsolutePath file))
       (io/make-parents file)
@@ -76,7 +79,7 @@
         data-maps (map #(zipmap ks %) data-rows)]
     (pp/print-table data-maps))
   (let [data-rows (datasets-metadata db)
-        ks [:record-type :record-count :creator :created-when :supplier :supply-url :licence :notes]
+        ks [:record-type :record-count :creator :created-when :supplier :supply-url :licence :licence-url :notes]
         data-maps (map #(zipmap ks %) data-rows)]
     (pp/print-table data-maps)))
 
@@ -89,9 +92,108 @@
       (pp/print-table ks sub-db-sampled))))
 
 
+(defn- generate-readme-file [db]
+  (let [content-template "
+== _Easier_ open data about waste in Scotland
+
+=== Objective
+
+Several organisations are doing a good job of curating & publishing _open data_ about waste in Scotland but,
+the published data is not always \"easy to use\" for non-experts.
+We have see several references to this at open data conference events and on social media platforms...
+[quote]
+Whilst statisticians/coders may think that it is reasonably simple to knead together these
+somewhat diverse datasets into a coherent knowledge, the interested layman doesn't find it so easy.
+
+One of the objectives of the Data Commons Scotland project is to address
+the \"ease of use\" issue over open data.
+The contents of this repository are the result of us _re-working_ some of the existing (\"source\") open data
+so it is _easier_ to understand, consume, parse, and all in one place.
+It may not be as detailed or have all the nuances as the source data - but aims to be
+better for the purposes of making the information accessible to non-experts.
+
+We have processed the source data just enough to:
+
+* provide value-based cross-referencing between datasets
+* add a few fields whose values are generally useful but not easily derivable by a simple calculation (such as latitude & longitude)
+* make it available as simple CSV and JSON files.
+
+We have not augmented the data with derived values that can be simply calculated
+such as per-population amounts, averages, trends, totals, etc.
+
+=== The _easier_ datasets
+
+[width=\"100%\",cols=\"<,<,>,<,<,<\"]
+
+|=========================================================
+
+3+^h|_easier_ dataset footnote:sourcing[Each \"_easier_ dataset\" in this repository, is derived from \"source data\".]
+3+^h|source data footnote:sourcing[]
+
+1+<h| name
+1+<h| description
+1+<h| number of records
+1+<h| creator
+1+<h| supplier
+1+<h| licence
+
+datasets-str
+
+|=========================================================
+
+(The fuller, link:metadata/datasets.csv[CSV version of the table] above.)
+
+=== The dimensions of the _easier_ datasets
+
+[width=\"100%\",cols=\"7\",options=\"header\"]
+
+|=========================================================
+
+| dimension
+| description
+| dataset
+| example value of dimension
+| count of values of dimension
+| min value of dimension
+| max value of dimension
+
+dimensions-str
+
+|=========================================================
+
+(The link:metadata/dimensions.csv[CSV version of the table] above.)
+"
+
+        datasets-str (str/join "\n\n"
+                               (map (fn [columns] (format
+                                                    "| %s^&nbsp;link:data/%s.csv[CSV]^ | TODO | %s | %s | %s^&nbsp;%s[URL]^ | %s[%s]"
+                                                    (nth columns 0) (nth columns 0) (nth columns 1) (nth columns 2) (nth columns 4) (nth columns 5) (nth columns 7) (nth columns 6)))
+                                    (datasets-metadata db)))
+        dimensions-str (str/join "\n\n"
+                                 (flatten
+                                   (for [rows (partition-by first (dimensions-metadata db))] ;; partition by dimension value
+                                     (cons
+                                       (let [columns (first rows)] ;; 1st row for the particular dimension value
+                                         (format
+                                           ".%s+| %s .%s+| TODO | %s^&nbsp;link:data/%s.csv[CSV]^ | %s | %s | %s | %s"
+                                           (count rows) (nth columns 0) (count rows) (nth columns 1) (nth columns 1) (nth columns 2) (if-let [v (nth columns 3)] v "") (if-let [v (nth columns 4)] v "") (if-let [v (nth columns 5)] v "")))
+                                       (for [columns (rest rows)] ;; the remaining rows for the particular dimension value
+                                         (format
+                                           "| %s^&nbsp;link:data/%s.csv[CSV]^ | %s | %s | %s | %s"
+                                           (nth columns 1) (nth columns 1) (nth columns 2) (if-let [v (nth columns 3)] v "") (if-let [v (nth columns 4)] v "") (if-let [v (nth columns 5)] v "")))))))
+        content (-> content-template
+                    (str/replace "datasets-str" datasets-str)
+                    (str/replace "dimensions-str" dimensions-str))
+        file (io/file (str trunk-dir "README.adoc"))]
+    (log/infof "Writing: %s" (.getAbsolutePath file))
+    (io/make-parents file)
+    (spit file content)))
+
+
 (defn generate-csv-files [db]
   (generate-data-csv-files db)
-  (generate-metadata-csv-files db))
+  (generate-metadata-csv-files db)
+  (generate-readme-file db))
 
 (defn print-describing-tables [db]
   (print-tables-of-sample-of-the-data db)
