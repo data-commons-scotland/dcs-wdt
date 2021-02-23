@@ -123,15 +123,16 @@ such as per-population amounts, averages, trends, totals, etc.
 
 === The _easier_ datasets
 
-[width=\"100%\",cols=\"<,<,>,<,<,<\"]
+[width=\"100%\",cols=\"<,<,<,>,<,<,<\"]
 
 |=========================================================
 
-3+^h|_easier_ dataset footnote:sourcing[Each \"_easier_ dataset\" in this repository, is derived from \"source data\".]
+4+^h|_easier_ dataset footnote:sourcing[Each \"_easier_ dataset\" in this repository, is derived from \"source data\".]
 3+^h|source data footnote:sourcing[]
 
 1+<h| name
 1+<h| description
+1+<h| file
 1+<h| number of records
 1+<h| creator
 1+<h| supplier
@@ -166,8 +167,8 @@ dimensions-str
 
         datasets-str (str/join "\n\n"
                                (map (fn [columns] (format
-                                                    "| %s^&nbsp;link:data/%s.csv[CSV]^ | TODO | %s | %s | %s^&nbsp;%s[URL]^ | %s[%s]"
-                                                    (nth columns 0) (nth columns 0) (nth columns 1) (nth columns 2) (nth columns 4) (nth columns 5) (nth columns 7) (nth columns 6)))
+                                                    "| anchor:%s[] %s | TODO | link:data/%s.csv[CSV] | %s | %s | %s^&nbsp;%s[URL]^ | %s[%s]"
+                                                    (nth columns 0) (nth columns 0) (nth columns 0) (nth columns 1) (nth columns 2) (nth columns 4) (nth columns 5) (nth columns 7) (nth columns 6)))
                                     (datasets-metadata db)))
         dimensions-str (str/join "\n\n"
                                  (flatten
@@ -175,11 +176,11 @@ dimensions-str
                                      (cons
                                        (let [columns (first rows)] ;; 1st row for the particular dimension value
                                          (format
-                                           ".%s+| %s .%s+| TODO | %s^&nbsp;link:data/%s.csv[CSV]^ | %s | %s | %s | %s"
+                                           ".%s+| %s .%s+| TODO | xref:%s[%s] | %s | %s | %s | %s"
                                            (count rows) (nth columns 0) (count rows) (nth columns 1) (nth columns 1) (nth columns 2) (if-let [v (nth columns 3)] v "") (if-let [v (nth columns 4)] v "") (if-let [v (nth columns 5)] v "")))
                                        (for [columns (rest rows)] ;; the remaining rows for the particular dimension value
                                          (format
-                                           "| %s^&nbsp;link:data/%s.csv[CSV]^ | %s | %s | %s | %s"
+                                           "| xref:%s[%s] | %s | %s | %s | %s"
                                            (nth columns 1) (nth columns 1) (nth columns 2) (if-let [v (nth columns 3)] v "") (if-let [v (nth columns 4)] v "") (if-let [v (nth columns 5)] v "")))))))
         content (-> content-template
                     (str/replace "datasets-str" datasets-str)
