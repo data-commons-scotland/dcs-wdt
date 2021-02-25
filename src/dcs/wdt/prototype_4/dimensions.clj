@@ -125,13 +125,40 @@
   [dimension]
   (not (contains? #{:population :tonnes :tonnes-input :tonnes-treated-recovered :tonnes-output} dimension)))
 
+(def descriptions
+  {:record-type "Indicates the dataset of the record."
+   :region "The name of a council area."
+   :business-sector "The label representing the business/economic sector."
+   :year "The integer representation of a year."
+   :quarter "The label indicating a year's quarter."
+   :site-name "The name of the waste site."
+   :permit "The waste site operator's offical permit or licence."
+   :status "The label indicating the open/closed status of the waste site in the record's timeframe. "
+   :latitude "The signed decimal representing a latitude."
+   :longitude "The signed decimal representing a longitude."
+   :io "The label indicating the direction of travel of the waste from the PoV of a waste site."
+   :material "The name of a waste material in SEPA's classification."
+   :management "The waste management/end-state label."
+   :ewc-code "The code from the European Waste Classification hierarchy."
+   :ewc-description "The description from the European Waste Classification hierarchy."
+   :operator "The name of the waste site operator."
+   :activity "The waste processing activities supported by a waste site."
+   :sector "The client/waste type that is serviced by the waste site."
+   :population "The population count as an integer."
+   :tonnes "The waste related quantity as a decimal."
+   :tonnes-input "The quantity of incoming waste as a decimal."
+   :tonnes-treated-recovered "The quantity of waste treated or recovered as a decimal."
+   :tonnes-output "The quantity of outgoing waste as a decimal."})
+
 (def record-types
   "Record types of the internal database."
-  [:population
-   :household-waste
+  [:household-waste
    :household-co2e
    :business-waste-by-region
    :business-waste-by-sector
    :waste-site
    :waste-site-io
-   :material-coding])
+   :material-coding
+   :ewc-coding
+   ;:households
+   :population])

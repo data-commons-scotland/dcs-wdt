@@ -24,7 +24,7 @@
 
 (defn csv-file-to-maps
   "Parses a material CSV file
-  to return a seq of :material maps (internal DB records)."
+  to return a seq of :material-coding maps (internal DB records)."
   [file]
   (let [customise-map (partial shared/customise-map customise-map)]
     (->> file
