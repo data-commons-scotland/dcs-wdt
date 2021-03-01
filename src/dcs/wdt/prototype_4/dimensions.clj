@@ -105,8 +105,8 @@
                     :region :business-sector
                     :year :quarter
                     :site-name :permit :status :latitude :longitude
-                    :io :material :management :ewc-code :ewc-description :operator :activity :sector
-                    :population :tonnes :tonnes-input :tonnes-treated-recovered :tonnes-output])
+                    :io-direction :material :management :ewc-code :ewc-description :operator :activities :client-kinds
+                    :population :households :tonnes :tonnes-input :tonnes-treated-recovered :tonnes-output])
 (def place-it-last (count sortable-dims))
 
 (defn ord
@@ -119,36 +119,37 @@
 
 (defn min-max-useful?
   [dimension]
-  (contains? #{:year :population :tonnes :tonnes-input :tonnes-treated-recovered :tonnes-output} dimension))
+  (contains? #{:year :population :households :tonnes :tonnes-input :tonnes-treated-recovered :tonnes-output} dimension))
 
 (defn count-useful?
   [dimension]
-  (not (contains? #{:population :tonnes :tonnes-input :tonnes-treated-recovered :tonnes-output} dimension)))
+  (not (contains? #{:population :households :tonnes :tonnes-input :tonnes-treated-recovered :tonnes-output} dimension)))
 
 (def descriptions
-  {:record-type "Indicates the dataset of the record."
-   :region "The name of a council area."
-   :business-sector "The label representing the business/economic sector."
-   :year "The integer representation of a year."
-   :quarter "The label indicating a year's quarter."
-   :site-name "The name of the waste site."
-   :permit "The waste site operator's offical permit or licence."
-   :status "The label indicating the open/closed status of the waste site in the record's timeframe. "
-   :latitude "The signed decimal representing a latitude."
-   :longitude "The signed decimal representing a longitude."
-   :io "The label indicating the direction of travel of the waste from the PoV of a waste site."
-   :material "The name of a waste material in SEPA's classification."
-   :management "The waste management/end-state label."
-   :ewc-code "The code from the European Waste Classification hierarchy."
-   :ewc-description "The description from the European Waste Classification hierarchy."
-   :operator "The name of the waste site operator."
-   :activity "The waste processing activities supported by a waste site."
-   :sector "The client/waste type that is serviced by the waste site."
-   :population "The population count as an integer."
-   :tonnes "The waste related quantity as a decimal."
-   :tonnes-input "The quantity of incoming waste as a decimal."
+  {:record-type              "Indicates the dataset of the record."
+   :region                   "The name of a council area."
+   :business-sector          "The label representing the business/economic sector."
+   :year                     "The integer representation of a year."
+   :quarter                  "The integer representation of the year's quarter."
+   :site-name                "The name of the waste site."
+   :permit                   "The waste site operator's official permit or licence."
+   :status                   "The label indicating the open/closed status of the waste site in the record's timeframe. "
+   :latitude                 "The signed decimal representing a latitude."
+   :longitude                "The signed decimal representing a longitude."
+   :io-direction             "The label indicating the direction of travel of the waste from the PoV of a waste site."
+   :material                 "The name of a waste material in SEPA's classification."
+   :management               "The label indicating how the waste was managed/processed (i.e. what its end-state was)."
+   :ewc-code                 "The code from the European Waste Classification hierarchy."
+   :ewc-description          "The description from the European Waste Classification hierarchy."
+   :operator                 "The name of the waste site operator."
+   :activities               "The waste processing activities supported by the waste site."
+   :client-kinds             "The kinds of clients (and wastes) serviced by the waste site."
+   :population               "The population count as an integer."
+   :households               "The households count as an integer."
+   :tonnes                   "The waste related quantity as a decimal."
+   :tonnes-input             "The quantity of incoming waste as a decimal."
    :tonnes-treated-recovered "The quantity of waste treated or recovered as a decimal."
-   :tonnes-output "The quantity of outgoing waste as a decimal."})
+   :tonnes-output            "The quantity of outgoing waste as a decimal."})
 
 (def record-types
   "Record types of the internal database."
@@ -160,5 +161,5 @@
    :waste-site-io
    :material-coding
    :ewc-coding
-   ;:households
+   :households
    :population])

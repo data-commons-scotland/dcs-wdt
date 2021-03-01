@@ -65,7 +65,15 @@
                               :licence      "CC BY 4.0"
                               :licence-url  "https://creativecommons.org/licenses/by/4.0/"
                               :notes        "Published as a web page."}
-   :population               {:description  "Useful for calculating per-citizen amounts."
+   :households               {:description  "Occupied residential dwelling counts. Useful for calculating per-household amounts."
+                              :creator      "NRS"
+                              :created-when 2020
+                              :supplier     "statistics.gov.scot"
+                              :supply-url   "http://statistics.gov.scot/data/household-estimates"
+                              :licence      "OGL v3.0"
+                              :licence-url  "http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"
+                              :notes        "Published as an RDF data cube, the data can be accessed via SPARQL."}
+   :population               {:description  "People counts. Useful for calculating per-citizen amounts."
                               :creator      "NRS"
                               :created-when 2020
                               :supplier     "statistics.gov.scot"

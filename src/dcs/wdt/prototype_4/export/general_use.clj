@@ -11,6 +11,14 @@
 (def trunk-dir "data/exporting/general-use/")
 
 
+(defn stringify-if-collection
+  "If the value is a collection then convert it into a string."
+  [v]
+  (if (coll? v)
+    (str/join " / " v)
+    v))
+
+
 (defn- datasets-metadata [db]
   (for [rtype dims/record-types]
     (let [n (count (filter #(= rtype (:record-type %)) db))
@@ -31,7 +39,7 @@
                       (for [dim dims]
                         (let [dim-vals (sort-by dims/ord (distinct (map dim sub-db)))]
                           [(name dim) (dim dims/descriptions)
-                           (name rtype) (dim record)
+                           (name rtype) (stringify-if-collection (dim record))
                            (when (dims/count-useful? dim) (count dim-vals))
                            (when (dims/min-max-useful? dim) (apply min dim-vals)) (when (dims/min-max-useful? dim) (apply max dim-vals))])))))))
 
@@ -66,7 +74,9 @@
       (let [sub-db (filter #(= rtype (:record-type %)) db)
             headers (sort-by dims/ord (keys (dissoc (first sub-db) :record-type)))
             header-row (map name headers)
-            data-rows (map #(map % headers) sub-db)
+            data-rows (->> sub-db
+                           (map (fn [record] (map record headers))) ;; Get the values as specified by 'headers'
+                           (map (fn [values] (map stringify-if-collection values))))
             file (io/file (str data-dir (name rtype) ".csv"))]
         (log/infof "Writing %s %s records to: %s" (count data-rows) rtype (.getAbsolutePath file))
         (io/make-parents file)
@@ -89,8 +99,11 @@
   (doseq [rtype dims/record-types]
     (let [sub-db (filter #(= rtype (:record-type %)) db)
           sub-db-sampled (repeatedly 5 #(rand-nth sub-db))
-          ks (sort-by dims/ord (keys (first sub-db-sampled)))]
-      (pp/print-table ks sub-db-sampled))))
+          sub-db-sampled-and-stringified (map (fn [record] (zipmap (keys record)
+                                                                   (map stringify-if-collection (vals record))))
+                                              sub-db-sampled)
+          ks (sort-by dims/ord (keys (first sub-db-sampled-and-stringified)))]
+      (pp/print-table ks sub-db-sampled-and-stringified))))
 
 
 (defn- generate-readme-file [db]
@@ -99,7 +112,7 @@
 
 === Objective
 
-Several organisations are doing a good job of curating & publishing _open data_ about waste in Scotland but,
+Several organisations are doing a very good job of curating & publishing _open data_ about waste in Scotland but,
 the published data is not always \"easy to use\" for non-experts.
 We have see several references to this at open data conference events and on social media platforms:
 [quote]
@@ -123,7 +136,7 @@ We have processed the source data just enough to:
 We have not augmented the data with derived values that can be simply calculated,
 such as per-population amounts, averages, trends, totals, etc.
 
-=== The _easier_ datasets
+=== The datasets-count _easier_ datasets
 
 [width=\"100%\",cols=\"<,<,<,>,<,<,<\"]
 
@@ -175,11 +188,13 @@ dimensions-str
 (The link:metadata/dimensions.csv[CSV version of the table] above.)
 "
 
+        datasets-metadata (datasets-metadata db)
+        datasets-count (str (count datasets-metadata))
         datasets-str (str/join "\n\n"
                                (map (fn [columns] (format
                                                     "| anchor:%s[] %s | %s | link:data/%s.csv[CSV] | %s | %s | %s^&nbsp;%s[URL]^ | %s[%s]"
                                                     (nth columns 0) (nth columns 0) (nth columns 1) (nth columns 0) (nth columns 2) (nth columns 3) (nth columns 5) (nth columns 6) (nth columns 8) (nth columns 7)))
-                                    (datasets-metadata db)))
+                                    datasets-metadata))
         dimensions-str (str/join "\n\n"
                                  (flatten
                                    (for [rows (partition-by first (dimensions-metadata db))] ;; partition by dimension value
@@ -193,6 +208,7 @@ dimensions-str
                                            "| xref:%s[%s] | %s | %s | %s | %s"
                                            (nth columns 2) (nth columns 2) (nth columns 3) (if-let [v (nth columns 4)] v "") (if-let [v (nth columns 5)] v "") (if-let [v (nth columns 6)] v "")))))))
         content (-> content-template
+                    (str/replace "datasets-count" datasets-count)
                     (str/replace "datasets-str" datasets-str)
                     (str/replace "dimensions-str" dimensions-str))
         file (io/file (str trunk-dir "README.adoc"))]

@@ -9,10 +9,12 @@
             [dcs.wdt.prototype-4.ingest.waste-site-io :as waste-site-io]
             [dcs.wdt.prototype-4.ingest.material-coding :as material-coding]
             [dcs.wdt.prototype-4.ingest.ewc-coding :as ewc-coding]
+            [dcs.wdt.prototype-4.ingest.households :as households]
             [dcs.wdt.prototype-4.ingest.population :as population]))
 
 (defn csv-files-from-sparql []
   (household-waste/csv-file-from-sparql)
+  (households/csv-file-from-sparql)
   (population/csv-file-from-sparql))
 
 (defn db-from-csv-files []
@@ -24,6 +26,7 @@
           (waste-site-io/db-from-csv-file)
           (material-coding/db-from-csv-file)
           (ewc-coding/db-from-txt-file)
+          (households/db-from-csv-file)
           (population/db-from-csv-file)))
 
 (defn describe-source

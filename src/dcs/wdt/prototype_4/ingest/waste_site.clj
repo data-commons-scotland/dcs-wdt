@@ -16,6 +16,13 @@
 (defn bigdec' [s]
   (bigdec (if (str/blank? s) "0" s)))
 
+(defn parse-slash-separated-list [s]
+  (when-not (nil? s)
+    (->> (str/split s #"/")
+         (map str/trim)
+         (remove str/blank?)
+         (apply sorted-set))))
+
 (defn customise-map
   "Converts an externally-oriented map to an internally-oriented map."
   [m]
@@ -34,8 +41,8 @@
          :operator                 (get m "Operator Organisation")
          :latitude                 latitude
          :longitude                longitude
-         :activity                 (get m "Waste Site Activity")
-         :sector                   (get m "Waste Type")
+         :activities               (parse-slash-separated-list (get m "Waste Site Activity"))
+         :client-kinds             (parse-slash-separated-list (get m "Waste Type"))
          :tonnes-input             (bigdec' (get m "Waste inputs to site (Table B)"))
          :tonnes-treated-recovered (bigdec' (get m "Waste treated/ recovered on site (Table C)"))
          :tonnes-output            (bigdec' (get m "Waste outputs from site (Table D)"))})
