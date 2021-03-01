@@ -42,7 +42,7 @@
          :latitude                 latitude
          :longitude                longitude
          :activities               (parse-slash-separated-list (get m "Waste Site Activity"))
-         :client-kinds             (parse-slash-separated-list (get m "Waste Type"))
+         :accepts                  (parse-slash-separated-list (get m "Waste Type"))
          :tonnes-input             (bigdec' (get m "Waste inputs to site (Table B)"))
          :tonnes-treated-recovered (bigdec' (get m "Waste treated/ recovered on site (Table C)"))
          :tonnes-output            (bigdec' (get m "Waste outputs from site (Table D)"))})

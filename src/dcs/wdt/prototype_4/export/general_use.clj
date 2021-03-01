@@ -2,10 +2,12 @@
   (:require [clojure.string :as str]
             [clojure.java.io :as io]
             [clojure.data.csv :as csv]
+            [clojure.data.json :as json]
             [clojure.pprint :as pp]
             [taoensso.timbre :as log]
             [dcs.wdt.prototype-4.dimensions :as dims]
-            [dcs.wdt.prototype-4.ingest.meta :as meta]))
+            [dcs.wdt.prototype-4.ingest.meta :as meta])
+  (:import java.io.FileWriter))
 
 
 (def trunk-dir "data/exporting/general-use/")
@@ -17,6 +19,9 @@
   (if (coll? v)
     (str/join " / " v)
     v))
+
+
+(def do-not-json #{:waste-site-io})
 
 
 (defn- datasets-metadata [db]
@@ -82,6 +87,20 @@
         (io/make-parents file)
         (with-open [wtr (io/writer file)]
           (csv/write-csv wtr (cons header-row data-rows)))))))
+
+
+(defn- generate-data-json-files [db]
+  (let [data-dir (str trunk-dir "data/")]
+    (doseq [rtype dims/record-types]
+      (when (not (contains? do-not-json rtype))
+        (let [sub-db (->> db
+                          (filter #(= rtype (:record-type %)))
+                          (map #(dissoc % :record-type)))
+              file (io/file (str data-dir (name rtype) ".json"))]
+          (log/infof "Writing %s %s records to: %s" (count sub-db) rtype (.getAbsolutePath file))
+          (io/make-parents file)
+          (binding [*out* (FileWriter. file)]
+            (json/pprint sub-db)))))))
 
 
 (defn- print-describing-tables-for-the-metadata [db]
@@ -219,6 +238,7 @@ dimensions-str
 
 (defn generate-csv-files [db]
   (generate-data-csv-files db)
+  (generate-data-json-files db)
   (generate-metadata-csv-files db)
   (generate-readme-file db))
 

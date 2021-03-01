@@ -34,8 +34,8 @@
   (bigdec (if (str/blank? s) "0" s)))
 
 (def io-directions
-  {"Waste Inputs (Table B)"  "input"
-   "Waste Outputs (Table D)" "output"})
+  {"Waste Inputs (Table B)"  "in"
+   "Waste Outputs (Table D)" "out"})
 
 (defn customise-map
   "Converts an externally-oriented map to an internally-oriented map."

@@ -105,7 +105,7 @@
                     :region :business-sector
                     :year :quarter
                     :site-name :permit :status :latitude :longitude
-                    :io-direction :material :management :ewc-code :ewc-description :operator :activities :client-kinds
+                    :io-direction :material :management :ewc-code :ewc-description :operator :activities :accepts
                     :population :households :tonnes :tonnes-input :tonnes-treated-recovered :tonnes-output])
 (def place-it-last (count sortable-dims))
 
@@ -143,7 +143,7 @@
    :ewc-description          "The description from the European Waste Classification hierarchy."
    :operator                 "The name of the waste site operator."
    :activities               "The waste processing activities supported by the waste site."
-   :client-kinds             "The kinds of clients (and wastes) serviced by the waste site."
+   :accepts                  "The kinds of clients (and wastes) serviced by the waste site."
    :population               "The population count as an integer."
    :households               "The households count as an integer."
    :tonnes                   "The waste related quantity as a decimal."
