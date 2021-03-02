@@ -46,7 +46,6 @@
    :operator        (get m "Operator Organisation")
    :io-direction    (io-directions (get m "Input / Output Table"))
    :ewc-code        (get m "EWC Code")
-   :ewc-description (get m "EWC Description")
    :tonnes          (bigdec' (:tonnes m))})
 
 (defn csv-file-to-maps
@@ -58,7 +57,7 @@
          (#(do (log/infof "Reading CSV file: %s" (.getAbsolutePath %)) %))
          shared/csv-file-to-maps
          (#(do (log/infof "CSV data rows: %s" (count %)) %))
-         (drop 20000) (take 5000) (#(do (log/warnf "For speed (while dev-ing) taking only 5,000 CSV rows: %s" (count %)) %))
+         ;(drop 20000) (take 5000) (#(do (log/warnf "For speed (while dev-ing) taking only 5,000 CSV rows: %s" (count %)) %))
          (map split-by-year-quarter)
          flatten
          (#(do (log/infof "Candidate records: %s" (count %)) %))

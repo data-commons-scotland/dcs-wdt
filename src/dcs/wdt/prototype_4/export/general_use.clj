@@ -6,19 +6,12 @@
             [clojure.pprint :as pp]
             [taoensso.timbre :as log]
             [dcs.wdt.prototype-4.dimensions :as dims]
-            [dcs.wdt.prototype-4.ingest.meta :as meta])
+            [dcs.wdt.prototype-4.ingest.meta :as meta]
+            [dcs.wdt.prototype-4.export.shared :as shared])
   (:import java.io.FileWriter))
 
 
 (def trunk-dir "data/exporting/general-use/")
-
-
-(defn stringify-if-collection
-  "If the value is a collection then convert it into a string."
-  [v]
-  (if (coll? v)
-    (str/join " / " v)
-    v))
 
 
 (def do-not-json #{:waste-site-io})
@@ -44,7 +37,7 @@
                       (for [dim dims]
                         (let [dim-vals (sort-by dims/ord (distinct (map dim sub-db)))]
                           [(name dim) (dim dims/descriptions)
-                           (name rtype) (stringify-if-collection (dim record))
+                           (name rtype) (shared/stringify-if-collection (dim record))
                            (when (dims/count-useful? dim) (count dim-vals))
                            (when (dims/min-max-useful? dim) (apply min dim-vals)) (when (dims/min-max-useful? dim) (apply max dim-vals))])))))))
 
@@ -81,7 +74,7 @@
             header-row (map name headers)
             data-rows (->> sub-db
                            (map (fn [record] (map record headers))) ;; Get the values as specified by 'headers'
-                           (map (fn [values] (map stringify-if-collection values))))
+                           (map (fn [values] (map shared/stringify-if-collection values))))
             file (io/file (str data-dir (name rtype) ".csv"))]
         (log/infof "Writing %s %s records to: %s" (count data-rows) rtype (.getAbsolutePath file))
         (io/make-parents file)
@@ -119,7 +112,7 @@
     (let [sub-db (filter #(= rtype (:record-type %)) db)
           sub-db-sampled (repeatedly 5 #(rand-nth sub-db))
           sub-db-sampled-and-stringified (map (fn [record] (zipmap (keys record)
-                                                                   (map stringify-if-collection (vals record))))
+                                                                   (map shared/stringify-if-collection (vals record))))
                                               sub-db-sampled)
           ks (sort-by dims/ord (keys (first sub-db-sampled-and-stringified)))]
       (pp/print-table ks sub-db-sampled-and-stringified))))
