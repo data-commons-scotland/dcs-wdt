@@ -105,7 +105,7 @@
                     :region :business-sector
                     :year :quarter
                     :site-name :permit :status :latitude :longitude
-                    :io-direction :material :management :ewc-code :ewc-description :operator :activities :accepts
+                    :io-direction :material :management :landfilled? :missed-bin? :ewc-code :ewc-description :operator :activities :accepts
                     :population :households :tonnes :tonnes-input :tonnes-treated-recovered :tonnes-output])
 (def place-it-last (count sortable-dims))
 
@@ -139,11 +139,13 @@
    :io-direction             "The label indicating the direction of travel of the waste from the PoV of a waste site."
    :material                 "The name of a waste material in SEPA's classification."
    :management               "The label indicating how the waste was managed/processed (i.e. what its end-state was)."
+   :landfilled?              "True if the waste was managed/processed to (the end-state) 'landfilled'."
+   :missed-bin?              "True if the waste was in a missed bin."
    :ewc-code                 "The code from the European Waste Classification hierarchy."
    :ewc-description          "The description from the European Waste Classification hierarchy."
    :operator                 "The name of the waste site operator."
    :activities               "The waste processing activities supported by the waste site."
-   :accepts                  "The kinds of clients (and wastes) serviced by the waste site."
+   :accepts                  "The kinds of clients/wastes accepted by the waste site."
    :population               "The population count as an integer."
    :households               "The households count as an integer."
    :tonnes                   "The waste related quantity as a decimal."
@@ -159,6 +161,7 @@
    :business-waste-by-sector
    :waste-site
    :waste-site-io
+   :stirling-bin-collection
    :material-coding
    :ewc-coding
    :households

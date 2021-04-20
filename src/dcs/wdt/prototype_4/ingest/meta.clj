@@ -49,6 +49,14 @@
                               :licence      "OGL v2.0"
                               :licence-url  "http://www.nationalarchives.gov.uk/doc/open-government-licence/version/2/"
                               :notes        "Published through a web-based data tool, the data can be downloaded as a CSV file."}
+   :stirling-bin-collection  {:description  "The categorised quantities of the waste collected from household bins."
+                              :creator      "Stirling council"
+                              :created-when 2021
+                              :supplier     "Stirling council"
+                              :supply-url   "https://data.stirling.gov.uk/dataset/waste-management"
+                              :licence      "OGL v3.0"
+                              :licence-url  "http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"
+                              :notes        "Published through a web-based data tool (CKAN), the data can be downloaded as CSV files."}
    :material-coding          {:description  "A mapping between the EWC codes and SEPA's materials classification (as used in these datasets)."
                               :creator      "SEPA"
                               :created-when 2020

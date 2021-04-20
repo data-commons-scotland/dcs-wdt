@@ -204,8 +204,14 @@ dimensions-str
         datasets-count (str (count datasets-metadata))
         datasets-str (str/join "\n\n"
                                (map (fn [columns] (format
-                                                    "| anchor:%s[] %s | %s | link:data/%s.csv[CSV] | %s | %s | %s^&nbsp;%s[URL]^ | %s[%s]"
-                                                    (nth columns 0) (nth columns 0) (nth columns 1) (nth columns 0) (nth columns 2) (nth columns 3) (nth columns 5) (nth columns 6) (nth columns 8) (nth columns 7)))
+                                                    "| anchor:%s[] %s | %s | link:data/%s.csv[CSV]%s | %s | %s | %s^&nbsp;%s[URL]^ | %s[%s]"
+                                                    (nth columns 0) (nth columns 0)
+                                                    (nth columns 1)
+                                                    (nth columns 0) (let [s (nth columns 0)] (if (contains? do-not-json (keyword s)) "" (str " link:data/" s ".json[JSON]")))
+                                                    (nth columns 2)
+                                                    (nth columns 3)
+                                                    (nth columns 5) (nth columns 6)
+                                                    (nth columns 8) (nth columns 7)))
                                     datasets-metadata))
         dimensions-str (str/join "\n\n"
                                  (flatten
