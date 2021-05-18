@@ -1,8 +1,8 @@
-(ns dcs.wdt.prototype-4.ingest.waste-site-io
+(ns dcs.wdt.ingest.waste-site-io
   (:require [clojure.string :as str]
             [clojure.java.io :as io]
             [taoensso.timbre :as log]
-            [dcs.wdt.prototype-4.ingest.shared :as shared]))
+            [dcs.wdt.ingest.shared :as shared]))
 
 (def expected-year-totals
   (assoc

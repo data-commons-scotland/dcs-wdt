@@ -1,4 +1,4 @@
-(ns dcs.wdt.prototype-4.dimensions
+(ns dcs.wdt.dimensions
   "Dimension stuff... ordering, controlled values, etc.")
 
 (def years

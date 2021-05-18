@@ -1,8 +1,8 @@
-(ns dcs.wdt.prototype-4.ingest.population
+(ns dcs.wdt.ingest.population
   (:require [clojure.string :as str]
             [clojure.java.io :as io]
             [taoensso.timbre :as log]
-            [dcs.wdt.prototype-4.ingest.shared :as shared]))
+            [dcs.wdt.ingest.shared :as shared]))
 
 (def expected-year-totals {2011 5299900
                            2012 5313600

@@ -1,8 +1,8 @@
-(ns dcs.wdt.prototype-4.ingest.household-waste
+(ns dcs.wdt.ingest.household-waste
   (:require [clojure.string :as str]
             [clojure.java.io :as io]
             [taoensso.timbre :as log]
-            [dcs.wdt.prototype-4.ingest.shared :as shared]))
+            [dcs.wdt.ingest.shared :as shared]))
 
 (def expected-year-totals {2011 2536497                     ;; Upstream provided value is 2606759
                            2012 2445584                     ;; Upstream provided value is 2500995

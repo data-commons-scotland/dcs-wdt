@@ -1,9 +1,9 @@
-(ns dcs.wdt.prototype-4.ingest.waste-site
+(ns dcs.wdt.ingest.waste-site
   (:require [clojure.string :as str]
             [clojure.java.io :as io]
             [taoensso.timbre :as log]
             [geocoordinates.core :as geo]
-            [dcs.wdt.prototype-4.ingest.shared :as shared]))
+            [dcs.wdt.ingest.shared :as shared]))
 
 (def expected-year-totals {2019 1254})
 

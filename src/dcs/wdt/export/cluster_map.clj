@@ -1,10 +1,10 @@
-(ns dcs.wdt.prototype-4.export.cluster-map
+(ns dcs.wdt.export.cluster-map
   (:require [clojure.java.io :as io]
             [clojure.pprint :as pp]
             [clojure.data.json :as json]
             [taoensso.timbre :as log]
-            [dcs.wdt.prototype-4.dimensions :as dims]
-            [dcs.wdt.prototype-4.export.shared :as shared])
+            [dcs.wdt.dimensions :as dims]
+            [dcs.wdt.export.shared :as shared])
   (:import java.io.FileWriter))
 
 (def file (io/file "data/exporting/cluster-map/waste-sites.geojson"))

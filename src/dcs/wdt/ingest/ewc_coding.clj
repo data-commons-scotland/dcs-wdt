@@ -1,4 +1,4 @@
-(ns dcs.wdt.prototype-4.ingest.ewc-coding
+(ns dcs.wdt.ingest.ewc-coding
   (:require [clojure.string :as str]
             [clojure.java.io :as io]
             [clojure.data :as data]

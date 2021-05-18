@@ -1,4 +1,4 @@
-(ns dcs.wdt.prototype-4.ingest.shared
+(ns dcs.wdt.ingest.shared
   "Forms that are used by more than one of the ingest namespaces."
   (:require [clojure.string :as str]
             [clojure.java.io :as io]
@@ -6,7 +6,7 @@
             [clojure.data.csv :as csv]
             [clj-http.client :as http]
             [taoensso.timbre :as log]
-            [dcs.wdt.prototype-4.dimensions :as dim])
+            [dcs.wdt.dimensions :as dim])
   (:import java.io.PushbackReader
            java.net.URLEncoder))
 

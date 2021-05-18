@@ -1,37 +1,35 @@
 {:paths   ["src"]
 
- :deps    {org.clojure/tools.namespace   {:mvn/version "1.0.0"}
+ :deps    {org.clojure/clojure           {:mvn/version "1.10.1"}
+           org.clojure/tools.namespace   {:mvn/version "1.0.0"}
            org.clojure/data.csv          {:mvn/version "1.0.0"}
            org.clojure/data.json         {:mvn/version "1.0.0"}
            clj-http/clj-http             {:mvn/version "3.10.3"}
            com.taoensso/timbre           {:mvn/version "5.1.0"}
-           geocoordinates/geocoordinates {:mvn/version "0.1.0"}
-
-           org.clojure/clojure           {:mvn/version "1.10.1"}
-           }
+           geocoordinates/geocoordinates {:mvn/version "0.1.0"}}
 
  :aliases {
            ;; Create the CSV files from SPARQL queries: `clj -X:csv`
-           :sparql          {:exec-fn dcs.wdt.prototype-4.api/csv-files-from-sparql}
+           :sparql          {:exec-fn dcs.wdt.api/csv-files-from-sparql}
 
            ;; Create a db from CSV files then describe it on the console. Run using: `clj -X:db`
-           :db              {:exec-fn  dcs.wdt.prototype-4.api/db
+           :db              {:exec-fn  dcs.wdt.api/db
                              :jvm-opts ["-Xmx3g"]}
 
            ;; Generate CSV files for general use. Run using: `clj -X:general`
-           :general         {:exec-fn  dcs.wdt.prototype-4.api/generate-csv-files-for-general-use
+           :general         {:exec-fn  dcs.wdt.api/generate-csv-files-for-general-use
                              :jvm-opts ["-Xmx3g"]}
 
            ;; Generate JavaScript files for time-series-map. Run using: `clj -X:tseries`
-           :tseries         {:exec-fn  dcs.wdt.prototype-4.api/generate-js-files-for-time-series-map
+           :tseries         {:exec-fn  dcs.wdt.api/generate-js-files-for-time-series-map
                              :jvm-opts ["-Xmx3g"]}
 
            ;; Generate JSON file for data grid & graph. Run using: `clj -X:grid`
-           :grid            {:exec-fn  dcs.wdt.prototype-4.api/generate-json-file-for-data-grid-and-graph
+           :grid            {:exec-fn  dcs.wdt.api/generate-json-file-for-data-grid-and-graph
                              :jvm-opts ["-Xmx3g"]}
 
            ;; Generate JSON file for cluster-map. Run using: `clj -X:cluster`
-           :cluster         {:exec-fn  dcs.wdt.prototype-4.api/generate-json-file-for-cluster-map
-                             :jvm-opts ["-Xmx3g"]}
-           }}
+           :cluster         {:exec-fn  dcs.wdt.api/generate-json-file-for-cluster-map
+                             :jvm-opts ["-Xmx3g"]}}}
+
 

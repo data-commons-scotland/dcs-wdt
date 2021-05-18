@@ -1,13 +1,13 @@
-(ns dcs.wdt.prototype-4.export.general-use
+(ns dcs.wdt.export.general-use
   (:require [clojure.string :as str]
             [clojure.java.io :as io]
             [clojure.data.csv :as csv]
             [clojure.data.json :as json]
             [clojure.pprint :as pp]
             [taoensso.timbre :as log]
-            [dcs.wdt.prototype-4.dimensions :as dims]
-            [dcs.wdt.prototype-4.ingest.meta :as meta]
-            [dcs.wdt.prototype-4.export.shared :as shared])
+            [dcs.wdt.dimensions :as dims]
+            [dcs.wdt.ingest.meta :as meta]
+            [dcs.wdt.export.shared :as shared])
   (:import java.io.FileWriter))
 
 

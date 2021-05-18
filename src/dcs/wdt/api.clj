@@ -1,11 +1,11 @@
-(ns dcs.wdt.prototype-4.api
+(ns dcs.wdt.api
   (:require [clojure.pprint :as pp]
             [taoensso.timbre :as log]
-            [dcs.wdt.prototype-4.ingest.api :as ingest]
-            [dcs.wdt.prototype-4.export.time-series-map :as time-series-map]
-            [dcs.wdt.prototype-4.export.data_grid_and_graph :as data-grid-and-graph]
-            [dcs.wdt.prototype-4.export.general-use :as general-use]
-            [dcs.wdt.prototype-4.export.cluster-map :as cluster-map]))
+            [dcs.wdt.ingest.api :as ingest]
+            [dcs.wdt.export.time-series-map :as time-series-map]
+            [dcs.wdt.export.data_grid_and_graph :as data-grid-and-graph]
+            [dcs.wdt.export.general-use :as general-use]
+            [dcs.wdt.export.cluster-map :as cluster-map]))
 
 (defn csv-files-from-sparql [_]
   (log/set-level! :info)

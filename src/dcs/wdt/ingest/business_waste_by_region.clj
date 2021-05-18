@@ -1,7 +1,7 @@
-(ns dcs.wdt.prototype-4.ingest.business-waste-by-region
+(ns dcs.wdt.ingest.business-waste-by-region
   (:require [clojure.string :as str]
             [taoensso.timbre :as log]
-            [dcs.wdt.prototype-4.ingest.shared :as shared]))
+            [dcs.wdt.ingest.shared :as shared]))
 
 (def expected-year-totals {2011 4025748                     ;; Upstream provided value is 4025733
                            2012 3638689                     ;; Upstream provided value is 3638683

@@ -1,18 +1,18 @@
-(ns dcs.wdt.prototype-4.ingest.households
+(ns dcs.wdt.ingest.households
   (:require [clojure.string :as str]
             [clojure.java.io :as io]
             [taoensso.timbre :as log]
-            [dcs.wdt.prototype-4.ingest.shared :as shared]))
+            [dcs.wdt.ingest.shared :as shared]))
 
-(def expected-year-totals {2011	2392931
-                           2012	2403940
-                           2013	2419520
-                           2014	2436400
-                           2015	2451790
-                           2016	2470475
-                           2017	2490072
-                           2018	2506767
-                           2019	2527761})
+(def expected-year-totals {2011  2392931
+                           2012  2403940
+                           2013  2419520
+                           2014  2436400
+                           2015  2451790
+                           2016  2470475
+                           2017  2490072
+                           2018  2506767
+                           2019  2527761})
 
 
 (def csv-file-str "data/ingesting/households/csv-extract/2011-onwards.csv")

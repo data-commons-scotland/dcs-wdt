@@ -1,9 +1,9 @@
-(ns dcs.wdt.prototype-4.ingest.material-coding
+(ns dcs.wdt.ingest.material-coding
   (:require [clojure.string :as str]
             [clojure.java.io :as io]
             [taoensso.timbre :as log]
             [geocoordinates.core :as geo]
-            [dcs.wdt.prototype-4.ingest.shared :as shared]))
+            [dcs.wdt.ingest.shared :as shared]))
 
 (def expected-ewc-codes-count 557)
 

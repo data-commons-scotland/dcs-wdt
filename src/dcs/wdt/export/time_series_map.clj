@@ -1,4 +1,4 @@
-(ns dcs.wdt.prototype-4.export.time-series-map
+(ns dcs.wdt.export.time-series-map
   (:require [clojure.java.io :as io]
             [clojure.data.json :as json]
             [taoensso.timbre :as log]))

@@ -1,8 +1,8 @@
-(ns dcs.wdt.prototype-4.ingest.stirling-bin-collection
+(ns dcs.wdt.ingest.stirling-bin-collection
   (:require [clojure.string :as str]
             [clojure.pprint :as pp]
             [taoensso.timbre :as log]
-            [dcs.wdt.prototype-4.ingest.shared :as shared]))
+            [dcs.wdt.ingest.shared :as shared]))
 
 (def expected-year-totals {2018 32276.84M
                            2019 32166.32M
@@ -79,8 +79,8 @@
          (#(do (log/infof "Records to be aggregated: %s" (count %)) %))
          rollup
          (#(do (log/infof "Accepted records: %s" (count %)) %))
-         (map #(assoc % :year year))
-         )))
+         (map #(assoc % :year year)))))
+
 
 (defn db-from-csv-files []
   (let [db (->> "data/ingesting/stirling-bin-collection/originals/"

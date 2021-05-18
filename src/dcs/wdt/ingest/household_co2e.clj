@@ -1,8 +1,8 @@
-(ns dcs.wdt.prototype-4.ingest.household-co2e
+(ns dcs.wdt.ingest.household-co2e
   (:require [clojure.string :as str]
             [clojure.java.io :as io]
             [taoensso.timbre :as log]
-            [dcs.wdt.prototype-4.ingest.shared :as shared]))
+            [dcs.wdt.ingest.shared :as shared]))
 
 (def expected-year-totals {2011 6767739.95M
                            2012 6304982.13M

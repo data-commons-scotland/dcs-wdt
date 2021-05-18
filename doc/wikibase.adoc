@@ -1,0 +1,109 @@
+= Waste Data Tool - Wikibase feature
+
+WARNING: This Wikibase feature has been mothballed.
+
+The WDT Wikibase feature provides functionality for reading and writing linked data about waste in Scotland,
+against SPARQL and Wikibase services.
+
+
+---
+
+== Outline
+
+[source]
+----
+/* order datasets & dataset-aspects, most independent first */
+for each dataset in [base, area, population, household-waste, co2e]
+  for each dataset-aspect in [class-item, predicates, supporting-dimensions, measurements]
+    for each record in the dataset-aspect
+      if the record is not already represented in the Wikibase
+        write-to-wikibase a property or item to represent the record
+----
+
+== Use
+
+=== Setting up the tools, environment, etc.
+
+Prerequisite software:
+
+* Git 2.24.0 (_-ish_)
+* JDK 11.0.5 (_-ish_)
+* Clojure 1.10.1 (_-ish_)
+* Cojure Tools 1.10.1.754 (_-ish_)
+
+Environment variables:
+[source]
+----
+WB_USERNAME=<the username of the Wikibase bot, e.g. AshMcC@dcs-wdt>
+WB_PASSWORD=<the password of the Wikibase bot>
+----
+
+=== Get the software
+
+[source]
+----
+C:\>git clone https://github.com/data-commons-scotland/dcs-wdt.git
+Cloning into 'dcs-wdt'...
+remote: Enumerating objects: 333, done.
+remote: Counting objects: 100% (333/333), done.
+remote: Compressing objects: 100% (165/165), done.
+Receiving objects:  87% (290/333)used 270 (delta 112), pack-reused 0R
+Receiving objects: 100% (333/333), 63.10 KiB | 897.00 KiB/s, done.
+Resolving deltas: 100% (175/175), done.
+----
+
+=== Run
+
+[source]
+----
+$ clj
+Clojure 1.10.1
+(use 'dcs.wdt.wikibase.in-repl)
+WARNING: count already refers to: #'clojure.core/count in namespace: dcs.wdt.wikibase.wikibase-sparql, being replaced by: #'dcs.wdt.wikibase.wikibase-sparql/count
+Authenticating: as AshMcC@dcs-wdt
+Token: yes
+nil
+
+user=> (counts-in-wikibase)
+
+|                    :class | :count-of-instances |
+|---------------------------+---------------------|
+|              area (class) |                  33 |
+|        population (class) |                 616 |
+|         end-state (class) |                   3 |
+|   household waste (class) |                 811 |
+| carbon equivalent (class) |                  64 |
+nil
+
+;; What write- functions are available?...
+
+user=> (write-  ;; and TAB for completion-suggestions ...works in some REPLs
+write-area-dataset-to-wikibase              write-base-dataset-to-wikibase
+write-household-co2e-dataset-to-wikibase    write-household-waste-dataset-to-wikibase
+write-population-dataset-to-wikibase
+
+;; Write the base dataset to the Wikibase...
+
+user=> (write-base-dataset-to-wikibase)
+
+2021-05-18T14:10:43.864Z my-computer INFO [dcs.wdt.wikibase.dataset.base:45] - Writing core data
+Predicate row: 1 of 4
+Writing property: has quantity
+Detail: has quantity | the quantity of this | quantity | []
+Property: P5 [unmodified]
+Predicate row: 2 of 4
+Writing property: for time
+Detail: for time | the year of this | time | []
+Property: P6 [unmodified]
+Predicate row: 3 of 4
+Writing property: instance of
+Detail: instance of | the classification of this | wikibase-item | []
+Property: P7 [unmodified]
+Predicate row: 4 of 4
+Writing property: part of
+Detail: part of | the containment structure of this | wikibase-item | []
+Property: P8 [unmodified]
+nil
+
+;; Etc.
+----

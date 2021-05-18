@@ -1,4 +1,4 @@
-(ns dcs.wdt.prototype-4.export.shared
+(ns dcs.wdt.export.shared
   "Forms that are used by more than one of the export namespaces."
   (:require [clojure.string :as str]))
 
