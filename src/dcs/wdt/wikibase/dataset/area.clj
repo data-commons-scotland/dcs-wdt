@@ -46,7 +46,7 @@
   (filter #(not= "Scotland" (:label %)) dataset))
 
 (defn dataset []
-  (->> "area-dataset.sparql"
+  (->> "dcs/wdt/wikibase/area-dataset.sparql"
     io/resource
     slurp
     (misc/exec-sparql "http://statistics.gov.scot/sparql")

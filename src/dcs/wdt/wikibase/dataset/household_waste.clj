@@ -62,7 +62,7 @@
     distinct))
 
 (defn dataset []
-  (->> "household-waste-dataset.sparql"
+  (->> "dcs/wdt/wikibase/household-waste-dataset.sparql"
     io/resource
     slurp
     (misc/exec-sparql "http://statistics.gov.scot/sparql")

@@ -23,7 +23,7 @@
   [{:label carbon-equiv-class :description "carbon equivalent, the class"}])
 
 (defn dataset []
-  (with-open [reader (io/reader (io/resource "household-co2e-dataset.csv"))]
+  (with-open [reader (io/reader (io/resource "dcs/wdt/wikibase/household-co2e-dataset.csv"))]
     (doall
       (->> reader
         csv/read-csv

@@ -23,7 +23,7 @@
   [{:label population-class :description "population, the class"}])
 
 (defn dataset []
-  (->> "population-dataset.sparql"
+  (->> "dcs/wdt/wikibase/population-dataset.sparql"
     io/resource
     slurp
     (misc/exec-sparql "http://statistics.gov.scot/sparql")
