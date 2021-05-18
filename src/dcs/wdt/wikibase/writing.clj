@@ -1,6 +1,6 @@
-(ns dcs.wdt.writing
-  (:require [dcs.wdt.wikibase-api :as wbi]
-            [dcs.wdt.wikibase-sparql :as wbq]))
+(ns dcs.wdt.wikibase.writing
+  (:require [dcs.wdt.wikibase.wikibase-api :as wbi]
+            [dcs.wdt.wikibase.wikibase-sparql :as wbq]))
   
 
 (defn write-dataset-to-wikibase-items [csrf-token mapper dataset] ; dataset should be a list of uniform maps

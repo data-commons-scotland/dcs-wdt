@@ -1,13 +1,13 @@
-(ns dcs.wdt.dataset.household-co2e
+(ns dcs.wdt.wikibase.dataset.household-co2e
   (:require [clojure.java.io :as io]
             [clojure.data.csv :as csv]
             [taoensso.timbre :as log]
-            [dcs.wdt.misc :as misc]
-            [dcs.wdt.wikibase-sparql :as wbq]
-            [dcs.wdt.writing :as writing]
-            [dcs.wdt.reading :as reading]
-            [dcs.wdt.dataset.base :as base :refer [has-quantity for-time instance-of]]
-            [dcs.wdt.dataset.area :refer [for-area]]))
+            [dcs.wdt.wikibase.misc :as misc]
+            [dcs.wdt.wikibase.wikibase-sparql :as wbq]
+            [dcs.wdt.wikibase.writing :as writing]
+            [dcs.wdt.wikibase.reading :as reading]
+            [dcs.wdt.wikibase.dataset.base :as base :refer [has-quantity for-time instance-of]]
+            [dcs.wdt.wikibase.dataset.area :refer [for-area]]))
 
 (def carbon-equiv-class "carbon equivalent (class)")
 

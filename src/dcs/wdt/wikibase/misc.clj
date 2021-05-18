@@ -1,4 +1,4 @@
-(ns dcs.wdt.misc
+(ns dcs.wdt.wikibase.misc
   (:require [clojure.string :as str]
             [clojure.data.csv :as csv]
             [clj-http.client :as http])

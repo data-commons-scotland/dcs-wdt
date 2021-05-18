@@ -1,19 +1,19 @@
-(ns dcs.wdt.in-repl
+(ns dcs.wdt.wikibase.in-repl
   (:require
     [clojure.pprint :refer [pprint print-table]]
     [clojure.tools.namespace.repl :refer [refresh]]
     [taoensso.timbre :as log]
     [taoensso.timbre.appenders.core :as log-appenders]
-    [dcs.wdt.writing :as writing]
-    [dcs.wdt.misc :as misc]
-    [dcs.wdt.wikibase-api :as wbi]
-    [dcs.wdt.wikibase-sparql :as wbq]
-    [dcs.wdt.reading :as reading]
-    [dcs.wdt.dataset.base :as base]
-    [dcs.wdt.dataset.area :as area]
-    [dcs.wdt.dataset.population :as population]
-    [dcs.wdt.dataset.household-waste :as household-waste]
-    [dcs.wdt.dataset.household-co2e :as household-co2e]))
+    [dcs.wdt.wikibase.writing :as writing]
+    [dcs.wdt.wikibase.misc :as misc]
+    [dcs.wdt.wikibase.wikibase-api :as wbi]
+    [dcs.wdt.wikibase.wikibase-sparql :as wbq]
+    [dcs.wdt.wikibase.reading :as reading]
+    [dcs.wdt.wikibase.dataset.base :as base]
+    [dcs.wdt.wikibase.dataset.area :as area]
+    [dcs.wdt.wikibase.dataset.population :as population]
+    [dcs.wdt.wikibase.dataset.household-waste :as household-waste]
+    [dcs.wdt.wikibase.dataset.household-co2e :as household-co2e]))
 
 (log/merge-config!
   {:appenders {:spit (log-appenders/spit-appender {:fname "log.txt"})}})

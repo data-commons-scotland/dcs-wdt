@@ -1,7 +1,7 @@
-(ns dcs.wdt.wikibase-sparql
+(ns dcs.wdt.wikibase.wikibase-sparql
   (:require
   		[clojure.string :as str]
-    [dcs.wdt.misc :as misc]))
+    [dcs.wdt.wikibase.misc :as misc]))
 
 
 ;(def service-url "http://strf8b46abcf478:8282/proxy/wdqs/bigdata/namespace/wdq/sparql")

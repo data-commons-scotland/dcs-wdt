@@ -1,10 +1,10 @@
-(ns dcs.wdt.dataset.base
+(ns dcs.wdt.wikibase.dataset.base
   (:require [clojure.java.io :as io]
             [clojure.data.csv :as csv]
             [taoensso.timbre :as log]
-            [dcs.wdt.misc :as misc]
-            [dcs.wdt.wikibase-sparql :as wbq]
-            [dcs.wdt.writing :as writing]))
+            [dcs.wdt.wikibase.misc :as misc]
+            [dcs.wdt.wikibase.wikibase-sparql :as wbq]
+            [dcs.wdt.wikibase.writing :as writing]))
 
 (def has-quantity "has quantity")
 (def for-time "for time")

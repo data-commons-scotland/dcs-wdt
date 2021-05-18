@@ -33,7 +33,7 @@ Prerequisite software:
 * Git 2.24.0 (_-ish_)
 * JDK 11.0.5 (_-ish_)
 * Clojure 1.10.1 (_-ish_)
-* Leiningen 2.9.3 (_-ish_)
+* Cojure Tools 1.10.1.754 (_-ish_)
 
 Environment variables:
 [source]
@@ -60,42 +60,54 @@ Resolving deltas: 100% (175/175), done.
 
 [source]
 ----
-C:\dcs-wdt>\bin\lein.bat repl
-WARNING: count already refers to: #'clojure.core/count in namespace: dcs.wdt.wikibase-sparql, being replaced by: #'dcs.wdt.wikibase-sparql/count
+$ clj
+Clojure 1.10.1
+(use 'dcs.wdt.wikibase.in-repl)
+WARNING: count already refers to: #'clojure.core/count in namespace: dcs.wdt.wikibase.wikibase-sparql, being replaced by: #'dcs.wdt.wikibase.wikibase-sparql/count
 Authenticating: as AshMcC@dcs-wdt
 Token: yes
+nil
 
-;; Etc. start-up.
-
-;; Find out how many items have been written into the Wikibase already...
-
-dcs.wdt.in-repl=> (counts-in-wikibase)
+user=> (counts-in-wikibase)
 
 |                    :class | :count-of-instances |
 |---------------------------+---------------------|
 |              area (class) |                  33 |
 |        population (class) |                 616 |
 |         end-state (class) |                   3 |
-|   household waste (class) |                 781 |
+|   household waste (class) |                 811 |
 | carbon equivalent (class) |                  64 |
 nil
 
-;; What write- functionas are available?...
+;; What write- functions are available?...
 
-dcs.wdt.in-repl=> (write-  ;; and TAB for completion-suggestions
+user=> (write-  ;; and TAB for completion-suggestions ...works in some REPLs
 write-area-dataset-to-wikibase              write-base-dataset-to-wikibase
 write-household-co2e-dataset-to-wikibase    write-household-waste-dataset-to-wikibase
 write-population-dataset-to-wikibase
 
 ;; Write the base dataset to the Wikibase...
 
-dcs.wdt.in-repl=> (write-base-dataset-to-wikibase)
-2020-12-02T14:50:47.137Z STRF8B46ABCF478 INFO [dcs.wdt.dataset.base:45] - Writing core data
+user=> (write-base-dataset-to-wikibase)
+
+2021-05-18T14:10:43.864Z my-computer INFO [dcs.wdt.wikibase.dataset.base:45] - Writing core data
 Predicate row: 1 of 4
 Writing property: has quantity
+Detail: has quantity | the quantity of this | quantity | []
 Property: P5 [unmodified]
 Predicate row: 2 of 4
 Writing property: for time
+Detail: for time | the year of this | time | []
+Property: P6 [unmodified]
+Predicate row: 3 of 4
+Writing property: instance of
+Detail: instance of | the classification of this | wikibase-item | []
+Property: P7 [unmodified]
+Predicate row: 4 of 4
+Writing property: part of
+Detail: part of | the containment structure of this | wikibase-item | []
+Property: P8 [unmodified]
+nil
 
 ;; Etc.
 ----
