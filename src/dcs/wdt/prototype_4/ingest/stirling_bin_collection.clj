@@ -9,8 +9,8 @@
                            2020 33196.04M
                            2021 7868.92M})
 
-(def landfilled-aliases #{"Domestic"
-                          "Stg Domestic"})
+(def recycling-aliases #{"Recycling"
+                         "Stg Recycling"})
 
 (def internal-transfer-aliases #{"Internal Stirling Council Transfer"
                                  "405 Transfer Station"})
@@ -38,31 +38,31 @@
         internal-transfer? (contains? internal-transfer-aliases (str/trim (get m internal-transfer?-column-label)))
         material-column-label (if (_2021-onwards? m) "Waste Collected" "Waste")
         material (get material-aliases (str/trim (get m material-column-label)))
-        landfilled?-column-label (if (_2021-onwards? m) "Category" "Contract")
-        landfilled? (contains? landfilled-aliases (str/trim (get m landfilled?-column-label)))
+        recycling?-column-label (if (_2021-onwards? m) "Category" "Contract")
+        recycling? (contains? recycling-aliases (str/trim (get m recycling?-column-label)))
         missed-bin? (= "189 Missed Bins" (str/trim (get m "Account")))]
     (if (and (not internal-transfer?)
              (contains? shared/materials-set material))
       {:quarter     (Integer/parseInt (get m "Quarter"))
        :material    material
-       :landfilled? landfilled?
+       :recycling?  recycling?
        :missed-bin? missed-bin?
        :tonnes      (bigdec (get m "Quantity"))}
       (do (log/debugf "Ignoring: %s" m)
           nil))))
 
 (defn rollup
-  "Roll-up the tonnes for each (quarter, material, landfilled?, missed-bin?) tuple"
+  "Roll-up the tonnes for each (quarter, material, recycling?, missed-bin?) tuple"
   [coll]
   (->> coll
-       (group-by (juxt :quarter :material :landfilled? :missed-bin?))
-       (map (fn [[[quarter material landfilled? missed-bin?] sub-coll]] {:quarter     quarter
-                                                                         :material    material
-                                                                         :landfilled? landfilled?
-                                                                         :missed-bin? missed-bin?
-                                                                         :tonnes      (->> sub-coll
-                                                                                           (map :tonnes)
-                                                                                           (apply +))}))))
+       (group-by (juxt :quarter :material :recycling? :missed-bin?))
+       (map (fn [[[quarter material recycling? missed-bin?] sub-coll]] {:quarter     quarter
+                                                                        :material    material
+                                                                        :recycling?  recycling?
+                                                                        :missed-bin? missed-bin?
+                                                                        :tonnes      (->> sub-coll
+                                                                                          (map :tonnes)
+                                                                                          (apply +))}))))
 
 (defn csv-file-to-maps
   "Parses a stirling-bin-collection CSV file
@@ -90,5 +90,5 @@
                 (map #(assoc % :record-type :stirling-bin-collection
                                :region "Stirling")))]
     (when-let [error (shared/check-year-totals :tonnes expected-year-totals db)]
-        (throw (RuntimeException. (format "stirling-bin-collection has year-totals error...\nExpected: %s\nActual: %s" (first error) (second error)))))
+      (throw (RuntimeException. (format "stirling-bin-collection has year-totals error...\nExpected: %s\nActual: %s" (first error) (second error)))))
     db))
