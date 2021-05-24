@@ -120,10 +120,10 @@
 
 
 (defn generate-csv-files [db]
-;  (generate-data-csv-files db)
-;  (generate-data-json-files db)
-;  (generate-metadata-csv-files db)
-;  (html/generate-readme-file do-not-json trunk-dir (datasets-metadata db) (dimensions-metadata db))
+  (generate-data-csv-files db)
+  (generate-data-json-files db)
+  (generate-metadata-csv-files db)
+  (html/generate-readme-file do-not-json trunk-dir (datasets-metadata db) (dimensions-metadata db))
   (html/generate-webapp-file do-not-json trunk-dir (datasets-metadata db) (dimensions-metadata db)))
 
 (defn print-describing-tables [db]
