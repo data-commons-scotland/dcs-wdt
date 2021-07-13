@@ -1,6 +1,5 @@
 (ns dcs.wdt.ingest.api
-  (:require [taoensso.timbre :as log]
-            [dcs.wdt.ingest.meta :as meta]
+  (:require [dcs.wdt.ingest.meta :as meta]
             [dcs.wdt.ingest.household-waste :as household-waste]
             [dcs.wdt.ingest.household-co2e :as household-co2e]
             [dcs.wdt.ingest.business-waste-by-region :as business-waste-by-region]
@@ -10,6 +9,7 @@
             [dcs.wdt.ingest.stirling-bin-collection :as stirling-bin-collection]
             [dcs.wdt.ingest.material-coding :as material-coding]
             [dcs.wdt.ingest.ewc-coding :as ewc-coding]
+            [dcs.wdt.ingest.co2e-multiplier :as co2e-multiplier]
             [dcs.wdt.ingest.households :as households]
             [dcs.wdt.ingest.population :as population]))
 
@@ -28,6 +28,7 @@
           (stirling-bin-collection/db-from-csv-files)
           (material-coding/db-from-csv-file)
           (ewc-coding/db-from-txt-file)
+          (co2e-multiplier/db-from-csv-file)
           (households/db-from-csv-file)
           (population/db-from-csv-file)))
 

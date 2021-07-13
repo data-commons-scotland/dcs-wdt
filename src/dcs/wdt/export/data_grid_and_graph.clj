@@ -1,8 +1,7 @@
 (ns dcs.wdt.export.data_grid_and_graph
   (:require [clojure.java.io :as io]
             [clojure.data.json :as json]
-            [taoensso.timbre :as log]
-            [dcs.wdt.dimensions :as dims])
+            [taoensso.timbre :as log])
   (:import java.io.FileWriter))
 
 

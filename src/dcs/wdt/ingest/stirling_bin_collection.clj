@@ -1,6 +1,5 @@
 (ns dcs.wdt.ingest.stirling-bin-collection
   (:require [clojure.string :as str]
-            [clojure.pprint :as pp]
             [taoensso.timbre :as log]
             [dcs.wdt.ingest.shared :as shared]))
 

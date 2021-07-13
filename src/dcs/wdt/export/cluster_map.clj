@@ -1,6 +1,5 @@
 (ns dcs.wdt.export.cluster-map
   (:require [clojure.java.io :as io]
-            [clojure.pprint :as pp]
             [clojure.data.json :as json]
             [taoensso.timbre :as log]
             [dcs.wdt.dimensions :as dims]

@@ -1,7 +1,6 @@
 (ns dcs.wdt.ingest.ewc-coding
   (:require [clojure.string :as str]
             [clojure.java.io :as io]
-            [clojure.data :as data]
             [clojure.pprint :as pp]
             [taoensso.timbre :as log]))
 
@@ -42,7 +41,7 @@
                 (map #(assoc % :record-type :ewc-coding)))]
     (let [x (->> db
                  (group-by :ewc-code)
-                 (filter (fn [[k v]] (> (count v) 1))))]
+                 (filter (fn [[_k v]] (> (count v) 1))))]
       (pp/pprint x))
     (let [actual-ewc-codes-count (->> db (map :ewc-code) distinct count)]
       (when (not= expected-ewc-codes-count actual-ewc-codes-count)

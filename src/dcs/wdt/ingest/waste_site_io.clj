@@ -70,6 +70,6 @@
                 io/file
                 csv-file-to-maps
                 (map #(assoc % :record-type :waste-site-io)))]
-    #_(when-let [error (shared/check-year-totals (fn [_] 1) expected-year-totals db)]
+    (when-let [error (shared/check-year-totals (fn [_] 1) expected-year-totals db)]
       (throw (RuntimeException. (format "waste-site has year-totals error...\nExpected: %s\nActual: %s" (first error) (second error)))))
     db))

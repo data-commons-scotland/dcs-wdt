@@ -105,8 +105,8 @@
                     :region :business-sector
                     :year :quarter
                     :site-name :permit :status :latitude :longitude
-                    :io-direction :material :management :recycling? :missed-bin? :ewc-code :ewc-description :operator :activities :accepts
-                    :population :households :tonnes :tonnes-input :tonnes-treated-recovered :tonnes-output])
+                    :io-direction :material :management :recycling? :missed-bin? :ewc-code :ewc-description :waste-stream :operator :activities :accepts
+                    :multiplier :population :households :tonnes :tonnes-input :tonnes-treated-recovered :tonnes-output])
 (def place-it-last (count sortable-dims))
 
 (defn ord
@@ -119,7 +119,7 @@
 
 (defn min-max-useful?
   [dimension]
-  (contains? #{:year :population :households :tonnes :tonnes-input :tonnes-treated-recovered :tonnes-output} dimension))
+  (contains? #{:year :multiplier :population :households :tonnes :tonnes-input :tonnes-treated-recovered :tonnes-output} dimension))
 
 (defn count-useful?
   [dimension]
@@ -143,9 +143,11 @@
    :missed-bin?              "True if the waste was in a missed bin."
    :ewc-code                 "The code from the European Waste Classification hierarchy."
    :ewc-description          "The description from the European Waste Classification hierarchy."
+   :waste-stream             "The name of a waste stream in ZWS' classification."
    :operator                 "The name of the waste site operator."
    :activities               "The waste processing activities supported by the waste site."
    :accepts                  "The kinds of clients/wastes accepted by the waste site."
+   :multiplier               "The value to multiply a weight by to calculate the C02e amount."
    :population               "The population count as an integer."
    :households               "The households count as an integer."
    :tonnes                   "The waste related quantity as a decimal."
@@ -164,5 +166,6 @@
    :stirling-bin-collection
    :material-coding
    :ewc-coding
+   :co2e-multiplier
    :households
    :population])

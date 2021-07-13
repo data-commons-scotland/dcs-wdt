@@ -1,6 +1,5 @@
 (ns dcs.wdt.ingest.household-co2e
-  (:require [clojure.string :as str]
-            [clojure.java.io :as io]
+  (:require [clojure.java.io :as io]
             [taoensso.timbre :as log]
             [dcs.wdt.ingest.shared :as shared]))
 

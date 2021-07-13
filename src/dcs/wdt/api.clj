@@ -1,6 +1,5 @@
 (ns dcs.wdt.api
-  (:require [clojure.pprint :as pp]
-            [taoensso.timbre :as log]
+  (:require [taoensso.timbre :as log]
             [dcs.wdt.ingest.api :as ingest]
             [dcs.wdt.export.time-series-map :as time-series-map]
             [dcs.wdt.export.data_grid_and_graph :as data-grid-and-graph]
@@ -35,3 +34,16 @@
   (log/set-level! :info)
   (let [db (ingest/db-from-csv-files)]
     (cluster-map/generate-json-file db)))
+
+
+(comment
+
+  (db 0)
+
+  (+ 2 5)
+
+  (log/info "hi")
+
+  (inc 3)
+
+  )

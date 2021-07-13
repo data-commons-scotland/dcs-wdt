@@ -42,7 +42,7 @@
 
 (defn generate-js-file-for-household-co2e [lookup-population db file]
   (let [household-co2e (filter #(= :household-co2e (:record-type %)) db)
-        output-records (map (fn [{:keys [region year management tonnes]}] {:region region
+        output-records (map (fn [{:keys [region year _management tonnes]}] {:region region
                                                                            :year   year
                                                                            :tonnes (double (with-precision 8 (/ tonnes (lookup-population region year))))})
                             household-co2e)
@@ -59,7 +59,7 @@
     (spit file content)
     (log/infof "Wrote: %s" (.getAbsolutePath file))))
 
-(defn generate-js-file-for-household-vs-business [lookup-population db file]
+(defn generate-js-file-for-household-vs-business [_lookup-population db file]
   (let [household-waste (->> db
                              (filter #(= :household-waste (:record-type %)))
                              ;; Calculate the tonnes roll-up for each (region, year) pair

@@ -9,10 +9,6 @@
 
 (def csv-file-str "data/ingesting/waste-site/csv-extract/2019.csv")
 
-(defn- coordinates [easting northing]
-  (let [latlng (geo/easting-northing->latitude-longitude {:easting easting :northing northing} :national-grid)]
-    [(:longitude latlng) (:latitude latlng)]))
-
 (defn bigdec' [s]
   (bigdec (if (str/blank? s) "0" s)))
 

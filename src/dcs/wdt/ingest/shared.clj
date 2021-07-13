@@ -102,3 +102,7 @@
                      :headers {"Accept"       "text/csv"
                                "Content-Type" "application/x-www-form-urlencoded"}
                      :debug   false})))
+
+(comment
+  (println scotgov-service-url)
+  )
