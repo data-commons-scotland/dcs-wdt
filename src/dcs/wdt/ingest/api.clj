@@ -11,7 +11,8 @@
             [dcs.wdt.ingest.ewc-coding :as ewc-coding]
             [dcs.wdt.ingest.co2e-multiplier :as co2e-multiplier]
             [dcs.wdt.ingest.households :as households]
-            [dcs.wdt.ingest.population :as population]))
+            [dcs.wdt.ingest.population :as population]
+            [dcs.wdt.ingest.db-2nd-pass :as db-2nd-pass]))
 
 (defn csv-files-from-sparql []
   (household-waste/csv-file-from-sparql)
@@ -31,6 +32,13 @@
           (co2e-multiplier/db-from-csv-file)
           (households/db-from-csv-file)
           (population/db-from-csv-file)))
+
+(defn db-from-2nd-pass 
+  "Modify the data in some types of records, using data from other types of records."
+  [db]
+  (->> db
+       db-2nd-pass/rollup-quarters-of-waste-site-io
+       db-2nd-pass/rollup-ewc-codes-of-waste-site-io))
 
 (defn describe-source
   "Returns a string that describes the sourcing of the specified type of data."

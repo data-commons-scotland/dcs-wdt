@@ -12,7 +12,7 @@
 
 (defn db [_]
   (log/set-level! :info)
-  (let [db (ingest/db-from-csv-files)]
+  (let [db (ingest/db-from-2nd-pass (ingest/db-from-csv-files))]
     (general-use/print-describing-tables db)))
 
 (defn generate-js-files-for-time-series-map [_]
@@ -27,7 +27,7 @@
 
 (defn generate-csv-files-for-general-use [_]
   (log/set-level! :info)
-  (let [db (ingest/db-from-csv-files)]
+  (let [db (ingest/db-from-2nd-pass (ingest/db-from-csv-files))]
     (general-use/generate-csv-files db)))
 
 (defn generate-json-file-for-cluster-map [_]
