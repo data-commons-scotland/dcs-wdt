@@ -28,7 +28,7 @@ PREFIX ugeo: <http://statistics.data.gov.uk/def/statistical-geography#>
 SELECT
 ?year
 ?region
-?population
+?count
 
 WHERE {
   VALUES ?areaType {
@@ -44,7 +44,7 @@ WHERE {
                  pdmx:refPeriod ?periodUri ;
                  sdmx:age <http://statistics.gov.scot/def/concept/age/all> ;
                  sdmx:sex <http://statistics.gov.scot/def/concept/sex/all> ;
-                 snum:count ?population .
+                 snum:count ?count .
 
   ?periodUri rdfs:label ?year .
 
@@ -67,9 +67,9 @@ WHERE {
   (let [region (let [v (get m "region")]
                  (get shared/region-aliases v v))]
     (if (contains? shared/regions-set region)
-      {:region     region
-       :year       (Integer/parseInt (get m "year"))
-       :population (Integer/parseInt (get m "population"))}
+      {:region region
+       :year   (Integer/parseInt (get m "year"))
+       :count  (Integer/parseInt (get m "count"))}
       (do (log/debugf "Ignoring: %s" m)
           nil))))
 
@@ -92,6 +92,6 @@ WHERE {
                 io/file
                 csv-file-to-maps
                 (map #(assoc % :record-type :population)))]
-    (when-let [error (shared/check-year-totals :population expected-year-totals db)]
+    (when-let [error (shared/check-year-totals :count expected-year-totals db)]
       (throw (RuntimeException. (format "population has year-totals error...\nExpected: %s\nActual: %s" (first error) (second error)))))
     db))

@@ -105,8 +105,8 @@
                     :region :business-sector
                     :year :quarter
                     :site-name :permit :status :latitude :longitude
-                    :ewc-code :ewc-description :io-direction :material :management :recycling? :missed-bin? :waste-stream :operator :activities :accepts
-                    :multiplier :population :households :tonnes :tonnes-input :tonnes-treated-recovered :tonnes-output])
+                    :ewc-code :ewc-description :io-direction :material :management :recycling? :missed-bin? :operator :activities :accepts
+                    :multiplier :count :tonnes :tonnes-input :tonnes-treated-recovered :tonnes-output])
 (def place-it-last (count sortable-dims))
 
 (defn ord
@@ -119,11 +119,11 @@
 
 (defn min-max-useful?
   [dimension]
-  (contains? #{:year :multiplier :population :households :tonnes :tonnes-input :tonnes-treated-recovered :tonnes-output} dimension))
+  (contains? #{:year :multiplier :count :tonnes :tonnes-input :tonnes-treated-recovered :tonnes-output} dimension))
 
 (defn count-useful?
   [dimension]
-  (not (contains? #{:population :households :tonnes :tonnes-input :tonnes-treated-recovered :tonnes-output} dimension)))
+  (not (contains? #{:count :tonnes :tonnes-input :tonnes-treated-recovered :tonnes-output} dimension)))
 
 (def descriptions
   {:record-type              "Indicates the dataset of the record."
@@ -137,19 +137,17 @@
    :latitude                 "The signed decimal representing a latitude."
    :longitude                "The signed decimal representing a longitude."
    :io-direction             "The label indicating the direction of travel of the waste from the PoV of a waste site."
-   :material                 "The name of a waste material in SEPA's classification."
+   :material                 "The name of a waste material/stream in SEPA's/ZWS' classification."
    :management               "The label indicating how the waste was managed/processed (i.e. what its end-state was)."
    :recycling?               "True if the waste was categorised as 'for recycling' when collected."
    :missed-bin?              "True if the waste was in a missed bin."
    :ewc-code                 "The code from the European Waste Classification hierarchy."
    :ewc-description          "The description from the European Waste Classification hierarchy."
-   :waste-stream             "The name of a waste stream in ZWS' classification."
    :operator                 "The name of the waste site operator."
    :activities               "The waste processing activities supported by the waste site."
    :accepts                  "The kinds of clients/wastes accepted by the waste site."
    :multiplier               "The value to multiply a weight by to calculate the C02e amount."
-   :population               "The population count as an integer."
-   :households               "The households count as an integer."
+   :count                    "The population/household count as an integer."
    :tonnes                   "The waste related quantity as a decimal."
    :tonnes-input             "The quantity of incoming waste as a decimal."
    :tonnes-treated-recovered "The quantity of waste treated or recovered as a decimal."
@@ -163,9 +161,9 @@
    :business-waste-by-sector
    :waste-site-io
    :waste-site-material-io
-   :stirling-bin-collection
-   :material-coding
-   :ewc-coding
+   :bin-collection
+   :sepa-material
+   :ewc-code
    :co2e-multiplier
-   :households
+   :household
    :population])

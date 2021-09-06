@@ -1,4 +1,4 @@
-(ns dcs.wdt.ingest.stirling-bin-collection
+(ns dcs.wdt.ingest.bin-collection
   (:require [clojure.string :as str]
             [taoensso.timbre :as log]
             [dcs.wdt.ingest.shared :as shared]))
@@ -64,8 +64,8 @@
                                                                                           (apply +))}))))
 
 (defn csv-file-to-maps
-  "Parses a stirling-bin-collection CSV file
-  to return a seq of :stirling-bin-collection maps (internal DB records)."
+  "Parses a bin-collection CSV file
+  to return a seq of :bin-collection maps (internal DB records)."
   [file]
   (let [year (Integer/parseInt (second (re-find #"(\d{4})\.csv" (.getName file))))
         customise-map (partial shared/customise-map customise-map)]
@@ -82,12 +82,12 @@
 
 
 (defn db-from-csv-files []
-  (let [db (->> "data/ingesting/stirling-bin-collection/originals/"
+  (let [db (->> "data/ingesting/bin-collection/originals/"
                 shared/find-csv-files
                 (map csv-file-to-maps)
                 flatten
-                (map #(assoc % :record-type :stirling-bin-collection
+                (map #(assoc % :record-type :bin-collection
                                :region "Stirling")))]
     (when-let [error (shared/check-year-totals :tonnes expected-year-totals db)]
-      (throw (RuntimeException. (format "stirling-bin-collection has year-totals error...\nExpected: %s\nActual: %s" (first error) (second error)))))
+      (throw (RuntimeException. (format "bin-collection has year-totals error...\nExpected: %s\nActual: %s" (first error) (second error)))))
     db))

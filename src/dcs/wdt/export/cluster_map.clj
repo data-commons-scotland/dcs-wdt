@@ -27,10 +27,10 @@
 
 (defn generate-json-file [db]
   (let [;; Prep for looking up a material by an EWC code
-        material-coding (filter #(= :material-coding (:record-type %)) db)
-        material-coding-lookup-map (group-by :ewc-code material-coding)
+        sepa-material (filter #(= :sepa-material (:record-type %)) db)
+        sepa-material-lookup-map (group-by :ewc-code sepa-material)
         lookup-material (fn [ewc-code] (->> ewc-code
-                                            (get material-coding-lookup-map)
+                                            (get sepa-material-lookup-map)
                                             first
                                             :material))
 

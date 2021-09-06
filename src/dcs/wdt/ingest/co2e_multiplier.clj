@@ -10,8 +10,8 @@
 (defn customise-map
   "Converts an externally-oriented map to an internally-oriented map."
   [m]
-  {:waste-stream (get m "Waste Stream")
-   :multiplier   (bigdec (get m "Carbon Weighting"))})
+  {:material   (get m "Waste Stream")
+   :multiplier (bigdec (get m "Carbon Weighting"))})
 
 (defn csv-file-to-maps
   "Parses a population CSV file
@@ -32,7 +32,7 @@
                 io/file
                 csv-file-to-maps
                 (map #(assoc % :record-type :co2e-multiplier)))]
-    (let [actual-count (->> db (map :waste-stream) distinct count)]
+    (let [actual-count (->> db (map :material) distinct count)]
       (when (not= expected-count actual-count)
         (throw (RuntimeException. (format "co2e-multipler has a count error...\nExpected: %s\nActual: %s" expected-count actual-count)))))
     db))

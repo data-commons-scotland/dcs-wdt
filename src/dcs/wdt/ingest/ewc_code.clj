@@ -1,4 +1,4 @@
-(ns dcs.wdt.ingest.ewc-coding
+(ns dcs.wdt.ingest.ewc-code
   (:require [clojure.string :as str]
             [clojure.java.io :as io]
             [clojure.pprint :as pp]
@@ -6,7 +6,7 @@
 
 (def expected-ewc-codes-count 973)
 
-(def txt-file-str "data/ingesting/ewc-coding/txt-extract/ewc-doc.txt")
+(def txt-file-str "data/ingesting/ewc-code/txt-extract/ewc-doc.txt")
 
 (defn customise-list
   "Converts an externally-oriented list to an internally-oriented map."
@@ -16,7 +16,7 @@
 
 (defn txt-file-to-maps
   "Parses an EWC TXT file
-  to return a seq of :ewc-coding maps (internal DB records)."
+  to return a seq of :ewc-code maps (internal DB records)."
   [file]
   (->> file
        (#(do (log/infof "Reading TXT file: %s" (.getAbsolutePath %)) %))
@@ -38,12 +38,12 @@
   (let [db (->> txt-file-str
                 io/file
                 txt-file-to-maps
-                (map #(assoc % :record-type :ewc-coding)))]
+                (map #(assoc % :record-type :ewc-code)))]
     (let [x (->> db
                  (group-by :ewc-code)
                  (filter (fn [[_k v]] (> (count v) 1))))]
       (pp/pprint x))
     (let [actual-ewc-codes-count (->> db (map :ewc-code) distinct count)]
       (when (not= expected-ewc-codes-count actual-ewc-codes-count)
-        (throw (RuntimeException. (format "ewc-coding has a count error...\nExpected: %s\nActual: %s" expected-ewc-codes-count actual-ewc-codes-count)))))
+        (throw (RuntimeException. (format "ewc-code has a count error...\nExpected: %s\nActual: %s" expected-ewc-codes-count actual-ewc-codes-count)))))
     db))

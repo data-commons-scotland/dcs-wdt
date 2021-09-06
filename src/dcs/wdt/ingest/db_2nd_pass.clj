@@ -32,10 +32,10 @@
         sub-db-toBeModified (filter #(= :waste-site-material-io (:record-type %)) db)
 
         ;; Prep for looking up a sepa-material by an EWC code
-        material-coding (filter #(= :material-coding (:record-type %)) db)
-        material-coding-lookup-map (group-by :ewc-code material-coding)
+        sepa-material (filter #(= :sepa-material (:record-type %)) db)
+        sepa-material-lookup-map (group-by :ewc-code sepa-material)
         lookup-material (fn [ewc-code] (->> ewc-code
-                                            (get material-coding-lookup-map)
+                                            (get sepa-material-lookup-map)
                                             first
                                             :material))
 
@@ -58,18 +58,31 @@
   "Over ewc-code records...
    Associate sepa-materials with ewc-codes."
   [db]
-  (let [sub-db-toRemainAsIs (filter #(not= :ewc-coding (:record-type %)) db)
-        sub-db-toBeModified (filter #(= :ewc-coding (:record-type %)) db)
+  (let [sub-db-toRemainAsIs (filter #(not= :ewc-code (:record-type %)) db)
+        sub-db-toBeModified (filter #(= :ewc-code (:record-type %)) db)
 
         ;; Prep for looking up a sepa-material by an EWC code
-        material-coding (filter #(= :material-coding (:record-type %)) db)
-        material-coding-lookup-map (group-by :ewc-code material-coding)
+        sepa-material (filter #(= :sepa-material (:record-type %)) db)
+        sepa-material-lookup-map (group-by :ewc-code sepa-material)
         lookup-material (fn [ewc-code] (->> ewc-code
-                                            (get material-coding-lookup-map)
+                                            (get sepa-material-lookup-map)
                                             first
                                             :material))
         
         sub-db-modified     (->> sub-db-toBeModified
                                  (map (fn [{:keys [ewc-code]
                                             :as   m}] (assoc m :material (lookup-material ewc-code)))))]
+    (concat sub-db-toRemainAsIs sub-db-modified)))
+
+
+(defn remove-ewc-code-from-sepa-material
+  "Over sepa-material records...
+   Remove ewc-codes (leaving just a single column)." 
+  [db]
+  (let [sub-db-toRemainAsIs (filter #(not= :sepa-material (:record-type %)) db)
+        sub-db-toBeModified (filter #(= :sepa-material (:record-type %)) db)
+
+        sub-db-modified     (->> sub-db-toBeModified
+                                 (map #(dissoc % :ewc-code))
+                                 distinct)]
     (concat sub-db-toRemainAsIs sub-db-modified)))

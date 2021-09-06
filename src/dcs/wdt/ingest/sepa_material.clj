@@ -1,11 +1,11 @@
-(ns dcs.wdt.ingest.material-coding
+(ns dcs.wdt.ingest.sepa-material
   (:require [clojure.java.io :as io]
             [taoensso.timbre :as log]
             [dcs.wdt.ingest.shared :as shared]))
 
 (def expected-ewc-codes-count 557)
 
-(def csv-file-str "data/ingesting/material-coding/csv-extract/material-coding.csv")
+(def csv-file-str "data/ingesting/sepa-material/csv-extract/material.csv")
 
 (defn customise-map
   "Converts an externally-oriented map to an internally-oriented map."
@@ -22,7 +22,7 @@
 
 (defn csv-file-to-maps
   "Parses a material CSV file
-  to return a seq of :material-coding maps (internal DB records)."
+  to return a seq of :sepa-material maps (internal DB records)."
   [file]
   (let [customise-map (partial shared/customise-map customise-map)]
     (->> file
@@ -38,8 +38,8 @@
   (let [db (->> csv-file-str
                 io/file
                 csv-file-to-maps
-                (map #(assoc % :record-type :material-coding)))]
+                (map #(assoc % :record-type :sepa-material)))]
     (let [actual-ewc-codes-count (->> db (map :ewc-code) distinct count)]
       (when (not= expected-ewc-codes-count actual-ewc-codes-count)
-        (throw (RuntimeException. (format "material-coding has a count error...\nExpected: %s\nActual: %s" expected-ewc-codes-count actual-ewc-codes-count)))))
+        (throw (RuntimeException. (format "sepa-material has a count error...\nExpected: %s\nActual: %s" expected-ewc-codes-count actual-ewc-codes-count)))))
     db))

@@ -1,21 +1,22 @@
-(ns dcs.wdt.ingest.households
+(ns dcs.wdt.ingest.household
   (:require [clojure.string :as str]
             [clojure.java.io :as io]
             [taoensso.timbre :as log]
             [dcs.wdt.ingest.shared :as shared]))
 
-(def expected-year-totals {2011  2392931
-                           2012  2403940
-                           2013  2419520
-                           2014  2436400
-                           2015  2451790
-                           2016  2470475
-                           2017  2490072
-                           2018  2506767
-                           2019  2527761})
+(def expected-year-totals {2011 2392931
+                           2012 2403940
+                           2013 2419520
+                           2014 2436400
+                           2015 2451790
+                           2016 2470475
+                           2017 2490072
+                           2018 2506767
+                           2019 2527761
+                           2020 2538755})
 
 
-(def csv-file-str "data/ingesting/households/csv-extract/2011-onwards.csv")
+(def csv-file-str "data/ingesting/household/csv-extract/2011-onwards.csv")
 
 (def sparql "
 PREFIX qb: <http://purl.org/linked-data/cube#>
@@ -29,7 +30,7 @@ PREFIX ugeo: <http://statistics.data.gov.uk/def/statistical-geography#>
 SELECT
 ?year
 ?region
-?households
+?count
 
 WHERE {
   VALUES ?areaType {
@@ -40,11 +41,11 @@ WHERE {
            ugeo:status 'Live' ;
            rdfs:label ?region .
 
-  ?householdsUri qb:dataSet <http://statistics.gov.scot/data/household-estimates> ;
+  ?householdUri qb:dataSet <http://statistics.gov.scot/data/household-estimates> ;
                  pdmx:refArea ?areaUri ;
                  pdmx:refPeriod ?periodUri ;
                  <http://statistics.gov.scot/def/dimension/indicator(dwellings)> <http://statistics.gov.scot/def/concept/indicator-dwellings/which-are-occupied> ;
-                 snum:count ?households .
+                 snum:count ?count .
 
   ?periodUri rdfs:label ?year .
 
@@ -53,7 +54,7 @@ WHERE {
 ")
 
 (defn csv-file-from-sparql []
-  (log/infof "Executing SPARQL query for households against: %s" shared/scotgov-service-url)
+  (log/infof "Executing SPARQL query for household against: %s" shared/scotgov-service-url)
   (let [contents (shared/exec-sparql shared/scotgov-service-url sparql)
         file (io/file csv-file-str)]
     (log/infof "CSV rows: %s" (count (str/split-lines contents)))
@@ -67,15 +68,15 @@ WHERE {
   (let [region (let [v (get m "region")]
                  (get shared/region-aliases v v))]
     (if (contains? shared/regions-set region)
-      {:region     region
-       :year       (Integer/parseInt (get m "year"))
-       :households (Integer/parseInt (get m "households"))}
+      {:region region
+       :year   (Integer/parseInt (get m "year"))
+       :count  (Integer/parseInt (get m "count"))}
       (do (log/debugf "Ignoring: %s" m)
           nil))))
 
 (defn csv-file-to-maps
-  "Parses a households CSV file
-  to return a seq of :households maps (internal DB records)."
+  "Parses a household CSV file
+  to return a seq of :household maps (internal DB records)."
   [file]
   (let [customise-map (partial shared/customise-map customise-map)]
     (->> file
@@ -91,7 +92,7 @@ WHERE {
   (let [db (->> csv-file-str
                 io/file
                 csv-file-to-maps
-                (map #(assoc % :record-type :households)))]
-    (when-let [error (shared/check-year-totals :households expected-year-totals db)]
-      (throw (RuntimeException. (format "households has year-totals error...\nExpected: %s\nActual: %s" (first error) (second error)))))
+                (map #(assoc % :record-type :household)))]
+    (when-let [error (shared/check-year-totals :count expected-year-totals db)]
+      (throw (RuntimeException. (format "household has year-totals error...\nExpected: %s\nActual: %s" (first error) (second error)))))
     db))
