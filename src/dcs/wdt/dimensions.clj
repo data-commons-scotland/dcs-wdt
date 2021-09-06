@@ -105,7 +105,7 @@
                     :region :business-sector
                     :year :quarter
                     :site-name :permit :status :latitude :longitude
-                    :io-direction :material :management :recycling? :missed-bin? :ewc-code :ewc-description :waste-stream :operator :activities :accepts
+                    :ewc-code :ewc-description :io-direction :material :management :recycling? :missed-bin? :waste-stream :operator :activities :accepts
                     :multiplier :population :households :tonnes :tonnes-input :tonnes-treated-recovered :tonnes-output])
 (def place-it-last (count sortable-dims))
 

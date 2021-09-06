@@ -25,12 +25,13 @@
 
 (defn rollup-ewc-codes-of-waste-site-io
   "Over waste-site-io records...
-   Roll-up the ewc-codes into their sepa-material 'parents'."
+   Roll-up the ewc-codes into their sepa-material 'parents'
+   and remove 0-tonnes records."
   [db]
   (let [sub-db-toRemainAsIs (filter #(not= :waste-site-io (:record-type %)) db)
         sub-db-toBeModified (filter #(= :waste-site-io (:record-type %)) db)
 
-        ;; Prep for looking up a material by an EWC code
+        ;; Prep for looking up a sepa-material by an EWC code
         material-coding (filter #(= :material-coding (:record-type %)) db)
         material-coding-lookup-map (group-by :ewc-code material-coding)
         lookup-material (fn [ewc-code] (->> ewc-code
@@ -48,5 +49,27 @@
                                                                                                     :material     material
                                                                                                     :tonnes       (->> coll
                                                                                                                        (map :tonnes)
-                                                                                                                       (apply +))})))]
+                                                                                                                       (apply +))}))
+                                 (remove #(= 0M (:tonnes %))))]
+    (concat sub-db-toRemainAsIs sub-db-modified)))
+
+
+(defn add-sepa-material-into-ewc-code
+  "Over ewc-code records...
+   Associate sepa-materials with ewc-codes."
+  [db]
+  (let [sub-db-toRemainAsIs (filter #(not= :ewc-coding (:record-type %)) db)
+        sub-db-toBeModified (filter #(= :ewc-coding (:record-type %)) db)
+
+        ;; Prep for looking up a sepa-material by an EWC code
+        material-coding (filter #(= :material-coding (:record-type %)) db)
+        material-coding-lookup-map (group-by :ewc-code material-coding)
+        lookup-material (fn [ewc-code] (->> ewc-code
+                                            (get material-coding-lookup-map)
+                                            first
+                                            :material))
+        
+        sub-db-modified     (->> sub-db-toBeModified
+                                 (map (fn [{:keys [ewc-code]
+                                            :as   m}] (assoc m :material (lookup-material ewc-code)))))]
     (concat sub-db-toRemainAsIs sub-db-modified)))

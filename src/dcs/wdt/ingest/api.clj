@@ -38,7 +38,8 @@
   [db]
   (->> db
        db-2nd-pass/rollup-quarters-of-waste-site-io
-       db-2nd-pass/rollup-ewc-codes-of-waste-site-io))
+       db-2nd-pass/rollup-ewc-codes-of-waste-site-io
+       db-2nd-pass/add-sepa-material-into-ewc-code))
 
 (defn describe-source
   "Returns a string that describes the sourcing of the specified type of data."
