@@ -4,8 +4,8 @@
             [dcs.wdt.ingest.household-co2e :as household-co2e]
             [dcs.wdt.ingest.business-waste-by-region :as business-waste-by-region]
             [dcs.wdt.ingest.business-waste-by-sector :as business-waste-by-sector]
-            [dcs.wdt.ingest.waste-site :as waste-site]
             [dcs.wdt.ingest.waste-site-io :as waste-site-io]
+            [dcs.wdt.ingest.waste-site-material-io :as waste-site-material-io]
             [dcs.wdt.ingest.stirling-bin-collection :as stirling-bin-collection]
             [dcs.wdt.ingest.material-coding :as material-coding]
             [dcs.wdt.ingest.ewc-coding :as ewc-coding]
@@ -24,8 +24,8 @@
           (household-co2e/db-from-csv-file)
           (business-waste-by-region/db-from-csv-files)
           (business-waste-by-sector/db-from-csv-files)
-          (waste-site/db-from-csv-file)
           (waste-site-io/db-from-csv-file)
+          (waste-site-material-io/db-from-csv-file)
           (stirling-bin-collection/db-from-csv-files)
           (material-coding/db-from-csv-file)
           (ewc-coding/db-from-txt-file)
@@ -37,8 +37,8 @@
   "Modify the data in some types of records, using data from other types of records."
   [db]
   (->> db
-       db-2nd-pass/rollup-quarters-of-waste-site-io
-       db-2nd-pass/rollup-ewc-codes-of-waste-site-io
+       db-2nd-pass/rollup-quarters-of-waste-site-material-io
+       db-2nd-pass/rollup-ewc-codes-of-waste-site-material-io
        db-2nd-pass/add-sepa-material-into-ewc-code))
 
 (defn describe-source

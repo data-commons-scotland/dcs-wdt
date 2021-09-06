@@ -14,7 +14,7 @@
 (def trunk-dir "data/exporting/general-use/")
 
 
-(def do-not-json #{:waste-site-io})
+(def do-not-json #{:waste-site-material-io})
 
 
 (defn- datasets-metadata [db]

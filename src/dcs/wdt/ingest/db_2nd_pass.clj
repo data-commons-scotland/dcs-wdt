@@ -3,13 +3,13 @@
   (:require [taoensso.timbre :as log]))
 
 
-(defn rollup-quarters-of-waste-site-io
-  "Over waste-site-io records...
+(defn rollup-quarters-of-waste-site-material-io
+  "Over waste-site-material-io records...
    Roll-up quarters (and operators) into their years.
    N.B. At Aug 2021, year 2020 had data for only 1 of its quarters."
   [db]
-  (let [sub-db-toRemainAsIs (filter #(not= :waste-site-io (:record-type %)) db)
-        sub-db-toBeModified (filter #(= :waste-site-io (:record-type %)) db)
+  (let [sub-db-toRemainAsIs (filter #(not= :waste-site-material-io (:record-type %)) db)
+        sub-db-toBeModified (filter #(= :waste-site-material-io (:record-type %)) db)
         sub-db-modified     (->> sub-db-toBeModified
                                  (group-by (juxt :record-type :year :permit :io-direction :ewc-code))
                                  (map (fn [[[record-type year permit io-direction ewc-code] coll]] {:record-type  record-type
@@ -23,13 +23,13 @@
     (concat sub-db-toRemainAsIs sub-db-modified)))
 
 
-(defn rollup-ewc-codes-of-waste-site-io
-  "Over waste-site-io records...
+(defn rollup-ewc-codes-of-waste-site-material-io
+  "Over waste-site-material-io records...
    Roll-up the ewc-codes into their sepa-material 'parents'
    and remove 0-tonnes records."
   [db]
-  (let [sub-db-toRemainAsIs (filter #(not= :waste-site-io (:record-type %)) db)
-        sub-db-toBeModified (filter #(= :waste-site-io (:record-type %)) db)
+  (let [sub-db-toRemainAsIs (filter #(not= :waste-site-material-io (:record-type %)) db)
+        sub-db-toBeModified (filter #(= :waste-site-material-io (:record-type %)) db)
 
         ;; Prep for looking up a sepa-material by an EWC code
         material-coding (filter #(= :material-coding (:record-type %)) db)

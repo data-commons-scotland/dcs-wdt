@@ -161,8 +161,8 @@
    :household-co2e
    :business-waste-by-region
    :business-waste-by-sector
-   :waste-site
    :waste-site-io
+   :waste-site-material-io
    :stirling-bin-collection
    :material-coding
    :ewc-coding

@@ -33,7 +33,7 @@
                               :licence      "OGL v2.0"
                               :licence-url  "http://www.nationalarchives.gov.uk/doc/open-government-licence/version/2/"
                               :notes        "Published as a series of downloadable Excel files."}
-   :waste-site               {:description  "The locations, services & capacities of waste sites."
+   :waste-site-io            {:description  "The locations, services & capacities of waste sites."
                               :creator      "SEPA"
                               :created-when 2020
                               :supplier     "SEPA"
@@ -41,7 +41,7 @@
                               :licence      "OGL v2.0"
                               :licence-url  "http://www.nationalarchives.gov.uk/doc/open-government-licence/version/2/"
                               :notes        "Published through a web-based data tool, the data can be downloaded as a CSV file."}
-   :waste-site-io            {:description  "The categorised quantities of waste going in and out of waste sites."
+   :waste-site-material-io   {:description  "The categorised quantities of waste going in and out of waste sites."
                               :creator      "SEPA"
                               :created-when 2020
                               :supplier     "SEPA"

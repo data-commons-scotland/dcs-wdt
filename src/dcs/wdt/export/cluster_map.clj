@@ -35,20 +35,20 @@
                                             :material))
 
         ;; Prep for looking up incoming tonnes (in 2019) by waste site's permit and a specified material
-        waste-site-io (->> db
-                           (filter #(= :waste-site-io (:record-type %)))
+        waste-site-material-io (->> db
+                           (filter #(= :waste-site-material-io (:record-type %)))
                            (filter #(= 2019 (:year %))) ;; 2019 only
                            (filter #(= "in" (:io-direction %))) ;; inputs only
                            (map #(assoc % :material (lookup-material (:ewc-code %))))) ;; lookup and associate the material
 
-        waste-site-io-lookup-map (group-by (juxt :permit :material) waste-site-io)
+        waste-site-material-io-lookup-map (group-by (juxt :permit :material) waste-site-material-io)
         lookup-tonnes (fn [permit material] (->> [permit material]
-                                                 (get waste-site-io-lookup-map)
+                                                 (get waste-site-material-io-lookup-map)
                                                  (map :tonnes)
                                                  (apply +)))
 
         ;; Collect the waste site records and whilst doing so, stringify any record value that is a collection
-        waste-sites00 (for [m (filter #(= :waste-site (:record-type %)) db)]
+        waste-sites00 (for [m (filter #(= :waste-site-io (:record-type %)) db)]
                         (zipmap (keys m)
                                 (map shared/stringify-if-collection (vals m))))
 
