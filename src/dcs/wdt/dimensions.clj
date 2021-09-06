@@ -5,44 +5,6 @@
   "2011-2019 inclusive."
   (range 2011 2020))
 
-(def regions
-  "Scottish council areas and a few specials."
-  ["Aberdeen City"
-   "Aberdeenshire"
-   "Angus"
-   "Argyll and Bute"
-   "City of Edinburgh"
-   "Clackmannanshire"
-   "Dumfries and Galloway"
-   "Dundee City"
-   "East Ayrshire"
-   "East Dunbartonshire"
-   "East Lothian"
-   "East Renfrewshire"
-   "Falkirk"
-   "Fife"
-   "Glasgow City"
-   "Highland"
-   "Inverclyde"
-   "Midlothian"
-   "Moray"
-   "North Ayrshire"
-   "North Lanarkshire"
-   "Orkney Islands"
-   "Outer Hebrides"
-   "Perth and Kinross"
-   "Renfrewshire"
-   "Scottish Borders"
-   "Shetland Islands"
-   "South Ayrshire"
-   "South Lanarkshire"
-   "Stirling"
-   "West Dunbartonshire"
-   "West Lothian"
-   ;; Special
-   "Offshore"
-   "Unknown"])
-
 (def materials
   "Waste material materials/categories."
   ["Acid, alkaline or saline wastes"
@@ -106,6 +68,7 @@
                     :year :quarter
                     :site-name :permit :status :latitude :longitude
                     :ewc-code :ewc-description :io-direction :material :management :recycling? :missed-bin? :operator :activities :accepts
+                    :code :qid
                     :multiplier :count :tonnes :tonnes-input :tonnes-treated-recovered :tonnes-output])
 (def place-it-last (count sortable-dims))
 
@@ -147,6 +110,8 @@
    :activities               "The waste processing activities supported by the waste site."
    :accepts                  "The kinds of clients/wastes accepted by the waste site."
    :multiplier               "The value to multiply a weight by to calculate the C02e amount."
+   :code                     "The UK government code."
+   :qid                      "The Wikidata entity ID."
    :count                    "The population/household count as an integer."
    :tonnes                   "The waste related quantity as a decimal."
    :tonnes-input             "The quantity of incoming waste as a decimal."
@@ -155,7 +120,8 @@
 
 (def record-types
   "Record types of the internal database."
-  [:household-waste
+  [:region
+   :household-waste
    :household-co2e
    :business-waste-by-region
    :business-waste-by-sector

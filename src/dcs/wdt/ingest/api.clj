@@ -1,5 +1,6 @@
 (ns dcs.wdt.ingest.api
   (:require [dcs.wdt.ingest.meta :as meta]
+            [dcs.wdt.ingest.region :as region]
             [dcs.wdt.ingest.household-waste :as household-waste]
             [dcs.wdt.ingest.household-co2e :as household-co2e]
             [dcs.wdt.ingest.business-waste-by-region :as business-waste-by-region]
@@ -20,7 +21,8 @@
   (population/csv-file-from-sparql))
 
 (defn db-from-csv-files []
-  (concat (household-waste/db-from-csv-file)
+  (concat (region/db-from-internal)
+          (household-waste/db-from-csv-file)
           (household-co2e/db-from-csv-file)
           (business-waste-by-region/db-from-csv-files)
           (business-waste-by-sector/db-from-csv-files)

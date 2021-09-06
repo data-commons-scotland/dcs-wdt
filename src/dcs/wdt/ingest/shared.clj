@@ -6,7 +6,8 @@
             [clojure.data.csv :as csv]
             [clj-http.client :as http]
             [taoensso.timbre :as log]
-            [dcs.wdt.dimensions :as dim])
+            [dcs.wdt.dimensions :as dim]
+            [dcs.wdt.ingest.region :as region])
   (:import java.io.PushbackReader
            java.net.URLEncoder))
 
@@ -35,7 +36,7 @@
                               "Mining & quarrying"             "Mining and quarrying"})
 
 (def years-set (set dim/years))
-(def regions-set (set dim/regions))
+(def regions-set (set (keys region/internal)))
 (def materials-set (set dim/materials))
 (def managements-set (set dim/managements))
 (def business-sectors-set (set dim/business-sectors))
