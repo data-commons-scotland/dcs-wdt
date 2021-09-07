@@ -69,6 +69,7 @@
                     :site-name :permit :status :latitude :longitude
                     :ewc-code :ewc-description :io-direction :material :management :recycling? :missed-bin? :operator :activities :accepts
                     :code :qid
+                    :name :description :creator :created-when :supplier :supply-url :licence :licence-url :notes
                     :multiplier :count :tonnes :tonnes-input :tonnes-treated-recovered :tonnes-output])
 (def place-it-last (count sortable-dims))
 
@@ -120,7 +121,8 @@
 
 (def record-types
   "Record types of the internal database."
-  [:region
+  [:meta
+   :region
    :household-waste
    :household-co2e
    :business-waste-by-region

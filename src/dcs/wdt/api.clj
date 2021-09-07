@@ -28,7 +28,9 @@
 (defn generate-csv-files-for-general-use [_]
   (log/set-level! :info)
   (let [db (ingest/db-from-2nd-pass (ingest/db-from-csv-files))]
-    (general-use/generate-csv-files db)))
+    (general-use/generate-csv-files db)
+    (general-use/generate-readme-file db)
+    (general-use/generate-webapp-file db)))
 
 (defn generate-json-file-for-cluster-map [_]
   (log/set-level! :info)

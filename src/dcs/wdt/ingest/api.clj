@@ -21,7 +21,8 @@
   (population/csv-file-from-sparql))
 
 (defn db-from-csv-files []
-  (concat (region/db-from-internal)
+  (concat (meta/db-from-internal)
+          (region/db-from-internal)
           (household-waste/db-from-csv-file)
           (household-co2e/db-from-csv-file)
           (business-waste-by-region/db-from-csv-files)
@@ -42,9 +43,10 @@
        db-2nd-pass/rollup-quarters-of-waste-site-material-io
        db-2nd-pass/rollup-ewc-codes-of-waste-site-material-io
        db-2nd-pass/add-sepa-material-into-ewc-code
-       db-2nd-pass/remove-ewc-code-from-sepa-material))
+       db-2nd-pass/remove-ewc-code-from-sepa-material
+       db-2nd-pass/add-record-counts-into-meta))
 
 (defn describe-source
   "Returns a string that describes the sourcing of the specified type of data."
   [record-type]
-  (record-type meta/sources))
+  (record-type meta/internal))

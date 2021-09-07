@@ -86,3 +86,19 @@
                                  (map #(dissoc % :ewc-code))
                                  distinct)]
     (concat sub-db-toRemainAsIs sub-db-modified)))
+
+
+(defn add-record-counts-into-meta
+  "Over meta records...
+   Add a count of each of the other record types."  
+  [db]
+  (let [sub-db-toRemainAsIs (filter #(not= :meta (:record-type %)) db)
+        sub-db-toBeModified (filter #(= :meta (:record-type %)) db)
+        
+        sub-db-modified (->> sub-db-toBeModified
+                             (map (fn [m] (let [target-record-type (keyword (:name m))
+                                                target-record-count (->> db
+                                                                         (filter #(= target-record-type (:record-type %)))
+                                                                         count)]
+                                            (assoc m :count target-record-count)))))]
+    (concat sub-db-toRemainAsIs sub-db-modified)))

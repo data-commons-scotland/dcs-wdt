@@ -1,6 +1,6 @@
 (ns dcs.wdt.ingest.meta)
 
-(def sources
+(def internal
   {:region                   {:description  "Scottish council areas with UK government codes and Wikidata IDs."
                               :creator      "DCS"
                               :created-when 2021
@@ -99,9 +99,17 @@
                               :notes        "Published as an RDF data cube, the data can be accessed via SPARQL."}
    :population               {:description  "People counts. Useful for calculating per-citizen amounts."
                               :creator      "NRS"
-                              :created-when 2020
+                              :created-when 2021
                               :supplier     "statistics.gov.scot"
                               :supply-url   "http://statistics.gov.scot/data/population-estimates-current-geographic-boundaries"
                               :licence      "OGL v3.0"
                               :licence-url  "http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"
                               :notes        "Published as an RDF data cube, the data can be accessed via SPARQL."}})
+
+
+(defn db-from-internal
+  []
+  (map (fn [[k m]] (assoc m 
+                          :record-type :meta
+                          :name (name k)))
+       internal))
