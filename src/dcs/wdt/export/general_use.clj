@@ -1,13 +1,13 @@
 (ns dcs.wdt.export.general-use
-  (:require [clojure.java.io :as io]
+  (:require [clojure.java.shell :as shell]
+            [clojure.java.io :as io]
             [clojure.data.csv :as csv]
             [clojure.data.json :as json]
             [clojure.pprint :as pp]
             [taoensso.timbre :as log]
             [dcs.wdt.dimensions :as dims]
-            [dcs.wdt.ingest.meta :as meta]
             [dcs.wdt.export.shared :as shared]
-            [dcs.wdt.export.general-use-html :as html])
+            [dcs.wdt.export.general-use-markup :as markup])
   (:import java.io.FileWriter))
 
 
@@ -18,14 +18,14 @@
 
 
 (defn- datasets-metadata [db]
-  (for [rtype dims/record-types]
-    (let [n (count (filter #(= rtype (:record-type %)) db))
-          source (rtype meta/internal)]
-      [(name rtype) (:description source) n
-       (:creator source) (:created-when source)
-       (:supplier source) (:supply-url source)
-       (:licence source) (:licence-url source)
-       (:notes source)])))
+  (for [meta-record (sort-by :name (filter #(= :meta (:record-type %)) db))]
+    (let [data-records    (filter #(= (keyword (:name meta-record)) (:record-type %)) db)
+          record-count    (count data-records)
+          attribute-count (dec (count (keys (first data-records))))] ;; assume that all records of a type have the same attributes 
+      (assoc meta-record
+             :record-count record-count
+             :attribute-count attribute-count))))
+      
 
 (defn- dimensions-metadata [db]
   (sort-by (comp dims/ord keyword first)                    ;; sort by dimension (with the ordering defined by ord)
@@ -40,30 +40,6 @@
                            (name rtype) (shared/stringify-if-collection (dim record))
                            (when (dims/count-useful? dim) (count dim-vals))
                            (when (dims/min-max-useful? dim) (apply min dim-vals)) (when (dims/min-max-useful? dim) (apply max dim-vals))])))))))
-
-
-(defn- generate-metadata-csv-files [db]
-  (let [metadata-dir (str trunk-dir "metadata/")]
-    (let [data-rows (datasets-metadata db)
-          header-row ["dataset" "description" "number of records"
-                      "creator of source data" "creation date of source data"
-                      "supplier of source data" "supply URL of source data"
-                      "licence of source data" "licence URL of source data"
-                      "sourcing notes"]
-          file (io/file (str metadata-dir "datasets.csv"))]
-      (log/infof "Writing %s records to: %s" (count data-rows) (.getAbsolutePath file))
-      (io/make-parents file)
-      (with-open [wtr (io/writer file)]
-        (csv/write-csv wtr (cons header-row data-rows))))
-    (let [data-rows (dimensions-metadata db)
-          header-row ["dimension" "description" "dataset" "example value of dimension"
-                      "count of values of dimension, when useful"
-                      "min value of dimension, when useful" "max value of dimension, when useful"]
-          file (io/file (str metadata-dir "dimensions.csv"))]
-      (log/infof "Writing %s records to: %s" (count data-rows) (.getAbsolutePath file))
-      (io/make-parents file)
-      (with-open [wtr (io/writer file)]
-        (csv/write-csv wtr (cons header-row data-rows))))))
 
 
 (defn- generate-data-csv-files [db]
@@ -98,13 +74,10 @@
 
 (defn- print-describing-tables-for-the-metadata [db]
   (let [data-rows (dimensions-metadata db)
-        ks [:dimension :description :record-type :example :count-distincts :min :max]
+        ks        [:dimension :description :record-type :example :count-distincts :min :max]
         data-maps (map #(zipmap ks %) data-rows)]
     (pp/print-table data-maps))
-  (let [data-rows (datasets-metadata db)
-        ks [:record-type :description :record-count :creator :created-when :supplier :supply-url :licence :licence-url :notes]
-        data-maps (map #(zipmap ks %) data-rows)]
-    (pp/print-table data-maps)))
+  (pp/print-table (datasets-metadata db)))
 
 
 (defn- print-tables-of-sample-of-the-data [db]
@@ -118,16 +91,14 @@
       (pp/print-table ks sub-db-sampled-and-stringified))))
 
 
-(defn generate-csv-files [db]
+(defn generate-data-files [db]
   (generate-data-csv-files db)
-  (generate-data-json-files db)
-  (generate-metadata-csv-files db))
+  (generate-data-json-files db))
 
-(defn generate-readme-file [db]
-  (html/generate-readme-file do-not-json trunk-dir (datasets-metadata db) (dimensions-metadata db)))
-
-(defn generate-webapp-file [db]
-  (html/generate-webapp-file do-not-json trunk-dir (datasets-metadata db) (dimensions-metadata db)))
+(defn generate-readme-files [db]
+  (let [metas (datasets-metadata db)]
+    (markup/generate-top-level-readme-file trunk-dir metas)
+    (markup/generate-data-level-readme-file trunk-dir metas)))
 
 (defn print-describing-tables [db]
   (print-tables-of-sample-of-the-data db)

@@ -1,0 +1,33 @@
+#!/bin/bash
+
+csvwdir=$(pwd)/resources/csvw
+datadir=$(pwd)/data/exporting/general-use/data
+csvw_validator_jar=$(pwd)/lib/csvw-validator-cli-app-1.0.0-SNAPSHOT.jar
+csv2rdf_jar=$(pwd)/lib/csv2rdf-0.4.7-SNAPSHOT-standalone.jar 
+
+pushd $datadir
+
+rm -f *-metadata.json
+rm -f *.ttl
+
+cp $csvwdir/*-metadata.json ./
+
+for csvw_file in ./*-metadata.json
+do
+	printf "\n*** Processing $csvw_file\n" 
+	name=$(basename -s -metadata.json $csvw_file)
+	
+	java \
+		-jar $csvw_validator_jar \
+		-s $name-metadata.json \
+		--not-strict
+	
+	java \
+		-jar $csv2rdf_jar \
+		-u $name-metadata.json \
+		-m annotated \
+		-o $name.ttl
+		
+done
+
+popd

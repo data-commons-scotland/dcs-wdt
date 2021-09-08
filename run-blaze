@@ -1,0 +1,19 @@
+#!/bin/bash
+
+journal_properties=$(pwd)/resources/blazegraph/journal.properties
+datadir=$(pwd)/data/exporting/general-use/data
+blazegraph_jar=$(pwd)/lib/blazegraph.jar 
+
+printf "\n*** Loading Turtle data\n" 
+rm -f blazegraph.jnl
+java \
+	-cp $blazegraph_jar \
+	com.bigdata.rdf.store.DataLoader \
+	$journal_properties \
+	$datadir/*.ttl
+
+printf "\n*** Starting a Blazegraph service\n" 
+java \
+	-server \
+	-Xmx4g \
+	-jar $blazegraph_jar
