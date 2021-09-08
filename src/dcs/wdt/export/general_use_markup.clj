@@ -53,7 +53,7 @@ useful dimensions.
 1+<h| name
 1+<h| description
 1+<h| rows x cols
-1+<h| data files
+1+<h| files
 1+<h| creator
 1+<h| supplier
 1+<h| licence
