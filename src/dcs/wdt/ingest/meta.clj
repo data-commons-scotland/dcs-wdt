@@ -5,7 +5,7 @@
                               :creator      "DCS"
                               :created-when 2021
                               :supplier     "DCS"
-                              :supply-url   "https://github.com/data-commons-scotland/dcs-easier-open-data"
+                              :supply-url   "file:///"
                               :licence      "CC BY 4.0"
                               :licence-url  "https://creativecommons.org/licenses/by/4.0/"
                               :notes        "Choose to use the common name for each region."}
@@ -104,7 +104,15 @@
                               :supply-url   "http://statistics.gov.scot/data/population-estimates-current-geographic-boundaries"
                               :licence      "OGL v3.0"
                               :licence-url  "http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"
-                              :notes        "Published as an RDF data cube, the data can be accessed via SPARQL."}})
+                              :notes        "Published as an RDF data cube, the data can be accessed via SPARQL."}
+   :meta                     {:description  "Meta level information."
+                              :creator      "DCS"
+                              :created-when 2021
+                              :supplier     "DCS"
+                              :supply-url   "file:///"
+                              :licence      "CC BY 4.0"
+                              :licence-url  "https://creativecommons.org/licenses/by/4.0/"
+                              :notes        ""}})
 
 
 (defn db-from-internal

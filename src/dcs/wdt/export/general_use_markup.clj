@@ -47,13 +47,13 @@ useful dimensions.
 
 |=========================================================
 
-4+^h|dataset ^(generated&nbsp;September&nbsp;2021)^
-3+^h|source data ^(sourced&nbsp;January&nbsp;2021)^
+4+^h|dataset
+3+^h|source
 
 1+<h| name
 1+<h| description
 1+<h| rows x cols
-1+<h| files
+1+<h| data files
 1+<h| creator
 1+<h| supplier
 1+<h| licence
@@ -67,7 +67,7 @@ DATASETS-ROWS
         datasets-count (str (count metas))
         datasets-str (str/join "\n\n"
                                (for [meta metas]
-                                 (format "| anchor:%s[] %s | %s |  %s x %s | link:data/README#%s[files] | %s | %s[%s] | %s[%s]"
+                                 (format "| anchor:%s[] %s | %s |  %s x %s | link:data/README.adoc#%s[files] | %s | %s[%s] | %s[%s]"
                                          (:name meta) (:name meta)
                                          (:description meta)
                                          (:record-count meta) (:attribute-count meta)
@@ -87,20 +87,18 @@ DATASETS-ROWS
 
 
 (defn generate-data-level-readme-file [trunk-dir metas]
-  (let [content-template "
-== _Easier_ open data about waste in Scotland
-                          
-==== The data files
+  (let [content-template "             
+==== The DATASETS-COUNT _easier_ datasets
 
 [width=\"100%\",cols=\"<,<,<,<,<\",stripes=\"hover\"]
 
 |=========================================================
 
 1.2+^h|name
-3.1+^h|the actual data +
-(in various formats)
-1.2+^h|the data's specification +
-(in CSVW format)
+3.1+^h|the data +
+(various formats)
+1.2+^h|the specification of the data+
+(CSVW format)
 
 
 1+^h| CSV +
@@ -115,17 +113,21 @@ DATASETS-ROWS
 |=========================================================
 
 "
-        datasets-str (str/join "\n\n"
-                               (for [meta metas]
-                                (format "| anchor:%s[] %s | link:%s.csv[%s.csv] | link:%s.json[%s.json] | link:%s.ttl[%s.ttl] | link:%s-metadata.json[%s-metadata.json]"
-                                        (:name meta) (:name meta)
-                                        (:name meta) (:name meta)
-                                        (:name meta) (:name meta)
-                                        (:name meta) (:name meta)
-                                        (:name meta) (:name meta))))
-        content (-> content-template
-                    (str/replace "DATASETS-ROWS" datasets-str))
-        file (io/file (str trunk-dir "data/README.adoc"))]
+        datasets-count   (str (count metas))
+        datasets-str     (str/join "\n\n"
+                                   (concat
+                                    (for [meta metas]
+                                      (format "| anchor:%s[] %s | link:%s.csv[%s.csv] | link:%s.json[%s.json] | link:%s.ttl[%s.ttl] | link:%s-metadata.json[%s-metadata.json]"
+                                              (:name meta) (:name meta)
+                                              (:name meta) (:name meta)
+                                              (:name meta) (:name meta)
+                                              (:name meta) (:name meta)
+                                              (:name meta) (:name meta)))
+                                    ["| _(ZIP bundles)_ | link:all-csv.zip[all-csv.zip] | link:all-json.zip[all-json.zip] | link:all-turtle.zip[all-turtle.zip] | link:all-csvw.zip[all-csvw.zip]"]))
+        content          (-> content-template
+                             (str/replace "DATASETS-COUNT" datasets-count)
+                             (str/replace "DATASETS-ROWS" datasets-str))
+        file             (io/file (str trunk-dir "data/README.adoc"))]
     (log/infof "Writing: %s" (.getAbsolutePath file))
     (io/make-parents file)
     (spit file content)))

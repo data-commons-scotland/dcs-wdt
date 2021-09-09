@@ -27,19 +27,16 @@ Prerequisite software:
 * JDK 11.0.5 (_-ish_)
 * Clojure 1.10.1 (_-ish_)
 * Cojure Tools 1.10.1.754 (_-ish_)
+ 
+* `lib/csvw-validator-cli-app-1.0.0-SNAPSHOT.jar` ...used by `gen-turtle` to do extra CSVW related validation
+* `lib/csv2rdf-0.4.7-SNAPSHOT-standalone.jar` ...used by `gen-turtle` to do the actual generation of RDF/Turtle
+* `lib/blazegraph.jar` (2.1.6 _ish_) ...used by `run-blaze`
 
 === Get the software
 
 [source]
 ----
 C:\>git clone https://github.com/data-commons-scotland/dcs-wdt.git
-Cloning into 'dcs-wdt'...
-remote: Enumerating objects: 333, done.
-remote: Counting objects: 100% (333/333), done.
-remote: Compressing objects: 100% (165/165), done.
-Receiving objects:  87% (290/333)used 270 (delta 112), pack-reused 0R
-Receiving objects: 100% (333/333), 63.10 KiB | 897.00 KiB/s, done.
-Resolving deltas: 100% (175/175), done.
 ----
 
 === Run
@@ -48,7 +45,7 @@ Create ingestable local files from SPARQL queries:
 
 [source]
 ----
-clj -X:csv
+clj -X:sparql
 ----
 
 Create a database from ingestable local files then describe the database on the console:
@@ -63,4 +60,25 @@ Create a database from ingestable local files then generate CSV & JSON files for
 [source]
 ----
 clj -X:general
+----
+
+Validate the generated CSV files against their CSVW specifications, then generate their equivalent Turtle files: 
+
+[source]
+----
+gen-turtle
+----
+
+Create ZIP bundles of the CSV, JSON, Turtle & CSVW files: 
+
+[source]
+----
+zip-files
+----
+
+Load the generated Turtle files into a Blazegraph DB file, and then run a Blazegraph service: 
+
+[source]
+----
+run-blaze
 ----

@@ -1,0 +1,14 @@
+#!/bin/bash
+
+datadir=$(pwd)/data/exporting/general-use/data
+
+pushd $datadir
+
+rm -f *.zip
+
+zip all-csv.zip *.csv
+( GLOBIGNORE="*-metadata.json"; zip all-json.zip *.json )
+zip all-turtle.zip *.ttl
+zip all-csvw.zip *-metadata.json
+
+popd
