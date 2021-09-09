@@ -28,9 +28,9 @@ Prerequisite software:
 * Clojure 1.10.1 (_-ish_)
 * Cojure Tools 1.10.1.754 (_-ish_)
  
-* `lib/csvw-validator-cli-app-1.0.0-SNAPSHOT.jar` ...used by `gen-turtle` to do extra CSVW related validation
-* `lib/csv2rdf-0.4.7-SNAPSHOT-standalone.jar` ...used by `gen-turtle` to do the actual generation of RDF/Turtle
-* `lib/blazegraph.jar` (2.1.6 _ish_) ...used by `run-blaze`
+* `lib/csvw-validator-cli-app-1.0.0-SNAPSHOT.jar` (performs extra CSVW related validation; used by `gen-turtle`; get from https://github.com/Swirrl/csv2rdf[Swirrl's repo])
+* `lib/csv2rdf-0.4.7-SNAPSHOT-standalone.jar` (performs the actual Turtle generation; used by `gen-turtle`; get from https://github.com/malyvoj3/csvw-validator[Vojtech's repo])
+* `lib/blazegraph.jar` 2.1.6 (_ish_) (provides an RDF store and a SPARQL service; used by `run-blaze`; get from https://github.com/blazegraph/database[Blazegraph's repo])
 
 === Get the software
 
