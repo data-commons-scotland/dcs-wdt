@@ -3,6 +3,7 @@
             [clojure.pprint :as pp]
             [clojure.java.io :as io]
             [clojure.data.json :as json]
+            [taoensso.timbre :as log]
             [dk.ative.docjure.spreadsheet :as xls]))
 
 
@@ -31,9 +32,10 @@
 
 (defn number [cell]
   (let [v (xls/read-cell cell)]
-    (if (double? v)
-      v
-      (double 0))))
+    (bigdec
+     (if (double? v)
+       v
+       0))))
 
 (defn block-spec
   [first-row-number last-row-number material-col-id weight-col-id co2e-col-id]
@@ -195,8 +197,50 @@
 (defn db-from-xls-file
   "Create a seq of DB records from the Excel workbook that was supplied to us by The fair Share."
   []
-  (let [workbook (xls/load-workbook "data/ingesting/fairshare/originals/Fairshare Donation Weights and Carbon Saving.xlsx")]
-    ))
+  (let [;; read the workbookio/file 
+        filename "data/ingesting/fairshare/originals/Fairshare Donation Weights and Carbon Saving.xlsx"
+        _        (log/infof "Reading CSV file: %s" filename)
+        workbook (xls/load-workbook filename)
+
+        ;; extract the data
+        data0    (->> workbook
+                      xls/sheet-seq
+                      (map read-sheet)
+                      flatten
+                      (remove nil?))
+        
+        ;; alias some of the material names
+        data1    (map maybe-alias data0)
+
+        ;; roll-up to get values for (year quarter material)
+        data2    (->> data1
+                      (group-by (juxt :year :quarter :material))
+                      (map (fn [[[year quarter material] coll]] {:year     year
+                                                                 :quarter  quarter
+                                                                 :material material
+                                                                 :weight   (->> coll
+                                                                                (map :weight)
+                                                                                (apply +))
+                                                                 :co2e     (->> coll
+                                                                                (map :co2e)
+                                                                                (apply +))})))
+
+        ;; add quarter end dates for convenience, also do minor reformating
+        data3    (map (fn [{:keys [year quarter material weight co2e]}]
+                        {:region        "Stirling"
+                         :year          year
+                         :quarter       quarter
+                         :yyyy-MM-dd    (yyyy-MM-dd year quarter)
+                         :material      material
+                         :tonnes-weight weight
+                         :tonnes-co2e   co2e})
+                      data2)
+        
+        ;; add record type
+        data4    (map #(assoc % :record-type :fairshare) data3)]
+    
+    (log/infof "Accepted records: %s" (count data4))
+    data4))
 
 
 ;; ------------------------------------------------------
@@ -225,15 +269,15 @@
   (assert (some #(= {:year     2013
                      :quarter  1
                      :material "Small WEEE"
-                     :weight   (double 0.013300000000000001)
-                     :co2e     (double 0.0236341)}
+                     :weight   (bigdec 0.0133)
+                     :co2e     (bigdec 0.0236341)}
                     %)
                 data0))
   (assert (some #(= {:year     2019
                      :quarter  4
                      :material "Food & Drink"
-                     :weight   (double 0.018699999999999998)
-                     :co2e     (double 0.07631775932000001)}
+                     :weight   (bigdec 0.0187)
+                     :co2e     (bigdec 0.07631775932000001)}
                     %)
                 data0))
 
@@ -246,10 +290,10 @@
                                          :frequency b}))
                        (sort-by :frequency)))
 
-  ;; coalesce some of the material values
+  ;; alias some of the material names
   (def data1 (map maybe-alias data0))
 
-  ;; -> data1 ≈ data with coalesced material values
+  ;; -> data1 ≈ data with aliased material names
   
   ;; have a look at the result
   (pp/print-table (->> data1
@@ -259,9 +303,24 @@
                        (map (fn [[a b]] {:material  a
                                          :frequency b}))
                        (sort-by :frequency)))
-
+  
+  ;; roll-up to get values for (year quarter material)
+  (def data2 (->> data1
+                  (group-by (juxt :year :quarter :material))
+                  (map (fn [[[year quarter material] coll]] {:year     year
+                                                             :quarter  quarter
+                                                             :material material
+                                                             :weight   (->> coll
+                                                                            (map :weight)
+                                                                            (apply +))
+                                                             :co2e     (->> coll
+                                                                            (map :co2e)
+                                                                            (apply +))}))))
+  
+  ;; -> data2 ≈ data with rolled-up per-material values
+  
   ;; add quarter end dates for convenience, also do minor reformating
-  (def data2 (map (fn [{:keys [year quarter material weight co2e]}]
+  (def data3 (map (fn [{:keys [year quarter material weight co2e]}]
                     {:region        "Stirling"
                      :year          year
                      :quarter       quarter
@@ -269,14 +328,14 @@
                      :material      material
                      :tonnes-weight weight
                      :tonnes-co2e   co2e})
-                  data1))
+                  data2))
 
-  ;; -> data2 ≈ data with quarter end dates and minor reformatting
+  ;; -> data3 ≈ data with quarter end dates and minor reformatting
   
   ;; have a look at the result
   (pp/print-table [:region :year :quarter :yyyy-MM-dd :material :tonnes-weight :tonnes-co2e]
-                  (concat (take 5 data2)
-                          (take-last 5 data2)))
+                  (concat (take 5 data3)
+                          (take-last 5 data3)))
 
   ;; prep for chart files
   (io/make-parents "tmp/placeholder")
@@ -324,7 +383,7 @@
     (json/pprint
      (-> tonnes-per-material-per-month-chart-template
          (assoc-in [:transform 1 :aggregate 0 :field] "tonnes-weight")
-         (assoc-in [:data :values] data2))))
+         (assoc-in [:data :values] data3))))
 
   ;; -> tmp/chart-1-weight-per-material-per-month.vl.json ...look at it with a a Vega viewer
   
@@ -335,7 +394,7 @@
          (assoc-in [:encoding :y :scale] {:type     "pow"
                                           :exponent 0.25})
          (assoc-in [:transform 1 :aggregate 0 :field] "tonnes-weight")
-         (assoc-in [:data :values] data2))))
+         (assoc-in [:data :values] data3))))
 
   ;; -> tmp/chart-2-logarithmic-weight-per-material-per-month.vl.json ...look at it with a a Vega viewer
   
@@ -344,12 +403,12 @@
     (json/pprint
      (-> tonnes-per-material-per-month-chart-template
          (assoc-in [:transform 1 :aggregate 0 :field] "tonnes-co2e")
-         (assoc-in [:data :values] data2))))
+         (assoc-in [:data :values] data3))))
 
   ;; -> tmp/chart-3-co2e-per-material-per-month.vl.json ...look at it with a a Vega viewer
   
   ;; calc the CO2e avoided per year in terms of cars
-  (def data3 (->> data2
+  (def data4 (->> data3
                   ;; roll-up to per-year
                   (group-by :year)
                   (map (fn [[year coll]]
@@ -379,12 +438,12 @@
                          :year-cars        0
                          :car              0})))
 
-  ;; -> data3 ≈ data describing the CO2e avoided per year in terms of cars, also Vega-lite oriented
+  ;; -> data4 ≈ data describing the CO2e avoided per year in terms of cars, also Vega-lite oriented
   
   ;; have a look at it
   (pp/print-table [:date :year-tonnes-co2e :year-cars :car]
-                  (concat (take 5 data3)
-                          (take-last 5 data3)))
+                  (concat (take 5 data4)
+                          (take-last 5 data4)))
 
   ;; plot the CO2e avoided per year in terms of cars
   (def cars-worth-chart-template
@@ -427,7 +486,7 @@
   (binding [*out* (io/writer "tmp/chart-4-cars-worth.vl.json")]
     (json/pprint
      (-> cars-worth-chart-template
-         (assoc-in [:data :values] data3))))
+         (assoc-in [:data :values] data4))))
 
     ;; -> tmp/chart-4-cars-worth.vl.json ...look at it with a a Vega viewer
   
@@ -468,7 +527,7 @@
     (json/pprint
      (-> average-tonnes-per-material-per-year-chart-template
          (assoc-in [:transform 1 :aggregate 0 :field] "tonnes-weight")
-         (assoc-in [:data :values] data2))))
+         (assoc-in [:data :values] data3))))
 
     ;; -> tmp/chart-6-average-weight-per-material-per-year.vl.json ...look at it with a a Vega viewer
   
@@ -478,7 +537,7 @@
      (-> average-tonnes-per-material-per-year-chart-template
          (assoc-in [:encoding :color :value] "#A2CAC1")
          (assoc-in [:transform 1 :aggregate 0 :field] "tonnes-co2e")
-         (assoc-in [:data :values] data2))))
+         (assoc-in [:data :values] data3))))
 
   ;; -> tmp/chart-7-average-co2e-savings-per-material-per-year.vl.json ...look at it with a a Vega viewer
   
@@ -519,12 +578,12 @@
     (json/pprint
      (-> tonnes-per-quarter-chart-template
          (assoc-in [:transform 1 :aggregate 0 :field] "tonnes-weight")
-         (assoc-in [:data :values] data2))))
+         (assoc-in [:data :values] data3))))
 
   ;; -> tmp/chart-8-weight-per-quarter.vl.json ...look at it with a a Vega viewer
   
   ;; calc total weight across all years
-  (apply + (map :tonnes-weight data2))
+  (apply + (map :tonnes-weight data3))
   
   )
   

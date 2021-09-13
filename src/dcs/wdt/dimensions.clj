@@ -65,12 +65,12 @@
 
 (def sortable-dims [:record-type
                     :region :business-sector
-                    :year :quarter
+                    :year :quarter :yyyy-MM-dd
                     :site-name :permit :status :latitude :longitude
                     :ewc-code :ewc-description :io-direction :material :management :recycling? :missed-bin? :operator :activities :accepts
                     :code :qid
                     :name :description :creator :created-when :supplier :supply-url :licence :licence-url :notes
-                    :multiplier :count :tonnes :tonnes-input :tonnes-treated-recovered :tonnes-output])
+                    :multiplier :count :tonnes :tonnes-input :tonnes-treated-recovered :tonnes-output :tonnes-weight :tonnes-co2e])
 (def place-it-last (count sortable-dims))
 
 (defn ord
@@ -83,11 +83,11 @@
 
 (defn min-max-useful?
   [dimension]
-  (contains? #{:year :multiplier :count :tonnes :tonnes-input :tonnes-treated-recovered :tonnes-output} dimension))
+  (contains? #{:year :multiplier :count :tonnes :tonnes-input :tonnes-treated-recovered :tonnes-output :tonnes-weight :tonnes-co2e} dimension))
 
 (defn count-useful?
   [dimension]
-  (not (contains? #{:count :tonnes :tonnes-input :tonnes-treated-recovered :tonnes-output} dimension)))
+  (not (contains? #{:count :tonnes :tonnes-input :tonnes-treated-recovered :tonnes-output :tonnes-weight :tonnes-co2e} dimension)))
 
 (def descriptions
   {:record-type              "Indicates the dataset of the record."
@@ -95,6 +95,7 @@
    :business-sector          "The label representing the business/economic sector."
    :year                     "The integer representation of a year."
    :quarter                  "The integer representation of the year's quarter."
+   :yyyy-MM-dd               "The date."
    :site-name                "The name of the waste site."
    :permit                   "The waste site operator's official permit or licence."
    :status                   "The label indicating the open/closed status of the waste site in the record's timeframe. "
@@ -117,7 +118,9 @@
    :tonnes                   "The waste related quantity as a decimal."
    :tonnes-input             "The quantity of incoming waste as a decimal."
    :tonnes-treated-recovered "The quantity of waste treated or recovered as a decimal."
-   :tonnes-output            "The quantity of outgoing waste as a decimal."})
+   :tonnes-output            "The quantity of outgoing waste as a decimal."
+   :tonnes-weight            "The waste related quantity as a decimal."
+   :tonnes-co2e              "The waste related quantity as a decimal."})
 
 (def record-types
   "Record types of the internal database."
@@ -134,4 +137,5 @@
    :ewc-code
    :co2e-multiplier
    :household
-   :population])
+   :population
+   :fairshare])

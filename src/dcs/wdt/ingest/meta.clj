@@ -105,6 +105,14 @@
                               :licence      "OGL v3.0"
                               :licence-url  "http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"
                               :notes        "Published as an RDF data cube, the data can be accessed via SPARQL."}
+   :fairshare                {:description  "The per-year per-quarter per-material amount (weight and CO2e) of reused items."
+                              :creator      "The Fair Share"
+                              :created-when 2021
+                              :supplier     "The Fair Share"
+                              :supply-url   "file:///"
+                              :licence      "CC BY 4.0"
+                              :licence-url  "https://creativecommons.org/licenses/by/4.0/"
+                              :notes        "Supplied as an Excel spreadsheet."}
    :meta                     {:description  "Meta level information."
                               :creator      "DCS"
                               :created-when 2021

@@ -13,6 +13,7 @@
             [dcs.wdt.ingest.co2e-multiplier :as co2e-multiplier]
             [dcs.wdt.ingest.household :as household]
             [dcs.wdt.ingest.population :as population]
+            [dcs.wdt.ingest.fairshare :as fairshare]
             [dcs.wdt.ingest.db-2nd-pass :as db-2nd-pass]))
 
 (defn csv-files-from-sparql []
@@ -34,6 +35,7 @@
           (ewc-code/db-from-txt-file)
           (co2e-multiplier/db-from-csv-file)
           (household/db-from-csv-file)
+          (fairshare/db-from-xls-file)
           (population/db-from-csv-file)))
 
 (defn db-from-2nd-pass 
