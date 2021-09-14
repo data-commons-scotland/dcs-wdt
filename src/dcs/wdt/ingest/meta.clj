@@ -113,6 +113,14 @@
                               :licence      "CC BY 4.0"
                               :licence-url  "https://creativecommons.org/licenses/by/4.0/"
                               :notes        "Supplied as an Excel spreadsheet."}
+   :household-waste-analysis {:description  "(An anonymised subset of) An analysis of sampled bin collection contents."
+                              :creator      "ZWS"
+                              :created-when 2021
+                              :supplier     "ZWS"
+                              :supply-url   "file:///"
+                              :licence      "CC BY 4.0"
+                              :licence-url  "https://creativecommons.org/licenses/by/4.0/"
+                              :notes        "Supplied as an Excel spreadsheet."}
    :meta                     {:description  "Meta level information."
                               :creator      "DCS"
                               :created-when 2021

@@ -67,10 +67,11 @@
                     :region :business-sector
                     :year :quarter :yyyy-MM-dd
                     :site-name :permit :status :latitude :longitude
-                    :ewc-code :ewc-description :io-direction :material :management :recycling? :missed-bin? :operator :activities :accepts
+                    :ewc-code :ewc-description :io-direction :material :material-L1 :material-L2 :management :recycling? :missed-bin? :operator :activities :accepts
+                    :phase :stream :idealStream :stratum
                     :code :qid
                     :name :description :creator :created-when :supplier :supply-url :licence :licence-url :notes
-                    :multiplier :count :tonnes :tonnes-input :tonnes-treated-recovered :tonnes-output :tonnes-weight :tonnes-co2e])
+                    :multiplier :count :tonnes :tonnes-input :tonnes-treated-recovered :tonnes-output :tonnes-weight :tonnes-co2e :kgPerHhPerWk])
 (def place-it-last (count sortable-dims))
 
 (defn ord
@@ -83,11 +84,11 @@
 
 (defn min-max-useful?
   [dimension]
-  (contains? #{:year :multiplier :count :tonnes :tonnes-input :tonnes-treated-recovered :tonnes-output :tonnes-weight :tonnes-co2e} dimension))
+  (contains? #{:year :multiplier :count :tonnes :tonnes-input :tonnes-treated-recovered :tonnes-output :tonnes-weight :tonnes-co2e :kgPerHhPerWk} dimension))
 
 (defn count-useful?
   [dimension]
-  (not (contains? #{:count :tonnes :tonnes-input :tonnes-treated-recovered :tonnes-output :tonnes-weight :tonnes-co2e} dimension)))
+  (not (contains? #{:count :tonnes :tonnes-input :tonnes-treated-recovered :tonnes-output :tonnes-weight :tonnes-co2e :kgPerHhPerWk} dimension)))
 
 (def descriptions
   {:record-type              "Indicates the dataset of the record."
@@ -102,7 +103,9 @@
    :latitude                 "The signed decimal representing a latitude."
    :longitude                "The signed decimal representing a longitude."
    :io-direction             "The label indicating the direction of travel of the waste from the PoV of a waste site."
-   :material                 "The name of a waste material/stream in SEPA's/ZWS' classification."
+   :material                 "The name of a waste material/stream in SEPA's classification."
+   :material-L1              "The name of a waste material/stream in ZWS' high-level classification."
+   :material-L2              "The name of a waste material/stream in ZWS' detailed-level classification."
    :management               "The label indicating how the waste was managed/processed (i.e. what its end-state was)."
    :recycling?               "True if the waste was categorised as 'for recycling' when collected."
    :missed-bin?              "True if the waste was in a missed bin."
@@ -112,6 +115,10 @@
    :activities               "The waste processing activities supported by the waste site."
    :accepts                  "The kinds of clients/wastes accepted by the waste site."
    :multiplier               "The value to multiply a weight by to calculate the C02e amount."
+   :phase                    "The sample period (1 = late Nov/early Dec 2013; early Mar 2014)"
+   :stream                   "The household's disposal decision"
+   :idealStream              "The ideal disposal decision"
+   :stratum                  "The household type (location + CTax band)"
    :code                     "The UK government code."
    :qid                      "The Wikidata entity ID."
    :count                    "The population/household count as an integer."
@@ -120,7 +127,8 @@
    :tonnes-treated-recovered "The quantity of waste treated or recovered as a decimal."
    :tonnes-output            "The quantity of outgoing waste as a decimal."
    :tonnes-weight            "The waste related quantity as a decimal."
-   :tonnes-co2e              "The waste related quantity as a decimal."})
+   :tonnes-co2e              "The waste related quantity as a decimal."
+   :kgPerHhPerWk             "The waste related quantity as a decimal."})
 
 (def record-types
   "Record types of the internal database."
@@ -138,4 +146,5 @@
    :co2e-multiplier
    :household
    :population
-   :fairshare])
+   :fairshare
+   :household-waste-analysis])
