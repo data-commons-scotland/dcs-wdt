@@ -192,7 +192,7 @@
   (assert (= 1 (get idealStream "Fines (<10mm)")))
 
   ;; prep for chart files
-  (io/make-parents "tmp/placeholder")
+  (io/make-parents "tmp/household-waste-analysis/placeholder")
   
   ;; is there an interesting difference between the phases?
   ;;   There are 2 phases: 
@@ -228,7 +228,7 @@
                            :type  "nominal"}
                           {:field "kg"
                            :type  "quantitative"}]}})
-  (binding [*out* (io/writer "tmp/chart-1-compare-phases.vl.json")]
+  (binding [*out* (io/writer "tmp/household-waste-analysis/chart-1-compare-phases.vl.json")]
     (json/pprint
      (-> compare-phases-chart-template
          (assoc-in [:data :values] kgPerHhPerWk))))
@@ -286,7 +286,7 @@
                             {:field "kg"
                              :type  "quantitative"
                              :title "avg kg per household per wk"}]}})
-  (binding [*out* (io/writer "tmp/chart-2-compare-strata.vl.json")]
+  (binding [*out* (io/writer "tmp/household-waste-analysis/chart-2-compare-strata.vl.json")]
     (json/pprint
      (-> compare-strata-chart-template
          (assoc-in [:data :values] kgPerHhPerWk_labelled))))
@@ -397,7 +397,7 @@
                                                       {:field "kg"
                                                        :type  "quantitative"
                                                        :title "avg kg per household per wk"}]}}]}})
-    (binding [*out* (io/writer "tmp/chart-3-detailed-disposal-appropriateness.vl.json")]
+    (binding [*out* (io/writer "tmp/household-waste-analysis/chart-3-detailed-disposal-appropriateness.vl.json")]
       (json/pprint
        (-> detailed-disposal-appropriateness-chart-template
            (assoc-in [:data :values] kgPerHhPerWk_labelled))))
@@ -436,7 +436,7 @@
                            :tooltip     [{:field "stratum" :type "nominal" :title "house type (location & CTax)"}
                                          {:field "stream" :type "nominal" :title "disposal"}
                                          {:field "kg" :type "quantitative" :title "avg kg per household per wk"}]}}})
-      (binding [*out* (io/writer "tmp/chart-4-summary-disposal-appropriateness.vl.json")]
+      (binding [*out* (io/writer "tmp/household-waste-analysis/chart-4-summary-disposal-appropriateness.vl.json")]
         (json/pprint
          (-> summary-disposal-appropriateness-chart-template
              (assoc-in [:data :values] kgPerHhPerWk_labelled))))

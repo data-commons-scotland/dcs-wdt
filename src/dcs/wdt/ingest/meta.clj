@@ -82,9 +82,9 @@
                               :licence-url  "https://creativecommons.org/licenses/by/4.0/"
                               :notes        "Published as a web page."}
    :co2e-multiplier          {:description  "Per-material weight-multipliers to calaculate CO2e amounts. This data has been copied from section 6.2 of The Scottish Carbon Metric."
-                              :creator      "Zero Waste Scotland"
+                              :creator      "ZWS"
                               :created-when 2012
-                              :supplier     "Zero Waste Scotland"
+                              :supplier     "ZWS"
                               :supply-url   "https://www.zerowastescotland.org.uk/sites/default/files/The%20Scottish%20Carbon%20Metric.pdf"
                               :licence      "OGL v3.0"
                               :licence-url  "http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"

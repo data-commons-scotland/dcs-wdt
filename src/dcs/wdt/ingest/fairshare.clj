@@ -338,7 +338,7 @@
                           (take-last 5 data3)))
 
   ;; prep for chart files
-  (io/make-parents "tmp/placeholder")
+  (io/make-parents "tmp/fairshare/placeholder")
 
   ;; plot the weight of donated items per material per month
   (def tonnes-per-material-per-month-chart-template
@@ -379,16 +379,16 @@
                              :format "%b %y"}
                             {:field "tonnes"
                              :type  "quantitative"}]}})
-  (binding [*out* (io/writer "tmp/chart-1-weight-per-material-per-month.vl.json")]
+  (binding [*out* (io/writer "tmp/fairshare/chart-1-weight-per-material-per-month.vl.json")]
     (json/pprint
      (-> tonnes-per-material-per-month-chart-template
          (assoc-in [:transform 1 :aggregate 0 :field] "tonnes-weight")
          (assoc-in [:data :values] data3))))
 
-  ;; -> tmp/chart-1-weight-per-material-per-month.vl.json ...look at it with a a Vega viewer
+  ;; -> tmp/fairshare/chart-1-weight-per-material-per-month.vl.json ...look at it with a a Vega viewer
   
   ;; plot the logarithmic weight of donated items per material per month
-  (binding [*out* (io/writer "tmp/chart-2-logarithmic-weight-per-material-per-month.vl.json")]
+  (binding [*out* (io/writer "tmp/fairshare/chart-2-logarithmic-weight-per-material-per-month.vl.json")]
     (json/pprint
      (-> tonnes-per-material-per-month-chart-template
          (assoc-in [:encoding :y :scale] {:type     "pow"
@@ -396,16 +396,16 @@
          (assoc-in [:transform 1 :aggregate 0 :field] "tonnes-weight")
          (assoc-in [:data :values] data3))))
 
-  ;; -> tmp/chart-2-logarithmic-weight-per-material-per-month.vl.json ...look at it with a a Vega viewer
+  ;; -> tmp/fairshare/chart-2-logarithmic-weight-per-material-per-month.vl.json ...look at it with a a Vega viewer
   
   ;; plot the co2e of donated items per material per month
-  (binding [*out* (io/writer "tmp/chart-3-co2e-per-material-per-month.vl.json")]
+  (binding [*out* (io/writer "tmp/fairshare/chart-3-co2e-per-material-per-month.vl.json")]
     (json/pprint
      (-> tonnes-per-material-per-month-chart-template
          (assoc-in [:transform 1 :aggregate 0 :field] "tonnes-co2e")
          (assoc-in [:data :values] data3))))
 
-  ;; -> tmp/chart-3-co2e-per-material-per-month.vl.json ...look at it with a a Vega viewer
+  ;; -> tmp/fairshare/chart-3-co2e-per-material-per-month.vl.json ...look at it with a a Vega viewer
   
   ;; calc the CO2e avoided per year in terms of cars
   (def data4 (->> data3
@@ -483,12 +483,12 @@
                              :field "year-cars"
                              :type  "quantitative"}]}
      :config     {:axisX {:grid false}}})
-  (binding [*out* (io/writer "tmp/chart-4-cars-worth.vl.json")]
+  (binding [*out* (io/writer "tmp/fairshare/chart-4-cars-worth.vl.json")]
     (json/pprint
      (-> cars-worth-chart-template
          (assoc-in [:data :values] data4))))
 
-    ;; -> tmp/chart-4-cars-worth.vl.json ...look at it with a a Vega viewer
+    ;; -> tmp/fairshare/chart-4-cars-worth.vl.json ...look at it with a a Vega viewer
   
     ;; plot the average weight per material per year
   (def average-tonnes-per-material-per-year-chart-template
@@ -523,23 +523,23 @@
                             {:title "tonnes"
                              :field "avg-tonnes"
                              :type  "quantitative"}]}})
-  (binding [*out* (io/writer "tmp/chart-6-average-weight-per-material-per-year.vl.json")]
+  (binding [*out* (io/writer "tmp/fairshare/chart-6-average-weight-per-material-per-year.vl.json")]
     (json/pprint
      (-> average-tonnes-per-material-per-year-chart-template
          (assoc-in [:transform 1 :aggregate 0 :field] "tonnes-weight")
          (assoc-in [:data :values] data3))))
 
-    ;; -> tmp/chart-6-average-weight-per-material-per-year.vl.json ...look at it with a a Vega viewer
+    ;; -> tmp/fairshare/chart-6-average-weight-per-material-per-year.vl.json ...look at it with a a Vega viewer
   
   ;; plot the average co2e savings per material per year
-  (binding [*out* (io/writer "tmp/chart-7-average-co2e-savings-per-material-per-year.vl.json")]
+  (binding [*out* (io/writer "tmp/fairshare/chart-7-average-co2e-savings-per-material-per-year.vl.json")]
     (json/pprint
      (-> average-tonnes-per-material-per-year-chart-template
          (assoc-in [:encoding :color :value] "#A2CAC1")
          (assoc-in [:transform 1 :aggregate 0 :field] "tonnes-co2e")
          (assoc-in [:data :values] data3))))
 
-  ;; -> tmp/chart-7-average-co2e-savings-per-material-per-year.vl.json ...look at it with a a Vega viewer
+  ;; -> tmp/fairshare/chart-7-average-co2e-savings-per-material-per-year.vl.json ...look at it with a a Vega viewer
   
   ;; plot the weight per year
   (def tonnes-per-quarter-chart-template
@@ -574,13 +574,13 @@
                              :format "Q%q %Y"}
                             {:field "tonnes"
                              :type  "quantitative"}]}})
-  (binding [*out* (io/writer "tmp/chart-8-weight-per-quarter.vl.json")]
+  (binding [*out* (io/writer "tmp/fairshare/chart-8-weight-per-quarter.vl.json")]
     (json/pprint
      (-> tonnes-per-quarter-chart-template
          (assoc-in [:transform 1 :aggregate 0 :field] "tonnes-weight")
          (assoc-in [:data :values] data3))))
 
-  ;; -> tmp/chart-8-weight-per-quarter.vl.json ...look at it with a a Vega viewer
+  ;; -> tmp/fairshare/chart-8-weight-per-quarter.vl.json ...look at it with a a Vega viewer
   
   ;; calc total weight across all years
   (apply + (map :tonnes-weight data3))
