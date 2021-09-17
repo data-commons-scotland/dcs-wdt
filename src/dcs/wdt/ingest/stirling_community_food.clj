@@ -1,6 +1,5 @@
 (ns dcs.wdt.ingest.stirling-community-food
-  (:require [clojure.string :as str]
-            [clojure.pprint :as pp]
+  (:require [clojure.pprint :as pp]
             [clojure.java.io :as io]
             [clojure.data.json :as json]
             [taoensso.timbre :as log]
@@ -14,6 +13,11 @@
 (defn to-bigdec [v]
   (bigdec (if (double? v) 
             v 
+            0)))
+
+(defn to-int [v]
+  (int (if (double? v)
+            v
             0)))
 
 (defn select-cell [sheet row-number col-id]
@@ -34,8 +38,8 @@
      :bio-etc           (-> "M" select-cell' xls/read-cell to-bigdec)
      :compost-indiv     (-> "N" select-cell' xls/read-cell to-bigdec)
      :sanctuary         (-> "O" select-cell' xls/read-cell to-bigdec)
-     :morning           (-> "P" select-cell' xls/read-cell to-bigdec)
-     :evening           (-> "Q" select-cell' xls/read-cell to-bigdec)}))
+     :morning           (-> "P" select-cell' xls/read-cell to-int)
+     :evening           (-> "Q" select-cell' xls/read-cell to-int)}))
 
 (defn read-sheet [sheet]
   (for [row-number (range 5 394)]
@@ -73,35 +77,58 @@
         workbook (xls/load-workbook filename)
 
         ;; extract the data
-        data0    (->> workbook
-                      xls/sheet-seq
-                      (map read-sheet)
-                      flatten
-                      (remove nil?))
+        data0 (->> workbook
+                   (xls/select-sheet "Stirling City Centre")
+                   read-sheet)
         
-        ;; alias some of the material names
-        data1    (map maybe-alias data0)
+        ;; Emma said: aggregate Neighbourly, Foodcloud, Sainsbury's and Cooperative into Local supermarkets (because of changing collectors)
+        data1 (map (fn [{:keys [neighbourly foodcloud sainsburys cooperative]
+                         :as   m}]
+                     (-> m
+                         (assoc :local-supermarkets (+' neighbourly foodcloud sainsburys cooperative))
+                         (dissoc :neighbourly :foodcloud :sainsburys :cooperative)))
+                   data0)
 
-        ;; roll-up to get values for (year quarter material)
-        data2    (->> data1
-                      (group-by (juxt :year :quarter :material))
-                      (map (fn [[[year quarter material] coll]] {:year     year
-                                                                 :quarter  quarter
-                                                                 :material material
-                                                                 :weight   (->> coll
-                                                                                (map :weight)
-                                                                                (apply +))
-                                                                 :co2e     (->> coll
-                                                                                (map :co2e)
-                                                                                (apply +))})))
+        ;; rejig the food weight info into [:yyyy-MM-dd :io-direction :counterparty :tonnes]
+        food (->> data1
+                  (map (fn [{:keys [date]
+                             :as   m}]
+                         (let [yyyy-MM-dd (.format yyyy-MM-dd-format date)
+                               ins        (for [counter-party [:local-supermarkets :fareshare :purchased :donated-as-waste :donated-not-waste :other]]
+                                            {:yyyy-MM-dd    yyyy-MM-dd
+                                             :io-direction  "in"
+                                             :counter-party counter-party
+                                             :tonnes        (/ (counter-party m) 1000)})
+                               outs0      (for [counter-party [:bio-etc :compost-indiv :sanctuary]]
+                                            {:yyyy-MM-dd    yyyy-MM-dd
+                                             :io-direction  "out"
+                                             :counter-party counter-party
+                                             :tonnes        (/ (counter-party m) 1000)})
+                               outs       (conj outs0 {:yyyy-MM-dd    yyyy-MM-dd
+                                                       :io-direction  "out"
+                                                       :counter-party :used-as-food
+                                                       :tonnes        (- (apply + (map :tonnes ins))
+                                                                         (apply + (map :tonnes outs0)))})]
+                           (remove #(= 0M (:tonnes %))
+                                   (concat ins outs)))))
+                  flatten
+                  (map #(assoc % :counter-party (counter-party-names (:counter-party %)))))
 
-  
+        ;; rejig the footfall info into [:yyyy-MM-dd :day :count]
+        ;; Emma said: aggregate Morning and Evening into a single daily footfall (because of changing opening hours)
+        footfall (->> data1
+                      (map (fn [{:keys [date morning evening]}]
+                             {:yyyy-MM-dd (.format yyyy-MM-dd-format date)
+                              :day        (.format day-format date)
+                              :count      (+ morning evening)}))
+                      (remove #(= 0M (:count %))))
         
-        ;; add record type
-        data4    (map #(assoc % :record-type :stirling-community-food) data3)]
+        ;; add record types then concat
+        db (concat  (map #(assoc % :record-type :stirling-community-food-tonnes) food)
+                    (map #(assoc % :record-type :stirling-community-food-footfall) footfall))]
     
-    (log/infof "Accepted records: %s" (count data4))
-    data4))
+    (log/infof "Accepted records: %s" (count db))
+    db))
 
 
 ;; ------------------------------------------------------
@@ -118,7 +145,7 @@
                   read-sheet))
 
   ;; -> data0 ≈ raw data
-  
+
   ;; have a look at it
   (pp/print-table [:date
                    :neighbourly :fareshare :foodcloud :sainsburys :cooperative :purchased :donated-as-waste :donated-not-waste :other
@@ -141,8 +168,8 @@
                      :bio-etc           0M
                      :compost-indiv     5.2M
                      :sanctuary         0M
-                     :morning           0M
-                     :evening           0M}
+                     :morning           0
+                     :evening           0}
                     %)
                 data0))
   (assert (some #(= {:date              #inst "2021-04-20T00:00:00+01:00" ;; in Excel as a BST value
@@ -158,8 +185,8 @@
                      :bio-etc           0M
                      :compost-indiv     0M
                      :sanctuary         0M
-                     :morning           0M
-                     :evening           0M}
+                     :morning           0
+                     :evening           0}
                     %)
                 data0))
 
@@ -172,7 +199,7 @@
                   data0))
 
   ;; -> data1 ≈ data with the aggregate Local supermarkets
-  
+
   ;; have a look at it
   (pp/print-table [:date
                    :local-supermarkets :fareshare :purchased :donated-as-waste :donated-not-waste :other
@@ -192,11 +219,11 @@
                      :bio-etc            0M
                      :compost-indiv      0M
                      :sanctuary          0M
-                     :morning            42M
-                     :evening            0M}
+                     :morning            42
+                     :evening            0}
                     %)
                 data1))
-  
+
   ;; rejig the food weight info into [:yyyy-MM-dd :io-direction :counterparty :tonnes]
   (def food (->> data1
                  (map (fn [{:keys [date]
@@ -221,7 +248,7 @@
                                   (concat ins outs)))))
                  flatten
                  (map #(assoc % :counter-party (counter-party-names (:counter-party %))))))
-  
+
   ;; have a look at it
   (pp/print-table [:yyyy-MM-dd :io-direction :counter-party :tonnes]
                   (concat (take 5 food)
@@ -234,8 +261,8 @@
                             {:yyyy-MM-dd (.format yyyy-MM-dd-format date)
                              :day        (.format day-format date)
                              :count      (+ morning evening)}))
-                     (remove #(= 0M (:count %)))))
-  
+                     (remove #(= 0 (:count %)))))
+
   ;; have a look at it
   (pp/print-table [:yyyy-MM-dd :day :count]
                   (concat (take 5 footfall)
@@ -296,47 +323,47 @@
   ;; plot input per month
   (def input-per-month-chart-template
     {:schema     "https://vega.github.io/schema/vega/v5.json"
-   :width      370
-   :height     200
-   :background "#fff1e5"
-   :data       {:values :PLACEHOLDER}
-   :transform  [{:calculate "datum['counter-party']" :as "source"}
-                {:timeUnit "yearmonth" :field "yyyy-MM-dd" :as "month"}
-                {:aggregate [{:op "sum" :field "tonnes" :as "tonnes"}]
-                 :groupby ["month" "source"]}]
-   :mark       {:type "line"
-                :point {:filled false :fill "#fff1e5"}}
-   :encoding   {:x       {:field "month" :type "temporal"
-                          :axis {:format "%b %y"
-                                 :labelAngle 60
-                                 :labelBound 45}}
-                :y       {:field "tonnes" :type "quantitative"}
-                :color   {:field "source" :type "nominal"
-                          :scale {:domain ["Purchased"
-                                           "Donated not waste"
-                                           "Local supermarkets"
-                                           "Fareshare"
-                                           "Donated as waste"
-                                           "Other"]
-                                  :range  ["#FFC473"
-                                           "#7158A1"
-                                           "#006CAE"
-                                           "#59896A"
-                                           "#BF5748"
-                                           "#928E85"]}
-                          :legend nil #_{:orient "bottom" :columns 4}}
-                :tooltip [{:field "source"
-                           :type  "nominal"}
-                          {:field  "month"
-                           :type   "temporal"
-                           :format "%b %Y"}
-                          {:field "tonnes"
-                           :type  "quantitative"}]}})
+     :width      370
+     :height     200
+     :background "#fff1e5"
+     :data       {:values :PLACEHOLDER}
+     :transform  [{:calculate "datum['counter-party']" :as "source"}
+                  {:timeUnit "yearmonth" :field "yyyy-MM-dd" :as "month"}
+                  {:aggregate [{:op "sum" :field "tonnes" :as "tonnes"}]
+                   :groupby ["month" "source"]}]
+     :mark       {:type "line"
+                  :point {:filled false :fill "#fff1e5"}}
+     :encoding   {:x       {:field "month" :type "temporal"
+                            :axis {:format "%b %y"
+                                   :labelAngle 60
+                                   :labelBound 45}}
+                  :y       {:field "tonnes" :type "quantitative"}
+                  :color   {:field "source" :type "nominal"
+                            :scale {:domain ["Purchased"
+                                             "Donated not waste"
+                                             "Local supermarkets"
+                                             "Fareshare"
+                                             "Donated as waste"
+                                             "Other"]
+                                    :range  ["#FFC473"
+                                             "#7158A1"
+                                             "#006CAE"
+                                             "#59896A"
+                                             "#BF5748"
+                                             "#928E85"]}
+                            :legend nil #_{:orient "bottom" :columns 4}}
+                  :tooltip [{:field "source"
+                             :type  "nominal"}
+                            {:field  "month"
+                             :type   "temporal"
+                             :format "%b %Y"}
+                            {:field "tonnes"
+                             :type  "quantitative"}]}})
   (binding [*out* (io/writer "tmp/stirling-community-food/chart-2-input-per-month.vl.json")]
     (json/pprint
      (-> input-per-month-chart-template
          (assoc-in [:data :values] (filter #(= "in" (:io-direction %)) food)))))
-  
+
   ;; plot output per counter-party
   (def output-per-counter-party-chart-template
     {:schema     "https://vega.github.io/schema/vega/v5.json"
@@ -372,7 +399,7 @@
     (json/pprint
      (-> output-per-counter-party-chart-template
          (assoc-in [:data :values] (filter #(= "out" (:io-direction %)) food)))))
-  
+
   ;; plot output per month
   (def output-per-month-chart-template
     {:schema     "https://vega.github.io/schema/vega/v5.json"
@@ -438,7 +465,7 @@
                                     (filter #(= "out" (:io-direction %)) food)
                                         ;; for comparison, include the total received
                                     total-received)))))
-    
+
   ;; plot logarithmic output per month
   (binding [*out* (io/writer "tmp/stirling-community-food/chart-5-logarithmic-output-per-month.vl.json")]
     (json/pprint
@@ -446,7 +473,7 @@
          (assoc-in [:encoding :y :scale] {:type "log"})
          (assoc-in [:encoding :color :legend] nil)
          (assoc-in [:data :values] (filter #(= "out" (:io-direction %)) food)))))
-  
+
 
   ;; plot footfall perDayOfWeek
   (def footfall-perDayOfWeek-chart-template
@@ -473,7 +500,7 @@
     (json/pprint
      (-> footfall-perDayOfWeek-chart-template
          (assoc-in [:data :values] footfall))))
-  
+
   ;; plot footfall perMonth
   (def footfall-perMonth-chart-template
     {:schema     "https://vega.github.io/schema/vega/v5.json"
@@ -540,9 +567,152 @@
      (-> footfall-perDayOfWeek-perMonth-chart-template
          (assoc-in [:data :values] footfall))))
 
-  
+  ;; plot food flow
+  (def flow
+    (letfn [(sum-counter-party-tonnes [counter-party]
+              (->> food
+                   (filter #(and (= "in" (:io-direction %))
+                                 (= counter-party (:counter-party %))))
+                   (map :tonnes)
+                   (apply +)))
 
-    )
+            (sum-subflows-tonnes [subflows]
+              (->> subflows
+                   (map #(nth % 2))
+                   (apply +)))
+
+            (sum-counter-parties-tonnes [counter-parties]
+              (->> food
+                   (filter #(and (= "out" (:io-direction %))
+                                 (contains? counter-parties (:counter-party %))))
+                   (map :tonnes)
+                   (apply +)))]
+
+      (let [source-keys               (->> food
+                                           (filter #(= "in" (:io-direction %)))
+                                           (map :counter-party)
+                                           distinct)
+
+            not-waste-sources         #{"Purchased" "Donated not waste"}
+            waste-sources             (remove #(contains? not-waste-sources %) source-keys)
+
+            used-as-food-outcomes     #{"Used as food"}
+            not-used-as-food-outcomes #{"Donated to animal sanctuary" "Used by individuals for compost" "Council compost, Energen biogas, etc."}
+
+            subflows-1a               (for [from waste-sources]
+                                        [from "Would-be waste" (sum-counter-party-tonnes from)])
+
+            subflows-1b               (for [from not-waste-sources]
+                                        [from "Not waste" (sum-counter-party-tonnes from)])
+
+            subflows-2                [["Not waste" "Stirling Community Food" (sum-subflows-tonnes subflows-1b)]
+                                       ["Would-be waste" "Stirling Community Food" (sum-subflows-tonnes subflows-1a)]]
+
+            subflows-3                [["Stirling Community Food" "Used as food" (sum-counter-parties-tonnes used-as-food-outcomes)]
+                                       ["Stirling Community Food" "Not used as food" (sum-counter-parties-tonnes not-used-as-food-outcomes)]]
+
+            subflows-4                (for [to not-used-as-food-outcomes]
+                                        ["Not used as food" to (sum-counter-parties-tonnes #{to})])
+
+                   ;; concat and order them
+            
+            ordered-froms             ["Purchased"
+                                       "Donated not waste"
+                                       "Local supermarkets"
+                                       "Fareshare"
+                                       "Donated as waste"
+                                       "Other"
+                                       "Not waste"
+                                       "Would-be waste"
+                                       "Stirling Community Food"]
+
+            ordered-tos               ["Used as food" ;; should be no need to worry about the earlier ones in the flow
+                                       "Not used as food"
+                                       "Donated to animal sanctuary"
+                                       "Used by individuals for compost"
+                                       "Council compost, Energen biogas, etc."]
+
+            comparator                (fn [[a-from a-to] [b-from b-to]] (if (not= a-from b-from)
+                                                                          (< (.indexOf ordered-froms a-from) (.indexOf ordered-froms b-from))
+                                                                          (< (.indexOf ordered-tos a-to) (.indexOf ordered-tos b-to))))
+            
+            flow                      (sort-by (juxt first second)
+                                               comparator
+                                               (concat subflows-1a subflows-1b subflows-2 subflows-3 subflows-4))]
+
+        flow)))
+  (def food-flow-chart-template
+    {:chart         {:backgroundColor "#980f3d"}
+     :navigation    {:buttonOptions {:enabled false}}
+     :title         nil   ;{:text "The flow of food material"}
+     :subtitle      nil   ;{:text "subtitle does here"}
+     :accessibility {:point {:valueDescriptionFormat "{index}. {point.from} to {point.to}, {point.weight}."}}
+     :tooltip       {:headerFormat nil
+                     :pointFormat  "{point.fromNode.name} \u2192 {point.toNode.name}: {point.weight:.2f} tonnes"
+                     :nodeFormat   "{point.name}: {point.sum:.2f} tonnes"}
+     :plotOptions   {:sankey {;:label { :minFontSize 4}
+                              :nodePadding 20
+                              :dataLabels  {;:crop false
+                              ;:overflow "allow"
+                                            :allowOverlap true}}}
+     :series        [{:keys         ["from" "to" "weight"]
+                      :minLinkWidth 6
+                      :label        {:minFontSize 6}
+                      :nodes        [{:id    "Purchased"
+                                      :color "#FFC473"}
+                                     {:id    "Donated not waste"
+                                      :color "#7158A1"}
+                                     {:id    "Donated as waste"
+                                      :color "#BF5748"}
+                                     {:id    "Other"
+                                      :color "#928E85"}
+                                     {:id    "Local supermarkets"
+                                      :color "#006CAE"}
+                                     {:id    "Fareshare"
+                                      :color "#59896A"}
+                                     {:id    "Would-be waste"
+                                      :color "#EF0606"}
+                                     {:id    "Not waste"
+                                      :color "#00C9A9"}
+                                     {:id    "Stirling Community Food"
+                                      :color "#009790"}
+                                     {:id     "Used as food"
+                                      :color  "#00AC8F"
+                                      :level  4
+                                      :offset -100}
+                                     {:id     "Not used as food"
+                                      :color  "#98B0A9"
+                                      :offset 105}
+                                     {:id     "Donated to animal sanctuary"
+                                      :color  "#006AC7"
+                                      :offset 280}
+                                     {:id     "Used by individuals for compost"
+                                      :color  "#B49531"
+                                      :offset 280}
+                                     {:id     "Council compost, Energen biogas, etc."
+                                      :color  "#E27E44"
+                                      :offset 280}]
+                      :data         :PLACEHOLDER
+                      :type         "sankey"
+                      :name         "The flow of food material"}]
+     :credits       {:enabled false}})
+  (binding [*out* (io/writer "tmp/stirling-community-food/chart-9-food-flow.html")]
+    (do
+      (println "<script src=\"https://code.highcharts.com/highcharts.js\"></script>")
+      (println "<script src=\"https://code.highcharts.com/modules/sankey.js\"></script>")
+      (println "<script src=\"https://code.highcharts.com/modules/accessibility.js\"></script>")
+      (println "<script>")
+      (println "  document.addEventListener('DOMContentLoaded', function () {")
+      (println "    const chart = Highcharts.chart('container', ")
+      (json/pprint
+       (-> food-flow-chart-template
+           (assoc-in [:series 0 :data] flow)))
+      (println "    );")
+      (println "  });")
+      (println "</script>")
+      (println "<div id=\"container\" style=\"width:880px; height:400px;\"></div>")))
+
+  )
   
 
   

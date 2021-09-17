@@ -1,6 +1,5 @@
 (ns dcs.wdt.export.general-use
-  (:require [clojure.java.shell :as shell]
-            [clojure.java.io :as io]
+  (:require [clojure.java.io :as io]
             [clojure.data.csv :as csv]
             [clojure.data.json :as json]
             [clojure.pprint :as pp]

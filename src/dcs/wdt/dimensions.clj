@@ -65,9 +65,9 @@
 
 (def sortable-dims [:record-type
                     :region :business-sector
-                    :year :quarter :yyyy-MM-dd
+                    :year :quarter :yyyy-MM-dd :day
                     :site-name :permit :status :latitude :longitude
-                    :ewc-code :ewc-description :io-direction :material :material-L1 :material-L2 :management :recycling? :missed-bin? :operator :activities :accepts
+                    :ewc-code :ewc-description :io-direction :material :material-L1 :material-L2 :management :recycling? :missed-bin? :operator :counter-party :activities :accepts
                     :phase :stream :idealStream :stratum
                     :code :qid
                     :name :description :creator :created-when :supplier :supply-url :licence :licence-url :notes
@@ -97,12 +97,13 @@
    :year                     "The integer representation of a year."
    :quarter                  "The integer representation of the year's quarter."
    :yyyy-MM-dd               "The date."
+   :day                      "The day of the week."
    :site-name                "The name of the waste site."
    :permit                   "The waste site operator's official permit or licence."
    :status                   "The label indicating the open/closed status of the waste site in the record's timeframe. "
    :latitude                 "The signed decimal representing a latitude."
    :longitude                "The signed decimal representing a longitude."
-   :io-direction             "The label indicating the direction of travel of the waste from the PoV of a waste site."
+   :io-direction             "The label indicating the direction of travel of the material from the PoV of the subject."
    :material                 "The name of a waste material/stream in SEPA's classification."
    :material-L1              "The name of a waste material/stream in ZWS' high-level classification."
    :material-L2              "The name of a waste material/stream in ZWS' detailed-level classification."
@@ -112,6 +113,7 @@
    :ewc-code                 "The code from the European Waste Classification hierarchy."
    :ewc-description          "The description from the European Waste Classification hierarchy."
    :operator                 "The name of the waste site operator."
+   :counter-party            "The other organisation from the PoV of the subject."
    :activities               "The waste processing activities supported by the waste site."
    :accepts                  "The kinds of clients/wastes accepted by the waste site."
    :multiplier               "The value to multiply a weight by to calculate the C02e amount."
@@ -121,14 +123,14 @@
    :stratum                  "The household type (location + CTax band)"
    :code                     "The UK government code."
    :qid                      "The Wikidata entity ID."
-   :count                    "The population/household count as an integer."
-   :tonnes                   "The waste related quantity as a decimal."
+   :count                    "The population/household/footfall/etc. count as an integer."
+   :tonnes                   "The waste/reuse related quantity as a decimal."
    :tonnes-input             "The quantity of incoming waste as a decimal."
    :tonnes-treated-recovered "The quantity of waste treated or recovered as a decimal."
    :tonnes-output            "The quantity of outgoing waste as a decimal."
-   :tonnes-weight            "The waste related quantity as a decimal."
-   :tonnes-co2e              "The waste related quantity as a decimal."
-   :kgPerHhPerWk             "The waste related quantity as a decimal."})
+   :tonnes-weight            "The waste/reuse related quantity as a decimal."
+   :tonnes-co2e              "The waste/reuse related quantity as a decimal."
+   :kgPerHhPerWk             "The waste/reuse related quantity as a decimal."})
 
 (def record-types
   "Record types of the internal database."
@@ -147,4 +149,6 @@
    :household
    :population
    :fairshare
-   :household-waste-analysis])
+   :household-waste-analysis
+   :stirling-community-food-tonnes
+   :stirling-community-food-footfall])
