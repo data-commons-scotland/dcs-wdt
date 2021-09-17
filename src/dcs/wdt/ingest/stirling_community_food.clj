@@ -13,12 +13,12 @@
 (defn to-bigdec [v]
   (bigdec (if (double? v) 
             v 
-            0)))
+            0))) ;; ! this makes 0 indistinguishable from no-data - not great but leave for now
 
 (defn to-int [v]
   (int (if (double? v)
             v
-            0)))
+            0))) ;; ! this makes 0 indistinguishable from no-data - not great but leave for now
 
 (defn select-cell [sheet row-number col-id]
   (xls/select-cell (str col-id row-number) sheet))
@@ -121,7 +121,7 @@
                              {:yyyy-MM-dd (.format yyyy-MM-dd-format date)
                               :day        (.format day-format date)
                               :count      (+ morning evening)}))
-                      (remove #(= 0M (:count %))))
+                      (remove #(= 0 (:count %))))
         
         ;; add record types then concat
         db (concat  (map #(assoc % :record-type :stirling-community-food-tonnes) food)
@@ -451,7 +451,7 @@
                                {:field "tonnes"
                                 :type  "quantitative"}]}})
   (def total-received (->> food
-                           (filter #(= "out" (:io-direction %)))
+                           (filter #(= "in" (:io-direction %)))
                            (group-by :yyyy-MM-dd)
                            (map (fn [[yyyy-MM-dd coll]] {:yyyy-MM-dd    yyyy-MM-dd
                                                          :counter-party "Total received"
