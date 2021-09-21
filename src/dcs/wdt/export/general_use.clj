@@ -13,7 +13,8 @@
 (def trunk-dir "data/exporting/general-use/")
 
 
-(def do-not-json #{:waste-site-material-io})
+(def do-not-csv #{:ace-furniture-count :ace-furniture-avg-weight})
+(def do-not-json #{:ace-furniture-count :ace-furniture-avg-weight})
 
 
 (defn- datasets-metadata [db]
@@ -44,7 +45,8 @@
 (defn- generate-data-csv-files [db]
   (let [data-dir (str trunk-dir "data/")]
     (doseq [rtype dims/record-types]
-      (let [sub-db (filter #(= rtype (:record-type %)) db)
+      (when (not (contains? do-not-csv rtype))
+       (let [sub-db (filter #(= rtype (:record-type %)) db)
             headers (sort-by dims/ord (keys (dissoc (first sub-db) :record-type)))
             header-row (map name headers)
             data-rows (->> sub-db
@@ -54,7 +56,7 @@
         (log/infof "Writing %s %s records to: %s" (count data-rows) rtype (.getAbsolutePath file))
         (io/make-parents file)
         (with-open [wtr (io/writer file)]
-          (csv/write-csv wtr (cons header-row data-rows)))))))
+          (csv/write-csv wtr (cons header-row data-rows))))))))
 
 
 (defn- generate-data-json-files [db]
@@ -97,7 +99,7 @@
 (defn generate-readme-files [db]
   (let [metas (datasets-metadata db)]
     (markup/generate-top-level-readme-file trunk-dir metas)
-    (markup/generate-data-level-readme-file trunk-dir metas)))
+    (markup/generate-data-level-readme-file trunk-dir metas (set (map name do-not-csv)))))
 
 (defn print-describing-tables [db]
   (print-tables-of-sample-of-the-data db)

@@ -16,6 +16,7 @@
             [dcs.wdt.ingest.fairshare :as fairshare]
             [dcs.wdt.ingest.household-waste-analysis :as household-waste-analysis]
             [dcs.wdt.ingest.stirling-community-food :as stirling-community-food]
+            [dcs.wdt.ingest.ace-furniture :as ace-furniture]
             [dcs.wdt.ingest.db-2nd-pass :as db-2nd-pass]))
 
 (defn csv-files-from-sparql []
@@ -39,6 +40,7 @@
           (household/db-from-csv-file)
           (fairshare/db-from-xls-file)
           (stirling-community-food/db-from-xls-file)
+          (ace-furniture/db-from-xls-and-csv-files)
           (household-waste-analysis/db-from-xls-file)
           (population/db-from-csv-file)))
 

@@ -86,7 +86,7 @@ DATASETS-ROWS
 
 
 
-(defn generate-data-level-readme-file [trunk-dir metas]
+(defn generate-data-level-readme-file [trunk-dir metas wip]
   (let [content-template "             
 ==== The DATASETS-COUNT _easier_ datasets
 
@@ -117,12 +117,17 @@ DATASETS-ROWS
         datasets-str     (str/join "\n\n"
                                    (concat
                                     (for [meta metas]
-                                      (format "| anchor:%s[] %s | link:%s.csv[%s.csv] | link:%s.json[%s.json] | link:%s.ttl[%s.ttl] | link:%s-metadata.json[%s-metadata.json]"
-                                              (:name meta) (:name meta)
-                                              (:name meta) (:name meta)
-                                              (:name meta) (:name meta)
-                                              (:name meta) (:name meta)
-                                              (:name meta) (:name meta)))
+                                      (let [nme (:name meta)]
+                                        (if (contains? wip nme)
+                                          (format "| anchor:%s[] %s | work-in-progress | work-in-progress | work-in-progress | link:%s-metadata.json[%s-metadata.json]"
+                                                  nme nme
+                                                  nme nme)
+                                          (format "| anchor:%s[] %s | link:%s.csv[%s.csv] | link:%s.json[%s.json] | link:%s.ttl[%s.ttl] | link:%s-metadata.json[%s-metadata.json]"
+                                              nme nme
+                                              nme nme
+                                              nme nme
+                                              nme nme
+                                              nme nme))))
                                     ["| _(ZIP bundles)_ | link:all-csv.zip[all-csv.zip] | link:all-json.zip[all-json.zip] | link:all-turtle.zip[all-turtle.zip] | link:all-csvw.zip[all-csvw.zip]"]))
         content          (-> content-template
                              (str/replace "DATASETS-COUNT" datasets-count)

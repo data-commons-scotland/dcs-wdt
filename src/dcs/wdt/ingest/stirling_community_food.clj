@@ -73,7 +73,7 @@
   []
   (let [;; read the workbookio/file 
         filename "data/ingesting/stirling-community-food/originals/New Data 2021.xlsx"
-        _        (log/infof "Reading CSV file: %s" filename)
+        _        (log/infof "Reading Excel file: %s" filename)
         workbook (xls/load-workbook filename)
 
         ;; extract the data

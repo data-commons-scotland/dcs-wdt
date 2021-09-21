@@ -67,11 +67,11 @@
                     :region :business-sector
                     :year :quarter :yyyy-MM-dd :day
                     :site-name :permit :status :latitude :longitude
-                    :ewc-code :ewc-description :io-direction :material :material-L1 :material-L2 :management :recycling? :missed-bin? :operator :counter-party :activities :accepts
+                    :ewc-code :ewc-description :io-direction :category :item :material :material-L1 :material-L2 :management :recycling? :missed-bin? :operator :counter-party :activities :accepts
                     :phase :stream :idealStream :stratum
                     :code :qid
                     :name :description :creator :created-when :supplier :supply-url :licence :licence-url :notes
-                    :multiplier :count :tonnes :tonnes-input :tonnes-treated-recovered :tonnes-output :tonnes-weight :tonnes-co2e :kgPerHhPerWk])
+                    :multiplier :count :tonnes :tonnes-input :tonnes-treated-recovered :tonnes-output :tonnes-weight :tonnes-co2e :kgPerHhPerWk :avg-kg])
 (def place-it-last (count sortable-dims))
 
 (defn ord
@@ -84,11 +84,11 @@
 
 (defn min-max-useful?
   [dimension]
-  (contains? #{:year :multiplier :count :tonnes :tonnes-input :tonnes-treated-recovered :tonnes-output :tonnes-weight :tonnes-co2e :kgPerHhPerWk} dimension))
+  (contains? #{:year :multiplier :count :tonnes :tonnes-input :tonnes-treated-recovered :tonnes-output :tonnes-weight :tonnes-co2e :kgPerHhPerWk :avg-kg} dimension))
 
 (defn count-useful?
   [dimension]
-  (not (contains? #{:count :tonnes :tonnes-input :tonnes-treated-recovered :tonnes-output :tonnes-weight :tonnes-co2e :kgPerHhPerWk} dimension)))
+  (not (contains? #{:count :tonnes :tonnes-input :tonnes-treated-recovered :tonnes-output :tonnes-weight :tonnes-co2e :kgPerHhPerWk :avg-kg} dimension)))
 
 (def descriptions
   {:record-type              "Indicates the dataset of the record."
@@ -104,7 +104,9 @@
    :latitude                 "The signed decimal representing a latitude."
    :longitude                "The signed decimal representing a longitude."
    :io-direction             "The label indicating the direction of travel of the material from the PoV of the subject."
-   :material                 "The name of a waste material/stream in SEPA's classification."
+   :category                 "The category of an item of reuse furniture."
+   :item                     "The sub-category of an item of reuse furniture."
+   :material                 "The name of a waste material in SEPA's/Scottish Carbon Metric's classification."
    :material-L1              "The name of a waste material/stream in ZWS' high-level classification."
    :material-L2              "The name of a waste material/stream in ZWS' detailed-level classification."
    :management               "The label indicating how the waste was managed/processed (i.e. what its end-state was)."
@@ -130,7 +132,8 @@
    :tonnes-output            "The quantity of outgoing waste as a decimal."
    :tonnes-weight            "The waste/reuse related quantity as a decimal."
    :tonnes-co2e              "The waste/reuse related quantity as a decimal."
-   :kgPerHhPerWk             "The waste/reuse related quantity as a decimal."})
+   :kgPerHhPerWk             "The waste/reuse related quantity as a decimal."
+   :avg-kg                   "The average weight of a waste/reuse related item as a decimal."})
 
 (def record-types
   "Record types of the internal database."
@@ -151,4 +154,7 @@
    :fairshare
    :household-waste-analysis
    :stirling-community-food-tonnes
-   :stirling-community-food-footfall])
+   :stirling-community-food-footfall
+   :ace-furniture-count
+   :ace-furniture-avg-weight
+   :ace-furniture-to-scottishCarbonMetric])
