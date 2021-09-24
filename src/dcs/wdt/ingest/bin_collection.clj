@@ -6,7 +6,7 @@
 (def expected-year-totals {2018 32276.84M
                            2019 32166.32M
                            2020 33196.04M
-                           2021 16820.22M})
+                           2021 22746.00M})
 
 (def recycling-aliases #{"Recycling"
                          "Stg Recycling"})
