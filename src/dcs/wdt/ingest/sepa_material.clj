@@ -5,7 +5,7 @@
 
 (def expected-ewc-codes-count 557)
 
-(def csv-file-str "data/ingesting/sepa-material/csv-extract/material.csv")
+(def csv-dir "data/ingesting/sepa-material")
 
 (defn customise-map
   "Converts an externally-oriented map to an internally-oriented map."
@@ -35,7 +35,7 @@
          (#(do (log/infof "Accepted records: %s" (count %)) %)))))
 
 (defn db-from-csv-file []
-  (let [db (->> csv-file-str
+  (let [db (->> (str csv-dir "/" (shared/dirname-with-max-supplied-date csv-dir) "/extract.csv")
                 io/file
                 csv-file-to-maps
                 (map #(assoc % :record-type :sepa-material)))]

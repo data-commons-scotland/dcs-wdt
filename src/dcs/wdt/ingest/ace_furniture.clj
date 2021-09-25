@@ -5,8 +5,12 @@
             [clojure.data.csv :as csv]
             [clojure.data.json :as json]
             [taoensso.timbre :as log]
-            [dk.ative.docjure.spreadsheet :as xls])
+            [dk.ative.docjure.spreadsheet :as xls]
+            [dcs.wdt.ingest.shared :as shared])
   (:import org.apache.commons.math3.stat.regression.SimpleRegression))
+
+
+(def ingesting-dir "data/ingesting/ace-furniture")
 
 
 ;; ------------------------------------------------------
@@ -46,7 +50,10 @@
   "Create a seq of DB records from the Excel workbook that was supplied to us by ACE, and from the CSV that DCS constructed."
   []
   (let [;; read the workbook
-        xls-filename "data/ingesting/ace-furniture/originals/furniture reuse average weights.xls"
+        xls-filename (str ingesting-dir 
+                          "/" 
+                          (shared/dirname-with-max-supplied-date ingesting-dir) 
+                          "/furniture reuse average weights.xls")
         _            (log/infof "Reading Excel file: %s" xls-filename)
         workbook     (xls/load-workbook xls-filename)
 
@@ -72,7 +79,7 @@
                          (map #(select-keys % [:category :item :avg-kg])))
 
         ;; read the csv
-        csv-filename "data/ingesting/ace-furniture/originals/ace-furniture-to-scottish-carbon-metric.csv"
+        csv-filename (str ingesting-dir "/" (shared/dirname-with-max-supplied-date ingesting-dir) "/ace-furniture-to-scottish-carbon-metric.csv")
         _            (log/infof "Reading CSV file: %s" csv-filename)
         
         ;; pull out the [:category :item :material]
@@ -97,7 +104,10 @@
 (comment
 
   ;; read the workbook
-  (def workbook (xls/load-workbook "data/ingesting/ace-furniture/originals/furniture reuse average weights.xls"))
+  (def workbook (xls/load-workbook (str ingesting-dir 
+                                        "/" 
+                                        (shared/dirname-with-max-supplied-date ingesting-dir) 
+                                        "/furniture reuse average weights.xls")))
 
 
   ;; extract the data
@@ -163,7 +173,10 @@
                 avg-weights))
 
   ;; read the csv
-  (def materials (->> "data/ingesting/ace-furniture/originals/ace-furniture-to-scottish-carbon-metric.csv"
+  (def materials (->> (str ingesting-dir 
+                           "/" 
+                           (shared/dirname-with-max-supplied-date ingesting-dir) 
+                           "/ace-furniture-to-scottish-carbon-metric.csv")
                       slurp
                       csv/read-csv
                       (drop 1)
@@ -371,7 +384,11 @@
   (def furniture->material  (->> materials
                                  (map (fn [{:keys [category item material]}] [[category item] material]))
                                  (into {})))
-  (def material->multiplier (->> "data/ingesting/co2e-multiplier/csv-extract/co2e-multiplier.csv"
+  (def co2e-multiplier-ingesting-dir "data/ingesting/co2e-multiplier")
+  (def material->multiplier (->> (str co2e-multiplier-ingesting-dir
+                                      "/"
+                                      (shared/dirname-with-max-supplied-date co2e-multiplier-ingesting-dir)
+                                      "/extract.csv")
                                  slurp
                                  csv/read-csv
                                  (drop 1)

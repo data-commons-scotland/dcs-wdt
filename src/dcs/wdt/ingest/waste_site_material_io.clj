@@ -10,7 +10,7 @@
             (repeat (* 4 50338)))                           ;; 4 quarters of data
     2020 50338))                                            ;; 2020 has just the 1 quarter of data
 
-(def csv-file-str "data/ingesting/waste-site-material-io/csv-extract/2007-Q1-onwards.csv")
+(def csv-dir "data/ingesting/waste-site-material-io")
 
 (def non-year-quarter-keys ["Permit / Licence Number"
                             "Operator Organisation"
@@ -66,7 +66,7 @@
          (#(do (log/infof "Accepted records: %s" (count %)) %)))))
 
 (defn db-from-csv-file []
-  (let [db (->> csv-file-str
+  (let [db (->> (str csv-dir "/" (shared/dirname-with-max-supplied-date csv-dir) "/extract.csv")
                 io/file
                 csv-file-to-maps
                 (map #(assoc % :record-type :waste-site-material-io)))]

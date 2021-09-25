@@ -1,6 +1,8 @@
 (ns dcs.wdt.ingest.db-2nd-pass
   "Modifies the data in some types of records, using data from other types of records."
-  (:require [taoensso.timbre :as log]))
+  (:require [clojure.string :as str]
+            [taoensso.timbre :as log]
+            [dcs.wdt.ingest.shared :as shared]))
 
 
 (defn rollup-quarters-of-waste-site-material-io
@@ -101,4 +103,35 @@
                                                                          (filter #(= target-record-type (:record-type %)))
                                                                          count)]
                                             (assoc m :count target-record-count)))))]
+    (concat sub-db-toRemainAsIs sub-db-modified)))
+
+
+(defn add-supplied-date-etc-into-meta
+  "Over meta records...
+   Add the supplied-date and max-date-in-data.
+   A hack! ...since the ingestion code for each dataset ought to establish and record these date values."
+  [db]
+  (let [sub-db-toRemainAsIs (filter #(not= :meta (:record-type %)) db)
+        sub-db-toBeModified (filter #(= :meta (:record-type %)) db)
+
+        ingesting-dir-root "data/ingesting"
+
+        name->dirname (fn [name]
+                        (cond
+                          (str/starts-with? name "ace-furniture") "ace-furniture"
+                          (str/starts-with? name "stirling-community-food") "stirling-community-food"
+                          :else name))
+
+        sub-db-modified (->> sub-db-toBeModified
+                             (map (fn [{:keys [name]
+                                        :as   m}]
+                                    
+                                    (let [dated-dirname    (shared/dirname-with-max-supplied-date (str ingesting-dir-root "/" (name->dirname name)))
+                                          parsed           (when dated-dirname (re-matches shared/supplied-date-pattern dated-dirname))
+                                          supplied-date    (or (second parsed) "n/a")
+                                          max-date-in-data (or (nth parsed 4) "n/a")]
+                                      
+                                      (assoc m
+                                             :supplied-date supplied-date
+                                             :max-date-in-data max-date-in-data)))))]
     (concat sub-db-toRemainAsIs sub-db-modified)))

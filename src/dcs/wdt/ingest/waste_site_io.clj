@@ -7,7 +7,7 @@
 
 (def expected-year-totals {2019 1254})
 
-(def csv-file-str "data/ingesting/waste-site-io/csv-extract/2019.csv")
+(def csv-dir "data/ingesting/waste-site-io")
 
 (defn bigdec' [s]
   (bigdec (if (str/blank? s) "0" s)))
@@ -60,7 +60,7 @@
          (#(do (log/infof "Accepted records: %s" (count %)) %)))))
 
 (defn db-from-csv-file []
-  (let [db (->> csv-file-str
+  (let [db (->> (str csv-dir "/" (shared/dirname-with-max-supplied-date csv-dir) "/extract.csv")
                 io/file
                 csv-file-to-maps
                 (map #(assoc % :record-type :waste-site-io)))]

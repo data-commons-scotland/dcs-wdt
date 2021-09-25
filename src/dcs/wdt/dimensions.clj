@@ -70,7 +70,7 @@
                     :ewc-code :ewc-description :io-direction :category :item :material :material-L1 :material-L2 :management :recycling? :missed-bin? :operator :counter-party :activities :accepts
                     :phase :stream :idealStream :stratum
                     :code :qid
-                    :name :description :creator :created-when :supplier :supply-url :licence :licence-url :notes
+                    :name :description :supplied-date :max-date-in-data :creator :supplier :supply-url :licence :licence-url :notes
                     :multiplier :count :tonnes :tonnes-input :tonnes-treated-recovered :tonnes-output :tonnes-weight :tonnes-co2e :kgPerHhPerWk :avg-kg])
 (def place-it-last (count sortable-dims))
 

@@ -8,6 +8,8 @@
                            2020 33196.04M
                            2021 22746.00M})
 
+(def csv-dir "data/ingesting/bin-collection")
+
 (def recycling-aliases #{"Recycling"
                          "Stg Recycling"})
 
@@ -82,7 +84,7 @@
 
 
 (defn db-from-csv-files []
-  (let [db (->> "data/ingesting/bin-collection/originals/"
+  (let [db (->> (str csv-dir "/" (shared/dirname-with-max-supplied-date csv-dir) "/")
                 shared/find-csv-files
                 (map csv-file-to-maps)
                 flatten

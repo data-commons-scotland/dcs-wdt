@@ -4,7 +4,11 @@
             [clojure.java.io :as io]
             [clojure.data.json :as json]
             [taoensso.timbre :as log]
-            [dk.ative.docjure.spreadsheet :as xls]))
+            [dk.ative.docjure.spreadsheet :as xls]
+            [dcs.wdt.ingest.shared :as shared]))
+
+
+(def ingesting-dir "data/ingesting/fairshare")
 
 
 ;; ------------------------------------------------------
@@ -198,7 +202,10 @@
   "Create a seq of DB records from the Excel workbook that was supplied to us by The fair Share."
   []
   (let [;; read the workbookio/file 
-        filename "data/ingesting/fairshare/originals/Fairshare Donation Weights and Carbon Saving.xlsx"
+        filename (str ingesting-dir 
+                      "/" 
+                      (shared/dirname-with-max-supplied-date ingesting-dir) 
+                      "/Fairshare Donation Weights and Carbon Saving.xlsx")
         _        (log/infof "Reading CSV file: %s" filename)
         workbook (xls/load-workbook filename)
 
@@ -249,7 +256,10 @@
 (comment
 
   ;; read the workbook
-  (def workbook (xls/load-workbook "data/ingesting/fairshare/originals/Fairshare Donation Weights and Carbon Saving.xlsx"))
+  (def workbook (xls/load-workbook (str ingesting-dir 
+                                        "/" 
+                                        (shared/dirname-with-max-supplied-date ingesting-dir) 
+                                        "/Fairshare Donation Weights and Carbon Saving.xlsx")))
 
   ;; extract the data
   (def data0 (->> workbook

@@ -2,11 +2,12 @@
   (:require [clojure.string :as str]
             [clojure.java.io :as io]
             [clojure.pprint :as pp]
-            [taoensso.timbre :as log]))
+            [taoensso.timbre :as log]
+            [dcs.wdt.ingest.shared :as shared]))
 
 (def expected-ewc-codes-count 973)
 
-(def txt-file-str "data/ingesting/ewc-code/txt-extract/ewc-doc.txt")
+(def txt-dir "data/ingesting/ewc-code")
 
 (defn customise-list
   "Converts an externally-oriented list to an internally-oriented map."
@@ -35,7 +36,7 @@
        (#(do (log/infof "Accepted records: %s" (count %)) %))))
 
 (defn db-from-txt-file []
-  (let [db (->> txt-file-str
+  (let [db (->> (str txt-dir "/" (shared/dirname-with-max-supplied-date txt-dir) "/extract.txt")
                 io/file
                 txt-file-to-maps
                 (map #(assoc % :record-type :ewc-code)))]

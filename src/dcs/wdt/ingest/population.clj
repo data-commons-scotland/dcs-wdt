@@ -2,7 +2,8 @@
   (:require [clojure.string :as str]
             [clojure.java.io :as io]
             [taoensso.timbre :as log]
-            [dcs.wdt.ingest.shared :as shared]))
+            [dcs.wdt.ingest.shared :as shared])
+  (:import java.util.Date))
 
 (def expected-year-totals {2011 5299900
                            2012 5313600
@@ -14,7 +15,7 @@
                            2018 5438100
                            2019 5463300})
 
-(def csv-file-str "data/ingesting/population/csv-extract/2011-onwards.csv")
+(def csv-dir "data/ingesting/population")
 
 (def sparql "
 PREFIX qb: <http://purl.org/linked-data/cube#>
@@ -55,7 +56,13 @@ WHERE {
 (defn csv-file-from-sparql []
   (log/infof "Executing SPARQL query for population against: %s" shared/scotgov-service-url)
   (let [contents (shared/exec-sparql shared/scotgov-service-url sparql)
-        file (io/file csv-file-str)]
+        file (io/file (str csv-dir
+                           "/"
+                           (.format shared/yyyy-MM-dd-format (Date.))
+                           "_"
+                           (shared/max-year-from-sparql-query-result contents) "-12-31" ;; assume whole-year contents
+                           "/"
+                           "extract.csv"))]
     (log/infof "CSV rows: %s" (count (str/split-lines contents)))
     (io/make-parents (.getAbsolutePath file))
     (spit file contents)
@@ -88,7 +95,7 @@ WHERE {
          (#(do (log/infof "Accepted records: %s" (count %)) %)))))
 
 (defn db-from-csv-file []
-  (let [db (->> csv-file-str
+  (let [db (->> (str csv-dir "/" (shared/dirname-with-max-supplied-date csv-dir) "/extract.csv")
                 io/file
                 csv-file-to-maps
                 (map #(assoc % :record-type :population)))]

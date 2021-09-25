@@ -9,7 +9,9 @@
             [dcs.wdt.dimensions :as dim]
             [dcs.wdt.ingest.region :as region])
   (:import java.io.PushbackReader
-           java.net.URLEncoder))
+           java.net.URLEncoder
+           java.util.Date
+           java.text.SimpleDateFormat))
 
 (def region-aliases
   "For mapping to a consistent set of reasonable regions in the internal database."
@@ -104,6 +106,42 @@
                                "Content-Type" "application/x-www-form-urlencoded"}
                      :debug   false})))
 
+(def yyyy-MM-dd-format (SimpleDateFormat. "yyyy-MM-dd"))
+
+(def supplied-date-pattern (re-pattern "(\\d{4}-\\d{2}-\\d{2})((_)(\\d{4}-\\d{2}-\\d{2}))?"))
+
+(defn dirname-with-max-supplied-date [dir]
+  (->> dir
+       io/file
+       .listFiles
+       (filter #(.isDirectory %))
+       (map #(.getName %))
+       (map #(re-matches supplied-date-pattern %))
+       (remove nil?)
+       (map first)
+       sort
+       last))
+
+(defn max-year-from-sparql-query-result [sparql-query-result-as-a-string]
+  (->> sparql-query-result-as-a-string
+       csv/read-csv
+       (drop 1)
+       (map first) ;; assume 1st column contains the year
+       sort
+       last))
+
 (comment
-  (println scotgov-service-url)
+
+  scotgov-service-url
+
+  (.format yyyy-MM-dd-format (Date.))
+
+  (re-matches supplied-date-pattern "2021-01-31_2020-12-31")
+  (re-matches supplied-date-pattern "2021-01-31")
+  (re-matches supplied-date-pattern "2021-01-31_")
+  (re-matches supplied-date-pattern "2021-01-3")
+
+  (dirname-with-max-supplied-date "tmp/test-dirname-logic")
+
+  
   )

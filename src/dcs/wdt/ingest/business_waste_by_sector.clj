@@ -12,6 +12,8 @@
                            2017 3335632                     ;; Upstream provided value is 3335638
                            2018 3236538})                   ;; Upstream provided value is 3236534})
 
+(def csv-dir "data/ingesting/business-waste-by-sector")
+
 (def material-column-label "waste-category")                ;; Expected to have been edited into each CSV extract
 
 (defn split-by-business-sector
@@ -75,7 +77,7 @@
          (map #(assoc % :year year)))))
 
 (defn db-from-csv-files []
-  (let [db (->> "data/ingesting/business-waste/csv-extracts/by-sector/"
+  (let [db (->> (str csv-dir "/" (shared/dirname-with-max-supplied-date csv-dir) "/")
                 shared/find-csv-files
                 (map csv-file-to-maps)
                 flatten

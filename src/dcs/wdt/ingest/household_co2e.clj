@@ -13,7 +13,7 @@
                            2018 5759373.09M
                            2019 5664989.68M})
 
-(def csv-file-str "data/ingesting/household-co2e/csv-extract/2011-onwards.csv")
+(def csv-dir "data/ingesting/household-co2e")
 
 (def region-column-label "Region")
 
@@ -57,7 +57,7 @@
          (#(do (log/infof "Accepted records: %s" (count %)) %)))))
 
 (defn db-from-csv-file []
-  (let [db (->> csv-file-str
+  (let [db (->> (str csv-dir "/" (shared/dirname-with-max-supplied-date csv-dir) "/extract.csv")
                 io/file
                 csv-file-to-maps
                 (map #(assoc % :record-type :household-co2e)))]

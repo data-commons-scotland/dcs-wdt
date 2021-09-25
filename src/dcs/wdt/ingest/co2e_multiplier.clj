@@ -5,7 +5,7 @@
 
 (def expected-count 37)
 
-(def csv-file-str "data/ingesting/co2e-multiplier/csv-extract/co2e-multiplier.csv")
+(def csv-dir "data/ingesting/co2e-multiplier")
 
 (defn customise-map
   "Converts an externally-oriented map to an internally-oriented map."
@@ -28,7 +28,7 @@
          (#(do (log/infof "Accepted records: %s" (count %)) %)))))
 
 (defn db-from-csv-file []
-  (let [db (->> csv-file-str
+  (let [db (->> (str csv-dir "/" (shared/dirname-with-max-supplied-date csv-dir) "/extract.csv")
                 io/file
                 csv-file-to-maps
                 (map #(assoc % :record-type :co2e-multiplier)))]
