@@ -16,7 +16,7 @@
                                                                          :tonnes     (->> coll
                                                                                           (map :tonnes)
                                                                                           (apply +))})))
-        output-records (map (fn [{:keys [region year management tonnes]}] {:region   region
+        output-records (map (fn [{:keys [region year management tonnes]}] {:area     region
                                                                            :year     year
                                                                            :endState management
                                                                            :tonnes   (double (/ tonnes (lookup-population region year)))})
@@ -24,7 +24,7 @@
         min-year (->> output-records (map :year) (apply min))
         max-year (->> output-records (map :year) (apply max))
         max-tonnes-per-year (->> output-records
-                                 (group-by (juxt :region :year))
+                                 (group-by (juxt :area :year))
                                  vals
                                  (map (fn [vec-of-3] (->> vec-of-3 ;; i.e. the 3 managements
                                                           (map :tonnes)
@@ -42,9 +42,9 @@
 
 (defn generate-js-file-for-household-co2e [lookup-population db file]
   (let [household-co2e (filter #(= :household-co2e (:record-type %)) db)
-        output-records (map (fn [{:keys [region year _management tonnes]}] {:region region
-                                                                           :year   year
-                                                                           :tonnes (double (with-precision 8 (/ tonnes (lookup-population region year))))})
+        output-records (map (fn [{:keys [region year _management tonnes]}] {:area   region
+                                                                            :year   year
+                                                                            :tonnes (double (with-precision 8 (/ tonnes (lookup-population region year))))})
                             household-co2e)
         min-year (->> output-records (map :year) (apply min))
         max-year (->> output-records (map :year) (apply max))
@@ -65,7 +65,7 @@
                              ;; Calculate the tonnes roll-up for each (region, year) pair
                              (group-by (juxt :region :year))
                              (map (fn [[[region year] coll]] {:designation "Household"
-                                                              :region      region
+                                                              :area        region
                                                               :year        year
                                                               :tonnes      (->> coll
                                                                                 (map :tonnes)
@@ -75,7 +75,7 @@
                             ;; Calculate the tonnes roll-up for each (region, year) pair
                             (group-by (juxt :region :year))
                             (map (fn [[[region year] coll]] {:designation "Business"
-                                                             :region      region
+                                                             :area        region
                                                              :year        year
                                                              :tonnes      (->> coll
                                                                                (map :tonnes)
@@ -87,7 +87,7 @@
         output-records (filter #(and (<= (:year %) max-year) (>= (:year %) min-year))
                                (concat household-waste business-waste))
         max-tonnes-per-year (->> output-records
-                                 (group-by (juxt :region :year))
+                                 (group-by (juxt :area :year))
                                  vals
                                  (map (fn [vec-of-2] (->> vec-of-2 ;; i.e. the 2 designations
                                                           (map :tonnes)
