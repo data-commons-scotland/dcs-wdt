@@ -21,6 +21,8 @@
            ;; Generate CSV files for general use. Run using: `clj -X:general`
            :general         {:exec-fn  dcs.wdt.api/generate-csv-files-for-general-use
                              :jvm-opts ["-Xmx3g"]}
+           
+           ;; TODO: Remove the next 3 targets when their using code has been changed to no longer require these customised data formats
 
            ;; Generate JavaScript files for time-series-map. Run using: `clj -X:tseries`
            :tseries         {:exec-fn  dcs.wdt.api/generate-js-files-for-time-series-map

@@ -106,7 +106,7 @@
 (defn generate-js-files [db]
   (let [population (filter #(= :population (:record-type %)) db)
         population-for-lookup (group-by (juxt :region :year) population)
-        lookup-population (fn [region year] (-> population-for-lookup (get [region year]) first :population))]
+        lookup-population (fn [region year] (-> population-for-lookup (get [region year]) first :count))]
     (generate-js-file-for-household-waste lookup-population db (io/file (str output-dir "hw-mgmt-data.js")))
     (generate-js-file-for-household-co2e lookup-population db (io/file (str output-dir "hw-co2e-data.js")))
     (generate-js-file-for-household-vs-business lookup-population db (io/file (str output-dir "hvb-data.js")))))
