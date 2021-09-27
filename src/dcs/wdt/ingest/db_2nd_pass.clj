@@ -90,22 +90,6 @@
     (concat sub-db-toRemainAsIs sub-db-modified)))
 
 
-(defn add-record-counts-into-meta
-  "Over meta records...
-   Add a count of each of the other record types."  
-  [db]
-  (let [sub-db-toRemainAsIs (filter #(not= :meta (:record-type %)) db)
-        sub-db-toBeModified (filter #(= :meta (:record-type %)) db)
-        
-        sub-db-modified (->> sub-db-toBeModified
-                             (map (fn [m] (let [target-record-type (keyword (:name m))
-                                                target-record-count (->> db
-                                                                         (filter #(= target-record-type (:record-type %)))
-                                                                         count)]
-                                            (assoc m :count target-record-count)))))]
-    (concat sub-db-toRemainAsIs sub-db-modified)))
-
-
 (defn add-supplied-date-etc-into-meta
   "Over meta records...
    Add the supplied-date and max-date-in-data.
@@ -128,10 +112,28 @@
                                     
                                     (let [dated-dirname    (shared/dirname-with-max-supplied-date (str ingesting-dir-root "/" (name->dirname name)))
                                           parsed           (when dated-dirname (re-matches shared/supplied-date-pattern dated-dirname))
-                                          supplied-date    (or (second parsed) "n/a")
-                                          max-date-in-data (or (nth parsed 4) "n/a")]
+                                          supplied-date    (or (second parsed) "")
+                                          max-date-in-data (or (nth parsed 4) "")]
                                       
                                       (assoc m
                                              :supplied-date supplied-date
                                              :max-date-in-data max-date-in-data)))))]
     (concat sub-db-toRemainAsIs sub-db-modified)))
+
+
+(defn add-counts-into-meta
+  "Over meta records...
+   Add the record-count and attribute-count."
+  [db]
+  (let [sub-db-toRemainAsIs (filter #(not= :meta (:record-type %)) db)
+        sub-db-toBeModified (filter #(= :meta (:record-type %)) db)
+
+        sub-db-modified     (for [meta-record sub-db-toBeModified]
+                              (let [data-records    (filter #(= (keyword (:name meta-record)) (:record-type %)) db)
+                                    record-count    (count data-records)
+                                    attribute-count (dec (count (keys (first data-records))))] ;; assume that all records of a type have the same attributes 
+                                (assoc meta-record
+                                       :record-count record-count
+                                       :attribute-count attribute-count)))]
+    (concat sub-db-toRemainAsIs sub-db-modified)))
+

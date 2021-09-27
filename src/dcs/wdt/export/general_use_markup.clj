@@ -43,21 +43,21 @@ useful dimensions.
 
 ==== The DATASETS-COUNT _easier_ datasets
 
-[width=\"100%\",cols=\"<,<,^,<,<,<,<,<,<\",stripes=\"hover\"]
+[width=\"100%\",cols=\"<,<,<,^,<,<,<,<,<\",stripes=\"hover\"]
 
 |=========================================================
 
-4+^h|dataset
-5+^h|source
+5+^h|dataset
+4+^h|source
 
 1+<h| name
 1+<h| description
+1+<h| max date in data
 1+<h| rows x cols
 1+<h| data files
-1+<h| creator
-1+<h| max date in data
-1+<h| supplier
 1+<h| supplied when
+1+<h| supplier
+1+<h| creator
 1+<h| licence
 
 DATASETS-ROWS
@@ -69,15 +69,15 @@ DATASETS-ROWS
         datasets-count (str (count metas))
         datasets-str (str/join "\n\n"
                                (for [meta metas]
-                                 (format "| anchor:%s[] %s | %s |  %s x %s | link:data/README.adoc#%s[files] | %s | %s | %s[%s] | %s | %s[%s]"
+                                 (format "| anchor:%s[] %s | %s | %s |  %s x %s | link:data/README.adoc#%s[files] | %s | %s[%s] | %s | %s[%s]"
                                          (:name meta) (:name meta)
                                          (:description meta)
+                                         (:max-date-in-data meta)
                                          (:record-count meta) (:attribute-count meta)
                                          (:name meta)
-                                         (:creator meta)
-                                         (:max-date-in-data meta)
-                                         (:supply-url meta) (:supplier meta)
                                          (:supplied-date meta)
+                                         (:supply-url meta) (:supplier meta)
+                                         (:creator meta)
                                          (:licence-url meta) (:licence meta))))
         content (-> content-template
                     (str/replace "DATASETS-COUNT" datasets-count)

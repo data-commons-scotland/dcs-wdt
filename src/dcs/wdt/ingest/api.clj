@@ -52,8 +52,8 @@
        db-2nd-pass/rollup-ewc-codes-of-waste-site-material-io
        db-2nd-pass/add-sepa-material-into-ewc-code
        db-2nd-pass/remove-ewc-code-from-sepa-material
-       db-2nd-pass/add-record-counts-into-meta
-       db-2nd-pass/add-supplied-date-etc-into-meta))
+       db-2nd-pass/add-supplied-date-etc-into-meta
+       db-2nd-pass/add-counts-into-meta))
 
 (defn describe-source
   "Returns a string that describes the sourcing of the specified type of data."

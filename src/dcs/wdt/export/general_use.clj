@@ -18,14 +18,8 @@
 
 
 (defn- datasets-metadata [db]
-  (for [meta-record (sort-by :name (filter #(= :meta (:record-type %)) db))]
-    (let [data-records    (filter #(= (keyword (:name meta-record)) (:record-type %)) db)
-          record-count    (count data-records)
-          attribute-count (dec (count (keys (first data-records))))] ;; assume that all records of a type have the same attributes 
-      (assoc meta-record
-             :record-count record-count
-             :attribute-count attribute-count))))
-      
+  (sort-by :name (filter #(= :meta (:record-type %)) db)))
+  
 
 (defn- dimensions-metadata [db]
   (sort-by (comp dims/ord keyword first)                    ;; sort by dimension (with the ordering defined by ord)
