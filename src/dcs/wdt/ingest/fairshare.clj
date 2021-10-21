@@ -595,6 +595,18 @@
   ;; calc total weight across all years
   (apply + (map :tonnes-weight data3))
   
+
+  ;; for the research report, plot the CO2e avoided per year in terms of cars
+  (binding [*out* (io/writer "tmp/fairshare/chart-9-cars-worth-for-research-report.vl.json")]
+    (json/pprint
+     (-> cars-worth-chart-template
+         (assoc :width 360)
+         (assoc :height 450)
+         (assoc :background "#F8F8F8")
+         (assoc :title "carbon savings by The Fair Share")
+         (assoc-in [:data :values] data4))))
+
+  ;; -> tmp/fairshare/chart-9-cars-worth-for-research-report.vl.json ...look at it with a a Vega viewer
   )
   
 

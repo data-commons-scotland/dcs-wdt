@@ -803,4 +803,49 @@
      (-> subcategory-by-avg-count-per-month-trend-chart-template
          (assoc-in [:data :values] items-by-avg-count-per-month-trend))))
   
-  )
+
+
+  ;; for the research report, plot the per-category Co2e avoided
+  (def category-co2e-avoided-for-research-report-chart-template
+    {:schema     "https://vega.github.io/schema/vega/v5.json"
+     :width 450
+     :height 620
+     :background "#F8F8F8"          
+     :title      "carbon savings (Mar 2017 - Aug 2019) by Alloa Community Enterprises"
+     :data       {:values :PLACEHOLDER}
+     :transform  [{:calculate "datum.flight==1 ? '✈️' : ''"
+                   :as        "emoji"}
+                  {:window  [{:op    "sum"
+                              :field "flight"
+                              :as    "flights"}]
+                   :groupby ["category"]}]
+     :mark       {:type  "text"
+                  :align "left"}
+     :encoding   {:x       {:field "category"
+                            :type  "nominal"
+                            :axis  {:title "furniture category"
+                                    :labelAngle 45
+                                    :labelBound 45}
+                            :sort  {:field "co2e"
+                                    :order "descending"}}
+                  :y       {:field "flights"
+                            :type  "quantitative"
+                            :axis  {:title "equivalent number of flights"}}
+                  :text    {:field "emoji"
+                            :type  "nominal"}
+                  :size    {:value 15}
+                  :tooltip [{:field "category"
+                             :type  "nominal"}
+                            {:title "kg of CO2e"
+                             :field "co2e"
+                             :type  "quantitative"}
+                            {:title "equivalent number of flights"
+                             :field "flights-total"
+                             :type  "quantitative"}]}
+     :config     {:axisX {:grid false}}})
+  (binding [*out* (io/writer "tmp/ace-furniture/chart-9-category-co2e-avoided-for-research-report.vl.json")]
+    (json/pprint
+     (-> category-co2e-avoided-for-research-report-chart-template
+         (assoc-in [:encoding :y :scale] {:type "log"})
+         (assoc-in [:data :values] flights-per-category))))
+)
