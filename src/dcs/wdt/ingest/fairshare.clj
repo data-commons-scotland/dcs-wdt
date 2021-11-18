@@ -132,7 +132,10 @@
                :block-specs [(block-spec 2 16 "A" "B" "G")]}
    "Autumn 2019" {:year 2019
                   :quarter 4
-                  :block-specs [(block-spec 2 16 "A" "B" "G")]}})
+                  :block-specs [(block-spec 2 16 "A" "B" "G")]}
+   "Summer 2021" {:year 2021
+               :quarter 3
+               :block-specs [(block-spec 2 16 "A" "B" "G")]}})
 
 (defn read-row [block-spec row]
   (let [cell-seq (xls/cell-seq row)]
@@ -162,6 +165,7 @@
 (def aliases
   {"Alluminium"                             "Aluminium"
    "Food"                                   "Food & Drink"
+   "Food & Drink*"                          "Food & Drink"
    "Paper"                                  "Paper & Cardboard"
    "Card"                                   "Paper & Cardboard"
    "Glass"                                  "Glass (Mixed - assumed go to aggregates)"
@@ -443,7 +447,7 @@
                          :year-tonnes-co2e 0
                          :year-cars        0
                          :car              0})
-                  (cons {:date             "2020-01-01"
+                  (cons {:date             "2022-01-01"
                          :year-tonnes-co2e 0
                          :year-cars        0
                          :car              0})))

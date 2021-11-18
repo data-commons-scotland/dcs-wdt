@@ -451,6 +451,99 @@
          (-> summary-disposal-appropriateness-chart-template
              (assoc-in [:data :values] kgPerHhPerWk_labelled))))
   
+      
+  ;; INVESTIGATE how-to implement a "signpost" layer
+  ;; look at more detail
+  ;;   * For each stratum/material-L2 combo, plot its stream quantities beside each other.
+  ;;   * Also superimpose info about stream appropriateness.
+  ;;   * Use a non-linear scale to make the smaller amounts more evident.
+  (defn find-1st-index [coll pred] (->> coll
+                                        (keep-indexed #(if (pred %2) %1 nil))
+                                        first))
+  (def index-of-target-data-point (find-1st-index kgPerHhPerWk_labelled #(and (= "Green garden waste" (:material-L2 %))
+                                                                              (= "urban £££" (:stratum %))
+                                                                              (= "grey bin" (:stream %)))))
+  (def kgPerHhPerWk_labelled_and_signposted (-> kgPerHhPerWk_labelled
+                                                vec
+                                                (assoc-in [index-of-target-data-point :signpost] "ℹ️")
+                                                (assoc-in [index-of-target-data-point :signpost-text] "Signpost text...")
+                                                (assoc-in [index-of-target-data-point :signpost-url] "javascript:window.open('https://news.bbc.co.uk','_blank');")))
+  (def layer-normal {:mark     "bar"
+               :encoding {:x           {:field "kg"
+                                        :type  "quantitative" 
+                                        :scale {:type "sqrt"}
+                                        :axis  {:title "avg kg/hh/wk"}}
+                          :y           {:field "stream"
+                                        :type  "nominal"
+                                        :axis  {:title ""}}
+                          :color       {:field  "material-L2"
+                                        :type   "nominal"
+                                        :scale  {:scheme "tableau20"}
+                                        :legend nil}
+                          :fillOpacity {:value 0.5}
+                          :tooltip     [{:field "stratum"
+                                         :type  "nominal"
+                                         :title "house type (location & CTax)"}
+                                        {:field "material-L1"
+                                         :type  "nominal"
+                                         :title "material (high level)"}
+                                        {:field "material-L2"
+                                         :type  "nominal"
+                                         :title "material (in detail)"}
+                                        {:field "stream"
+                                         :type  "nominal"
+                                         :title "(actual) disposal"}
+                                        {:field "idealStream"
+                                         :type  "nominal"
+                                         :title "ideal disposal"}
+                                        {:field "kg"
+                                         :type  "quantitative"
+                                         :title "kg per household per week"}]}})
+  (def layer-red-outlines (-> layer-normal
+                               (assoc :transform [{:filter "(datum.kg > 0) && (datum.stream != datum.idealStream)"}])
+                               (assoc-in [:encoding :fillOpacity :value] 0)
+                               (assoc-in [:encoding :stroke :value] "red")
+                               (assoc-in [:encoding :strokeWidth :value] 1)))
+  (def layer-signposts (-> layer-normal
+                               (assoc :transform [{:filter "datum.signpost != null"}])
+                               (assoc-in [:encoding :fillOpacity :value] 1)
+                               (assoc :mark {:type "text" :align "left" :dx 10 #_:baseline #_"bottom" :fontWeight "bold" :fontSize 14})
+                               (assoc-in [:encoding :text :field] "signpost")
+                               (assoc-in [:encoding :tooltip #_6] {:field "signpost-text" :type "nominal"})
+                               (assoc-in [:encoding :href] {:field "signpost-url" :type "nominal"})))
+  (def detailed-disposal-appropriateness-with-signposts-chart-template
+    {:schema     "https://vega.github.io/schema/vega/v5.json"
+     :background "floralwhite"
+     :spacing    3
+     :data       {:values :PLACEHOLDER}
+     :transform  [{:aggregate [{:op    "mean"
+                                :field "kgPerHhPerWk"
+                                :as    "kg"}]
+                   :groupby   ["stratum" "material-L1" "material-L2" "stream" "idealStream" "signpost" "signpost-text" "signpost-url"]}]
+     :facet      {:column {:field  "stratum"
+                           :type   "nominal"
+                           :sort   stratum-labels
+                           :header {:title "household type (location type & council tax band)"}}
+                  :row    {:field  "material-L2"
+                           :type   "nominal"
+                           :header {:title      "material (in detail)"
+                                    :labelAngle 0
+                                    :labelAlign "left"}
+                           :sort   {:field "kg"
+                                    :op    "max"
+                                    :order "descending"}}}
+     :spec       {:width  120
+                  :height 20
+                  :layer  [layer-normal
+                           layer-red-outlines
+                           layer-signposts]}})
+(binding [*out* (io/writer "tmp/household-waste-analysis/chart-5-detailed-disposal-appropriateness-with-signposts.vl.json")]
+  (json/pprint
+   (-> detailed-disposal-appropriateness-with-signposts-chart-template
+       (assoc-in [:data :values] kgPerHhPerWk_labelled_and_signposted))))
+
+; 👋  ✋  ❗  ⁉️  🔴  ℹ️  
+
   )
   
 

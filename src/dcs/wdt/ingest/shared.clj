@@ -108,6 +108,14 @@
 
 (def yyyy-MM-dd-format (SimpleDateFormat. "yyyy-MM-dd"))
 
+;;
+;; Note: This program expects the ingesting directory structure to be of the form:
+;;
+;;       data/ingesting/<record-type>/<supplied-date>_<max-date-in-data>/<the-actual-data-files>
+;;
+;;   where the "_<max-date-in-data>" part is optional for some record-types.
+;;
+
 (def supplied-date-pattern (re-pattern "(\\d{4}-\\d{2}-\\d{2})((_)(\\d{4}-\\d{2}-\\d{2}))?"))
 
 (defn dirname-with-max-supplied-date [dir]
