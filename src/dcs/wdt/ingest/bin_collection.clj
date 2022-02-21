@@ -1,5 +1,8 @@
 (ns dcs.wdt.ingest.bin-collection
   (:require [clojure.string :as str]
+            [clojure.pprint :as pp]
+            [clojure.java.io :as io]
+            [clojure.data.csv :as csv]
             [taoensso.timbre :as log]
             [dcs.wdt.ingest.shared :as shared]))
 
@@ -93,3 +96,64 @@
     (when-let [error (shared/check-year-totals :tonnes expected-year-totals db)]
       (throw (RuntimeException. (format "bin-collection has year-totals error...\nExpected: %s\nActual: %s" (first error) (second error)))))
     db))
+
+
+;; ------------------------------------------------------
+;; for REPL use
+
+(comment
+  
+  (def data0 (db-from-csv-files))
+
+  (pp/print-table (take-last 30 data0))
+
+  (def data1 (->> data0
+                  (filter #(= (:recycling? %) true))))
+  
+  
+  ;; ************************ begin PASI related ************************
+  
+  ;; Depends on the value: data1
+  ;;   which can be established by running some of the above code. 
+  ;; Take a look at samples of that value...
+  
+  (pp/print-table [:year :quarter :material :tonnes]
+                  (concat (take 5 data1)
+                          (take-last 5 data1)))
+
+  ;; prep for output files
+  (def pasi-dir "tmp/pasi/")
+  (io/make-parents (str pasi-dir "dummy"))
+
+  ;; write StcilBin.csv
+  (def header-row ["name"])
+  (def data-rows (->> data1
+                      (map #(vector (:material %)))
+                      distinct
+                      (sort-by #(str/lower-case (first %)))))
+  (with-open [wtr (io/writer (str pasi-dir "StcilBin.csv"))]
+    (csv/write-csv wtr (cons header-row data-rows)))
+  
+  ;; write StcilKerbsideRecycling.csv
+  (def header-row ["from" "to" "bin" "batchTonnes"])
+    (defn ->from [{:keys [year quarter]}]
+      (condp = quarter
+        1 (str year "-01-01")
+        2 (str year "-04-01")
+        3 (str year "-07-01")
+        4 (str year "-10-01")
+        :else (throw (ex-info (str "Bad quarter value: " quarter) {}))))
+  (defn ->to [{:keys [year quarter]}]
+      (condp = quarter
+        1 (str year "-04-01")
+        2 (str year "-07-01")
+        3 (str year "-10-01")
+        4 (str (inc year) "-01-01")
+        :else (throw (ex-info (str "Bad quarter value: " quarter) {}))))
+  (def data-rows (map #(vector (->from %) (->to %) (:material %) (:tonnes %)) data1))
+  (with-open [wtr (io/writer (str pasi-dir "StcilKerbsideRecycling.csv"))]
+    (csv/write-csv wtr (cons header-row data-rows)))
+
+  ;; ************************ end PASI related  ************************
+  
+  )

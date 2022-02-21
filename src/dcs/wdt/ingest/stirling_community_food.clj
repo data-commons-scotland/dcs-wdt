@@ -1,11 +1,14 @@
 (ns dcs.wdt.ingest.stirling-community-food
-  (:require [clojure.pprint :as pp]
+  (:require [clojure.string :as str]
+            [clojure.pprint :as pp]
             [clojure.java.io :as io]
+            [clojure.data.csv :as csv]
             [clojure.data.json :as json]
             [taoensso.timbre :as log]
             [dk.ative.docjure.spreadsheet :as xls]
             [dcs.wdt.ingest.shared :as shared])
-  (:import java.text.SimpleDateFormat))
+  (:import java.text.SimpleDateFormat
+           java.time.LocalDate))
 
 
 (def ingesting-dir "data/ingesting/stirling-community-food")
@@ -721,6 +724,67 @@
       (println "  });")
       (println "</script>")
       (println "<div id=\"container\" style=\"width:880px; height:400px;\"></div>")))
+
+  
+  ;; ************************ begin PASI related ************************
+
+  ;; Depends on the value: food
+  ;;   which can be established by running some of the above code. 
+  ;; Take a look at samples of that value...
+
+  (pp/print-table [:yyyy-MM-dd :io-direction :counter-party :tonnes]
+                  (concat (take 5 food)
+                          (take-last 5 food)))
+
+  ;; prep for output files
+  (def pasi-dir "tmp/pasi/")
+  (io/make-parents (str pasi-dir "dummy"))
+
+  ;; write StcmfSource.csv
+  (def header-row ["name"])
+  (def data-rows (->> food
+                      (filter #(= (:io-direction %) "in"))
+                      (map #(vector (:counter-party %)))
+                      distinct
+                      (sort-by #(str/lower-case (first %)))))
+  (with-open [wtr (io/writer (str pasi-dir "StcmfSource.csv"))]
+          (csv/write-csv wtr (cons header-row data-rows)))
+  
+    ;; write StcmfDestination.csv
+  (def header-row ["name"])
+  (def data-rows (->> food
+                      (filter #(= (:io-direction %) "out"))
+                      (map #(vector (:counter-party %)))
+                      distinct
+                      (sort-by #(str/lower-case (first %)))))
+  (with-open [wtr (io/writer (str pasi-dir "StcmfDestination.csv"))]
+          (csv/write-csv wtr (cons header-row data-rows)))
+  
+  ;; write StcmfIncomingFood.csv
+  (def header-row ["from" "to" "source" "batchKg"])
+  (defn ->to [{:keys [yyyy-MM-dd]}]
+      (-> yyyy-MM-dd
+          LocalDate/parse
+          (.plusDays 1)
+          str))
+  (def data-rows (map #(vector (:yyyy-MM-dd %) (->to %) (:counter-party %) (* (:tonnes %) 1000))
+                      (filter #(= (:io-direction %) "in") food)))
+  (with-open [wtr (io/writer (str pasi-dir "StcmfIncomingFood.csv"))]
+          (csv/write-csv wtr (cons header-row data-rows)))
+  
+  ;; write StcmfRedistributedFood.csv
+  (def header-row ["from" "to" "destination" "batchKg"])
+  (defn ->to [{:keys [yyyy-MM-dd]}]
+      (-> yyyy-MM-dd
+          LocalDate/parse
+          (.plusDays 1)
+          str))
+  (def data-rows (map #(vector (:yyyy-MM-dd %) (->to %) (:counter-party %) (* (:tonnes %) 1000))
+                      (filter #(= (:io-direction %) "out") food)))
+  (with-open [wtr (io/writer (str pasi-dir "StcmfRedistributedFood.csv"))]
+          (csv/write-csv wtr (cons header-row data-rows)))
+
+  ;; ************************ end PASI related  ************************
 
   )
   

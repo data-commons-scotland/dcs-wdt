@@ -2,6 +2,7 @@
   (:require [clojure.string :as str]
             [clojure.pprint :as pp]
             [clojure.java.io :as io]
+            [clojure.data.csv :as csv]
             [clojure.data.json :as json]
             [taoensso.timbre :as log]
             [dk.ative.docjure.spreadsheet :as xls]
@@ -611,6 +612,53 @@
          (assoc-in [:data :values] data4))))
 
   ;; -> tmp/fairshare/chart-9-cars-worth-for-research-report.vl.json ...look at it with a a Vega viewer
+  
+  
+  ;; ************************ begin PASI related ************************
+
+  ;; Depends on the value: data3
+  ;;   which can be established by running some of the above code. 
+  ;; Take a look at samples of that value...
+
+  (pp/print-table [:region :year :quarter :yyyy-MM-dd :material :tonnes-weight :tonnes-co2e]
+                  (concat (take 5 data3)
+                          (take-last 5 data3)))
+
+  ;; prep for output files
+  (def pasi-dir "tmp/pasi/")
+  (io/make-parents (str pasi-dir "dummy"))
+
+  ;; write FrshrMaterialCategory.csv
+  (def header-row ["name"])
+  (def data-rows (->> data3
+                      (map #(vector (:material %)))
+                      distinct
+                      (sort-by #(str/lower-case (first %)))))
+  (with-open [wtr (io/writer (str pasi-dir "FrshrMaterialCategory.csv"))]
+          (csv/write-csv wtr (cons header-row data-rows)))
+  
+  ;; write FrshrReusedMaterial.csv
+  (def header-row ["from" "to" "material" "batchKg"])
+  (defn ->from [{:keys [year quarter]}]
+      (condp = quarter
+        1 (str year "-01-01")
+        2 (str year "-04-01")
+        3 (str year "-07-01")
+        4 (str year "-10-01")
+        :else (throw (ex-info (str "Bad quarter value: " quarter) {}))))
+  (defn ->to [{:keys [year quarter]}]
+      (condp = quarter
+        1 (str year "-04-01")
+        2 (str year "-07-01")
+        3 (str year "-10-01")
+        4 (str (inc year) "-01-01")
+        :else (throw (ex-info (str "Bad quarter value: " quarter) {}))))
+  (def data-rows (map #(vector (->from %) (->to %) (:material %) (* (:tonnes-weight %) 1000)) data3))
+  (with-open [wtr (io/writer (str pasi-dir "FrshrReusedMaterial.csv"))]
+          (csv/write-csv wtr (cons header-row data-rows)))
+
+  ;; ************************ end PASI related  ************************
+  
   )
   
 

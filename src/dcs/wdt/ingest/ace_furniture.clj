@@ -848,4 +848,42 @@
      (-> category-co2e-avoided-for-research-report-chart-template
          (assoc-in [:encoding :y :scale] {:type "log"})
          (assoc-in [:data :values] flights-per-category))))
+  
+
+  ;; ************************ begin PASI related ************************
+
+  ;; Depends on the values: avg-weights, counts
+  ;;   which can be established by running some of the above code. 
+  ;; Take a look at samples of those values...
+
+  (pp/print-table [:category :item :avg-kg]
+                  (concat (take 5 avg-weights)
+                          (take-last 5 avg-weights)))
+  
+  (pp/print-table [:category :item :yyyy-MM-dd :count]
+                  (concat (take 5 counts)
+                          (take-last 5 counts)))
+
+  ;; prep for output files
+  (def pasi-dir "tmp/pasi/")
+  (io/make-parents (str pasi-dir "dummy"))
+
+  ;; write AceFurnitureDescription.csv
+  (def header-row ["category" "subcategory" "itemKg"])
+  (def data-rows (->> avg-weights
+                      (map #(vector (:category %) (:item %) (:avg-kg %)))
+                      (sort-by (juxt first second))))
+  (with-open [wtr (io/writer (str pasi-dir "AceFurnitureDescription.csv"))]
+          (csv/write-csv wtr (cons header-row data-rows)))
+  
+  ;; write AceReusedFurniture.csv
+  (def header-row ["from" "to" "category" "subcategory" "itemCount"])
+  (def to->from {"2018-02-28" "2017-03-01"
+                 "2019-02-28" "2018-03-01"
+                 "2019-08-31" "2019-03-01"})
+  (def data-rows (map #(vector (to->from (:yyyy-MM-dd %)) (:yyyy-MM-dd %) (:category %) (:item %) (:count %)) counts))
+  (with-open [wtr (io/writer (str pasi-dir "AceReusedFurniture.csv"))]
+          (csv/write-csv wtr (cons header-row data-rows)))
+
+  ;; ************************ end PASI related  ************************
 )
