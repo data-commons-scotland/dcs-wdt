@@ -10,7 +10,7 @@
 (def expected-year-totals {2018 32276.84M
                            2019 32166.32M
                            2020 33196.04M
-                           2021 22746.00M})
+                           2021 32161.96M})
 
 (def csv-dir "data/ingesting/bin-collection")
 
@@ -168,7 +168,7 @@
 
   (def data0 (finer-grained_db-from-csv-files))
 
-  (->> data0 (map :tonnes) (apply +)) ;; expect 120,385.2
+  (->> data0 (map :tonnes) (apply +)) ;; expect 129,801.16
 
   (pp/print-table (take-last 30 data0))
 
@@ -176,7 +176,7 @@
                   (filter #(= (:recycling? %) true))
                   (sort-by :yyyy-MM-dd)))
 
-  (->> data1 (map :tonnes) (apply +)) ;; expect 29,311.9
+  (->> data1 (map :tonnes) (apply +)) ;; expect 32,004.28
   
   
   
