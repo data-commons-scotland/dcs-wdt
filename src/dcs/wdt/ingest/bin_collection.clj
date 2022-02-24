@@ -104,6 +104,9 @@
 
 (comment
   
+  ;; ************************ begin PASI related ************************
+
+  
   ;; ....... BEGIN alt parsing for finer grained data ..................
 
   ;; a FINER GRAINED alternative to the function that is invoked by ther main WDT functionality
@@ -113,13 +116,12 @@
     (let [internal-transfer?-column-label (if (_2021-onwards? m) "Route" "Account")
           internal-transfer? (contains? internal-transfer-aliases (str/trim (get m internal-transfer?-column-label)))
           material-column-label (if (_2021-onwards? m) "Waste Collected" "Waste")
-          material (get material-aliases (str/trim (get m material-column-label)))
+          material (str/trim (get m material-column-label)) ;; Don't alias
           recycling?-column-label (if (_2021-onwards? m) "Category" "Contract")
           recycling? (contains? recycling-aliases (str/trim (get m recycling?-column-label)))
           missed-bin? (= "189 Missed Bins" (str/trim (get m "Account")))
           date (get m "Date")]
-      (if (and (not internal-transfer?)
-               (contains? shared/materials-set material))
+      (if (not internal-transfer?)
         {:yyyy-MM-dd  (str (subs date 6 10) "-" (subs date 3 5) "-" (subs date 0 2))
          :HH_mm       (str (subs date 11 13) ":" (subs date 14 16))
          :route       (get m internal-transfer?-column-label)
@@ -177,11 +179,7 @@
   (->> data1 (map :tonnes) (apply +)) ;; expect 29,311.9
   
   
-  ;; ************************ begin PASI related ************************
   
-  ;; Depends on the value: data1
-  ;;   which can be established by running some of the above code. 
-  ;; Take a look at samples of that value...
   
   (pp/print-table [:year :quarter :material :tonnes :yyyy-MM-dd :HH_mm :route]
                   (concat (take 5 data1)
